@@ -1,0 +1,10 @@
+# SDDM and theme dependencies
+
+description: SDDM display manager and Noctalia theme dependencies
+
+packages:
+  - sddm
+  - qt5-graphicaleffects
+  - qt5-quickcontrols2
+  - qt5-quickcontrols
+  - git

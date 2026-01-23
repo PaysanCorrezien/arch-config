@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# ensure-session <name> <dir> [command...]
+
+name="$1"
+dir="$2"
+shift 2
+
+if ! tmux has-session -t "$name" 2>/dev/null; then
+  if [ $# -gt 0 ]; then
+    tmux new-session -ds "$name" -c "$dir" "$@"
+  else
+    tmux new-session -ds "$name" -c "$dir"
+  fi
+fi
+
+tmux switch-client -t "$name"

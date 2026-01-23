@@ -1,0 +1,552 @@
+{
+  "detectedCompositor": "niri",
+  "cheatsheetData": [
+    {
+      "title": "Applications",
+      "binds": [
+        {
+          "keys": "MOD+RETURN",
+          "desc": "Toggle Dropdown Terminal"
+        },
+        {
+          "keys": "MOD+T",
+          "desc": "Open Terminal: ghostty"
+        },
+        {
+          "keys": "Super + T",
+          "desc": "OCR Screenshot"
+        },
+        {
+          "keys": "MOD+F",
+          "desc": "Noctalia Launcher"
+        },
+        {
+          "keys": "MOD+S",
+          "desc": "Noctalia Control Center"
+        },
+        {
+          "keys": "MOD+COMMA",
+          "desc": "Noctalia Settings"
+        },
+        {
+          "keys": "MOD+SHIFT+COMMA",
+          "desc": "Noctalia Emoji Picker"
+        },
+        {
+          "keys": "MOD+SHIFT+V",
+          "desc": "Noctalia Clipboard"
+        },
+        {
+          "keys": "Super + N",
+          "desc": "Noctalia Notification History"
+        },
+        {
+          "keys": "Super + L",
+          "desc": "Lock Screen"
+        },
+        {
+          "keys": "Super + X",
+          "desc": "Noctalia Night Light"
+        },
+        {
+          "keys": "Super + C",
+          "desc": "Noctalia Calendar"
+        },
+        {
+          "keys": "Super + R",
+          "desc": "Noctalia Screen Recorder Start"
+        },
+        {
+          "keys": "Super + SHIFT+R",
+          "desc": "Noctalia Screen Recorder Stop"
+        },
+        {
+          "keys": "MOD+B",
+          "desc": "Open Browser: firefox"
+        },
+        {
+          "keys": "MOD+E",
+          "desc": "File Manager: Yazi"
+        },
+        {
+          "keys": "MOD+SHIFT+G",
+          "desc": "Text Corrector"
+        },
+        {
+          "keys": "Vol Up",
+          "desc": "Volume Up"
+        },
+        {
+          "keys": "Vol Down",
+          "desc": "Volume Down"
+        },
+        {
+          "keys": "Mute",
+          "desc": "Mute Output"
+        },
+        {
+          "keys": "Mic Mute",
+          "desc": "Mute Microphone"
+        },
+        {
+          "keys": "Next",
+          "desc": "Next Track"
+        },
+        {
+          "keys": "Pause",
+          "desc": "Play/Pause"
+        },
+        {
+          "keys": "Play",
+          "desc": "Play/Pause"
+        },
+        {
+          "keys": "Prev",
+          "desc": "Previous Track"
+        },
+        {
+          "keys": "Bright Up",
+          "desc": "Brightness Up"
+        },
+        {
+          "keys": "Bright Down",
+          "desc": "Brightness Down"
+        },
+        {
+          "keys": "PrtSc",
+          "desc": "Screenshot (Annotate)"
+        },
+        {
+          "keys": "Super + ESCAPE",
+          "desc": "Noctalia Session Menu"
+        },
+        {
+          "keys": "Super + W",
+          "desc": "Noctalia Wallpaper Toggle"
+        },
+        {
+          "keys": "Super + SHIFT+W",
+          "desc": "Noctalia Wallpaper Random"
+        }
+      ]
+    },
+    {
+      "title": "Window Management",
+      "binds": [
+        {
+          "keys": "MOD+SHIFT+Q",
+          "desc": "Close Window"
+        },
+        {
+          "keys": "MOD+SHIFT+F",
+          "desc": "Fullscreen Window"
+        }
+      ]
+    },
+    {
+      "title": "Column Navigation",
+      "binds": [
+        {
+          "keys": "MOD+LEFT",
+          "desc": "Focus Column Left"
+        },
+        {
+          "keys": "MOD+H",
+          "desc": "Focus Column Left"
+        },
+        {
+          "keys": "MOD+RIGHT",
+          "desc": "Focus Column Right"
+        },
+        {
+          "keys": "MOD+L",
+          "desc": "Focus Column Right"
+        },
+        {
+          "keys": "MOD+HOME",
+          "desc": "Focus First Column"
+        },
+        {
+          "keys": "MOD+END",
+          "desc": "Focus Last Column"
+        },
+        {
+          "keys": "MOD+WHEELSCROLLRIGHT",
+          "desc": "Focus Column Right"
+        },
+        {
+          "keys": "MOD+WHEELSCROLLLEFT",
+          "desc": "Focus Column Left"
+        },
+        {
+          "keys": "MOD+SHIFT+WHEELSCROLLDOWN",
+          "desc": "Focus Column Right"
+        },
+        {
+          "keys": "MOD+SHIFT+WHEELSCROLLUP",
+          "desc": "Focus Column Left"
+        }
+      ]
+    },
+    {
+      "title": "Window Focus",
+      "binds": [
+        {
+          "keys": "MOD+UP",
+          "desc": "Focus Window Up"
+        },
+        {
+          "keys": "MOD+K",
+          "desc": "Focus Window Up"
+        },
+        {
+          "keys": "MOD+DOWN",
+          "desc": "Focus Window Down"
+        },
+        {
+          "keys": "MOD+J",
+          "desc": "Focus Window Down"
+        }
+      ]
+    },
+    {
+      "title": "Workspace Navigation",
+      "binds": [
+        {
+          "keys": "MOD+WHEELSCROLLDOWN",
+          "desc": "Workspace Down"
+        },
+        {
+          "keys": "MOD+WHEELSCROLLUP",
+          "desc": "Workspace Up"
+        },
+        {
+          "keys": "MOD+1",
+          "desc": "Focus Workspace \"Term\""
+        },
+        {
+          "keys": "MOD+2",
+          "desc": "Focus Workspace \"Remote\""
+        },
+        {
+          "keys": "MOD+3",
+          "desc": "Focus Workspace \"Chatgpt\""
+        },
+        {
+          "keys": "MOD+4",
+          "desc": "Focus Workspace \"Code\""
+        },
+        {
+          "keys": "MOD+5",
+          "desc": "Focus Workspace \"Browser\""
+        },
+        {
+          "keys": "MOD+6",
+          "desc": "Focus Workspace \"Vesktop\""
+        },
+        {
+          "keys": "MOD+7",
+          "desc": "Focus Workspace \"Keepass\""
+        },
+        {
+          "keys": "MOD+8",
+          "desc": "Focus Workspace \"Teams\""
+        },
+        {
+          "keys": "MOD+9",
+          "desc": "Focus Workspace \"Mail\""
+        },
+        {
+          "keys": "MOD+N",
+          "desc": "Workspace: obsidian"
+        },
+        {
+          "keys": "MOD+Y",
+          "desc": "Workspace: youtube"
+        },
+        {
+          "keys": "MOD+C",
+          "desc": "Workspace: claude"
+        },
+        {
+          "keys": "MOD+W",
+          "desc": "Workspace: work"
+        },
+        {
+          "keys": "MOD+0",
+          "desc": "Focus Workspace \"Personal\""
+        },
+        {
+          "keys": "MOD+D",
+          "desc": "Previous Workspace"
+        },
+        {
+          "keys": "MOD+TAB",
+          "desc": "Previous Workspace"
+        }
+      ]
+    },
+    {
+      "title": "Move Columns",
+      "binds": [
+        {
+          "keys": "MOD+SHIFT+LEFT",
+          "desc": "Move Column Left"
+        },
+        {
+          "keys": "MOD+SHIFT+H",
+          "desc": "Move Column Left"
+        },
+        {
+          "keys": "MOD+SHIFT+RIGHT",
+          "desc": "Move Column Right"
+        },
+        {
+          "keys": "MOD+SHIFT+L",
+          "desc": "Move Column Right"
+        },
+        {
+          "keys": "MOD+CTRL+HOME",
+          "desc": "Move Column To First"
+        },
+        {
+          "keys": "MOD+CTRL+END",
+          "desc": "Move Column To Last"
+        },
+        {
+          "keys": "MOD+CTRL+WHEELSCROLLDOWN",
+          "desc": "Move Column To Workspace Down"
+        },
+        {
+          "keys": "MOD+CTRL+WHEELSCROLLUP",
+          "desc": "Move Column To Workspace Up"
+        },
+        {
+          "keys": "MOD+CTRL+WHEELSCROLLRIGHT",
+          "desc": "Move Column Right"
+        },
+        {
+          "keys": "MOD+CTRL+WHEELSCROLLLEFT",
+          "desc": "Move Column Left"
+        },
+        {
+          "keys": "MOD+CTRL+SHIFT+WHEELSCROLLDOWN",
+          "desc": "Move Column Right"
+        },
+        {
+          "keys": "MOD+CTRL+SHIFT+WHEELSCROLLUP",
+          "desc": "Move Column Left"
+        },
+        {
+          "keys": "MOD+SHIFT+1",
+          "desc": "Move Column To Workspace \"Term\""
+        },
+        {
+          "keys": "MOD+SHIFT+2",
+          "desc": "Move Column To Workspace \"Remote\""
+        },
+        {
+          "keys": "MOD+SHIFT+3",
+          "desc": "Move Column To Workspace \"Chatgpt\""
+        },
+        {
+          "keys": "MOD+SHIFT+4",
+          "desc": "Move Column To Workspace \"Code\""
+        },
+        {
+          "keys": "MOD+SHIFT+5",
+          "desc": "Move Column To Workspace \"Browser\""
+        },
+        {
+          "keys": "MOD+SHIFT+6",
+          "desc": "Move Column To Workspace \"Vesktop\""
+        },
+        {
+          "keys": "MOD+SHIFT+7",
+          "desc": "Move Column To Workspace \"Keepass\""
+        },
+        {
+          "keys": "MOD+SHIFT+8",
+          "desc": "Move Column To Workspace \"Teams\""
+        },
+        {
+          "keys": "MOD+SHIFT+9",
+          "desc": "Move Column To Workspace \"Mail\""
+        },
+        {
+          "keys": "MOD+SHIFT+N",
+          "desc": "Move Column: obsidian"
+        },
+        {
+          "keys": "MOD+SHIFT+Y",
+          "desc": "Move Column: youtube"
+        },
+        {
+          "keys": "MOD+SHIFT+C",
+          "desc": "Move Column: claude"
+        },
+        {
+          "keys": "MOD+SHIFT+W",
+          "desc": "Move Column: work"
+        },
+        {
+          "keys": "MOD+SHIFT+0",
+          "desc": "Move Column To Workspace \"Personal\""
+        }
+      ]
+    },
+    {
+      "title": "Move Windows",
+      "binds": [
+        {
+          "keys": "MOD+SHIFT+UP",
+          "desc": "Move Window Up"
+        },
+        {
+          "keys": "MOD+SHIFT+DOWN",
+          "desc": "Move Window Down"
+        }
+      ]
+    },
+    {
+      "title": "Column Width",
+      "binds": [
+        {
+          "keys": "MOD+U",
+          "desc": "Shrink Column"
+        },
+        {
+          "keys": "MOD+P",
+          "desc": "Expand Column"
+        },
+        {
+          "keys": "MOD+MINUS",
+          "desc": "Shrink Column 10%"
+        },
+        {
+          "keys": "MOD+EQUAL",
+          "desc": "Expand Column 10%"
+        }
+      ]
+    },
+    {
+      "title": "Screenshots",
+      "binds": [
+        {
+          "keys": "CTRL+SHIFT+1",
+          "desc": "Screenshot (Region)"
+        },
+        {
+          "keys": "CTRL+SHIFT+2",
+          "desc": "Screenshot (Screen)"
+        },
+        {
+          "keys": "CTRL+SHIFT+3",
+          "desc": "Screenshot (Window)"
+        }
+      ]
+    },
+    {
+      "title": "Power",
+      "binds": [
+        {
+          "keys": "Super + P",
+          "desc": "Power Off Monitors"
+        }
+      ]
+    },
+    {
+      "title": "System",
+      "binds": [
+        {
+          "keys": "MOD+SHIFT+E",
+          "desc": "Quit Session"
+        },
+        {
+          "keys": "CTRL+ALT+DELETE",
+          "desc": "Quit Session"
+        }
+      ]
+    },
+    {
+      "title": "Other",
+      "binds": [
+        {
+          "keys": "MOD+SHIFT+ESCAPE",
+          "desc": "Show Keybinds"
+        },
+        {
+          "keys": "MOD+SHIFT+K",
+          "desc": "Consume/Expel Right"
+        },
+        {
+          "keys": "MOD+SHIFT+J",
+          "desc": "Consume/Expel Left"
+        },
+        {
+          "keys": "MOD+I",
+          "desc": "Shrink Window"
+        },
+        {
+          "keys": "MOD+O",
+          "desc": "Expand Window"
+        },
+        {
+          "keys": "MOD+V",
+          "desc": "Toggle Column Tabs"
+        },
+        {
+          "keys": "MOD+CTRL+LEFT",
+          "desc": "Move Workspace Left Monitor"
+        },
+        {
+          "keys": "MOD+CTRL+H",
+          "desc": "Move Workspace Left Monitor"
+        },
+        {
+          "keys": "MOD+CTRL+RIGHT",
+          "desc": "Move Workspace Right Monitor"
+        },
+        {
+          "keys": "MOD+CTRL+L",
+          "desc": "Move Workspace Right Monitor"
+        },
+        {
+          "keys": "MOD+CTRL+F",
+          "desc": "Expand Column To Available"
+        },
+        {
+          "keys": "MOD+SHIFT+MINUS",
+          "desc": "Shrink Window 10%"
+        },
+        {
+          "keys": "MOD+SHIFT+EQUAL",
+          "desc": "Expand Window 10%"
+        },
+        {
+          "keys": "MOD+SHIFT+SPACE",
+          "desc": "Toggle Floating"
+        },
+        {
+          "keys": "Super + Ctrl + Shift + F",
+          "desc": "fullscreen-windowedOn"
+        },
+        {
+          "keys": "MOD+ESCAPE",
+          "desc": "Disable Shortcut Inhibit"
+        },
+        {
+          "keys": "Super + O",
+          "desc": "Toggle Overview"
+        }
+      ]
+    }
+  ],
+  "niriConfigPath": "~/.config/niri/config.kdl",
+  "hyprlandConfigPath": "~/.config/hypr/hyprland.conf",
+  "windowHeight": 850,
+  "windowWidth": 1400,
+  "columnCount": 4,
+  "triggerToggle": 1769087305211,
+  "modKeyVariable": "$mod"
+}

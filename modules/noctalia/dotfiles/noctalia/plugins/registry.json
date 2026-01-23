@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "plugins": [
+    {
+      "id": "ocr",
+      "name": "OCR",
+      "version": "0.1.0",
+      "author": "You",
+      "description": "OCR clipboard screenshots using tesseract and copy the extracted text",
+      "repository": "file:///home/dylan/.config/noctalia/plugins/ocr",
+      "minNoctaliaVersion": "3.6.0",
+      "license": "MIT",
+      "tags": [
+        "Utility",
+        "OCR",
+        "Clipboard"
+      ],
+      "lastUpdated": "2026-01-19T00:00:00Z"
+    }
+  ]
+}

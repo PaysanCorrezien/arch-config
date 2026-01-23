@@ -1,0 +1,50 @@
+# Yazi Keymap Configuration
+# Custom keybindings for yazi
+
+[manager]
+prepend_keymap = [
+  # Compress to zip
+  { on = [ "c", "Z" ], run = 'plugin ouch --args=zip', desc = "Zip the selected files" },
+
+  # Git root navigation
+  { on = [ "g", "r" ], run = '''shell 'ya pub dds-cd --str "$(git rev-parse --show-toplevel)"' --confirm''', desc = "Cd to root of current Git repo" },
+
+  # Home shortcuts
+  { on = [ "g", "h" ], run = "cd ~", desc = "cd to home" },
+  { on = [ "t", "h" ], run = "tab_create ~", desc = "open new tab to home" },
+  { on = [ "m", "h" ], run = [ "yank --cut", "escape --visual --select", "~" ], desc = "move selection to home" },
+  { on = [ "Y", "h" ], run = [ "yank", "escape --visual --select", "~" ], desc = "copy selection to home" },
+
+  # Config shortcuts
+  { on = [ "g", "c", "f", "g" ], run = "cd ~/.config", desc = "cd to ~/.config" },
+  { on = [ "t", "c", "f", "g" ], run = "tab_create ~/.config", desc = "open new tab to ~/.config" },
+  { on = [ "m", "c", "f", "g" ], run = [ "yank --cut", "escape --visual --select", "~/.config" ], desc = "move selection to ~/.config" },
+  { on = [ "Y", "c", "f", "g" ], run = [ "yank", "escape --visual --select", "~/.config" ], desc = "copy selection to ~/.config" },
+
+  # Videos shortcuts
+  { on = [ "g", "v", "d" ], run = "cd ~/Videos", desc = "cd to ~/Videos" },
+  { on = [ "t", "v", "d" ], run = "tab_create ~/Videos", desc = "open new tab to ~/Videos" },
+  { on = [ "m", "v", "d" ], run = [ "yank --cut", "escape --visual --select", "~/Videos" ], desc = "move selection to ~/Videos" },
+  { on = [ "Y", "v", "d" ], run = [ "yank", "escape --visual --select", "~/Videos" ], desc = "copy selection to ~/Videos" },
+
+  # Projects shortcuts
+  { on = [ "g", "p", "p" ], run = "cd ~/projects", desc = "cd to ~/projects" },
+  { on = [ "t", "p", "p" ], run = "tab_create ~/projects", desc = "open new tab to ~/projects" },
+  { on = [ "m", "p", "p" ], run = [ "yank --cut", "escape --visual --select", "~/projects" ], desc = "move selection to ~/projects" },
+  { on = [ "Y", "p", "p" ], run = [ "yank", "escape --visual --select", "~/projects" ], desc = "copy selection to ~/projects" },
+
+  # Pictures shortcuts
+  { on = [ "g", "p", "c" ], run = "cd ~/Images", desc = "cd to ~/Images" },
+  { on = [ "t", "p", "c" ], run = "tab_create ~/Images", desc = "open new tab to ~/Images" },
+  { on = [ "m", "p", "c" ], run = [ "yank --cut", "escape --visual --select", "~/Images" ], desc = "move selection to ~/Images" },
+  { on = [ "Y", "p", "c" ], run = [ "yank", "escape --visual --select", "~/Images" ], desc = "copy selection to ~/Images" },
+
+  # Repo shortcuts
+  { on = [ "g", "r", "p" ], run = "cd ~/repo", desc = "cd to ~/repo" },
+  { on = [ "t", "r", "p" ], run = "tab_create ~/repo", desc = "open new tab to ~/repo" },
+  { on = [ "m", "r", "p" ], run = [ "yank --cut", "escape --visual --select", "~/repo" ], desc = "move selection to ~/repo" },
+  { on = [ "Y", "r", "p" ], run = [ "yank", "escape --visual --select", "~/repo" ], desc = "copy selection to ~/repo" },
+
+  # Quick tab
+  { on = [ "t", "t" ], run = "tab_create", desc = "open new tab in current directory" },
+]

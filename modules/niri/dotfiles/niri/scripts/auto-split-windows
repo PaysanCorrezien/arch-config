@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Auto-split windows: keep default niri tiling behavior,
+# but make the very first window on a workspace take full width.
+
+set -euo pipefail
+
+declare -A seen_windows=()
+LOG_FILE="/tmp/auto-split-windows.log"
+
+log() {
+    printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >>"$LOG_FILE"
+}
+
+get_window_count() {
+    local ws_id="$1"
+    niri msg -j windows | jq --argjson ws "$ws_id" \
+        '[.[] | select(.workspace_id == $ws)] | length'
+}
+
+log "started: pid=$$"
+
+niri msg -j event-stream | while read -r event; do
+    if ! jq -e '.WindowOpenedOrChanged.window' >/dev/null 2>&1 <<<"$event"; then
+        continue
+    fi
+
+    window_id=$(jq -r '.WindowOpenedOrChanged.window.id' <<<"$event")
+    workspace_id=$(jq -r '.WindowOpenedOrChanged.window.workspace_id' <<<"$event")
+
+    if [[ -z "$window_id" || -z "$workspace_id" ]]; then
+        continue
+    fi
+
+    if [[ -n "${seen_windows[$window_id]:-}" ]]; then
+        continue
+    fi
+    seen_windows[$window_id]=1
+
+    sleep 0.1
+
+    window_count=$(get_window_count "$workspace_id")
+    if [[ "$window_count" -eq 1 ]]; then
+        log "first window: window_id=$window_id workspace_id=$workspace_id"
+        niri msg action focus-window --id "$window_id"
+        niri msg action expand-column-to-available-width
+    fi
+done

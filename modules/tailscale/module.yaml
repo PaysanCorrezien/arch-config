@@ -1,0 +1,9 @@
+# Tailscale Module
+# Tailscale VPN and secure mesh networking with Tailscale SSH
+# Provides secure remote access via Tailscale network
+
+description: Tailscale VPN with Tailscale SSH and secure networking
+
+# Post-install hook for Tailscale setup
+post_install_hook: scripts/setup-tailscale.sh
+hook_behavior: ask

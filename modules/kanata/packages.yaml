@@ -1,0 +1,6 @@
+# Kanata packages
+
+description: Kanata keyboard remapper
+
+packages:
+  - kanata-bin

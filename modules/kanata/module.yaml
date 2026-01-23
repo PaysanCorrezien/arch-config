@@ -1,0 +1,15 @@
+# Kanata keyboard remapper
+# Provides configuration, systemd user service, and Linux input access setup
+
+description: Kanata keyboard remapper with systemd user service and configs
+
+dotfiles:
+  - source: dotfiles/kanata/kanata.kbd
+    target: ~/.config/kanata/kanata.kbd
+  - source: dotfiles/kanata/kanata-by-id.kbd
+    target: ~/.config/kanata/kanata-by-id.kbd
+  - source: dotfiles/systemd/user/kanata.service
+    target: ~/.config/systemd/user/kanata.service
+
+post_install_hook: scripts/setup-kanata.sh
+hook_behavior: ask

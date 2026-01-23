@@ -1,0 +1,86 @@
+# Niri core packages and Wayland tools
+# NOTE: Using Noctalia for dashboard/notifications, not waybar/mako
+
+description: Niri compositor and Wayland ecosystem packages
+
+packages:
+  # Niri compositor
+  - niri # Niri Wayland compositor
+
+  # Noctalia integration (CachyOS)
+  - cachyos-niri-noctalia # CachyOS Niri + Noctalia integration
+  - noctalia-shell # Noctalia dashboard and shell
+
+  # Wayland core tools
+  - xorg-xwayland # X11 compatibility layer
+  - wayland # Wayland protocol
+  - wayland-protocols
+
+  # Desktop portals
+  - xdg-desktop-portal
+  - xdg-desktop-portal-gtk
+  - xdg-desktop-portal-gnome
+
+  # Clipboard and selection
+  - wl-clipboard # Wayland clipboard utilities
+  - cliphist # Clipboard history manager
+
+  # Script utilities (for niri helper scripts)
+  - jq # JSON parsing
+  - bc # Calculator for proportions
+
+  # Screenshots and screen capture
+  - grim # Screenshot tool
+  - slurp # Region selector for screenshots
+  - satty # Screenshot annotation tool
+  - gpu-screen-recorder # GPU-accelerated screen recorder
+  - tesseract # OCR engine
+  - tesseract-data-eng # English language data for tesseract
+  - tesseract-data-fra # French language data for tesseract
+
+  # Wallpaper and background
+  - swaybg # Background manager for Wayland
+  - matugen # Material You theming generator
+
+  # Brightness and hardware control
+  - brightnessctl # Brightness control
+  - light # Alternative brightness control
+
+  #
+  - adw-gtk-theme
+  - nwg-look
+  # Application launcher
+  - fuzzel # Application launcher
+  - wofi # Alternative Wayland launcher
+
+  # Notifications - using Noctalia instead
+  - libnotify # Notification library (still needed for apps)
+
+  # Network and Bluetooth
+  - networkmanager
+  - network-manager-applet
+  - blueman # Bluetooth manager
+  - bluez # Bluetooth protocol stack
+  - bluez-utils # Bluetooth utilities
+
+  - polkit-gnome # Authentication agent
+
+  # Terminal emulator
+  - kitty # GPU-accelerated terminal
+  - ghostty # Fast GPU terminal (used for dropdown)
+
+  # File manager
+  - thunar # GTK file manager
+  - nautilus # GNOME file manager (alternative)
+
+  # GTK themes and appearance
+  - gtk3
+  - gtk4
+  - qt5-wayland # Qt5 Wayland support
+  - qt6-wayland # Qt6 Wayland support
+
+  # Fonts
+  - ttf-dejavu
+  - ttf-liberation
+  - noto-fonts
+  - noto-fonts-emoji

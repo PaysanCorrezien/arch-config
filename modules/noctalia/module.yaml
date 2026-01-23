@@ -1,0 +1,7 @@
+# Noctalia Module
+# Manage Noctalia configuration as dotfiles
+
+description: Noctalia configuration (dotfiles only)
+
+# Auto-sync dotfiles from dotfiles/ to ~/.config/
+dotfiles_sync: true

@@ -1,0 +1,7 @@
+# Neovim Config Module
+# Manage Neovim configuration from a remote git repo
+
+description: Neovim configuration synced from https://github.com/PaysanCorrezien/config.nvim
+
+post_install_hook: scripts/setup-nvim-config.sh
+hook_behavior: always

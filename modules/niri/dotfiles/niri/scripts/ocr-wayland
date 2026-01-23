@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Pick a Wayland display if not set (you have wayland-1)
+if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
+  if [[ -S "${XDG_RUNTIME_DIR}/wayland-1" ]]; then
+    export WAYLAND_DISPLAY=wayland-1
+  elif [[ -S "${XDG_RUNTIME_DIR}/wayland-0" ]]; then
+    export WAYLAND_DISPLAY=wayland-0
+  else
+    notify-send "OCR" "No Wayland display socket found in ${XDG_RUNTIME_DIR}."
+    exit 1
+  fi
+fi
+
+LANGS="${1:-eng+fra}"
+
+tmp_img="$(mktemp --suffix=.png)"
+tmp_tsv="$(mktemp --suffix=.tsv)"
+trap 'rm -f "$tmp_img" "$tmp_tsv"' EXIT
+
+# Select area
+geom="$(slurp)" || { notify-send "OCR" "Selection cancelled."; exit 0; }
+
+# Capture
+grim -g "$geom" "$tmp_img"
+
+# OCR text
+text="$(tesseract "$tmp_img" stdout -l "$LANGS" 2>/dev/null | sed 's/[[:space:]]\+$//')"
+
+# Compute confidence from TSV (mean conf of words; tesseract uses -1 for "no text")
+tesseract "$tmp_img" stdout -l "$LANGS" --psm 6 tsv 2>/dev/null > "$tmp_tsv" || true
+
+avg_conf="$(
+  awk -F'\t' '
+    NR==1 {next}                              # header
+    $1=="5" && $11!="" && $11>=0 {            # word level, valid conf
+      sum+=$11; count++
+    }
+    END {
+      if (count>0) printf "%.0f", sum/count
+      else print "0"
+    }
+  ' "$tmp_tsv"
+)"
+
+# Copy to clipboard
+if [[ -n "$text" ]]; then
+  printf '%s' "$text" | wl-copy
+  notify-send "OCR" "Text copied to clipboard (confidence: ${avg_conf}%)"
+else
+  notify-send "OCR" "No text detected"
+fi

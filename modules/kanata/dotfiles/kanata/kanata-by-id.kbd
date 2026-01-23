@@ -1,0 +1,38 @@
+;; Kanata config (explicit device paths)
+;; Restricted to the Elora keyboard and minimal tmux binding only.
+
+(defcfg
+  process-unmapped-keys yes
+  linux-output-device-name "kanata"
+  linux-dev (
+    /dev/input/by-id/usb-splitkb.com_Elora_vial:f64c2b3c-event-kbd
+    /dev/input/by-id/usb-splitkb.com_Elora_vial:f64c2b3c-if02-event-kbd
+  )
+)
+
+(defsrc
+  esc  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt rmet rctl
+)
+
+(defvar
+  ;; Adjust as needed for your typing cadence.
+  tap-time 200
+  hold-time 150
+)
+
+(deflayer base
+  @esc-hold 1  2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @esc-hold a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt rmet rctl
+)
+
+(defalias
+  ;; Escape on tap, Ctrl+Space on hold.
+  esc-hold (tap-hold-press $tap-time $hold-time esc C-spc)
+)

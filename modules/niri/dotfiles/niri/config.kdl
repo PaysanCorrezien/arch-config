@@ -1,0 +1,592 @@
+// For documentation and full reference, see: https://github.com/YaLTeR/niri/wiki
+
+// ────────────── Input Configuration ──────────────
+// Niri configuration for CachyOS
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Input
+
+input {
+    keyboard {
+        xkb {
+            layout "us"
+            variant "altgr-intl"
+        }
+        numlock // Enable numlock on startup
+    }
+
+    touchpad {
+        tap // Enable tap-to-click
+        natural-scroll // Enable natural (macOS-style) scrolling
+    }
+
+    // Set MOD key to Alt
+    mod-key "Alt"
+
+    // focus-follows-mouse disabled to match GlazeWM config
+    workspace-auto-back-and-forth // Enable workspace back & forth switching (matches GlazeWM toggle_workspace_on_refocus)
+}
+
+// ────────────── Output Configuration ──────────────
+// You can run `niri msg outputs` to get the correct name for your displays.
+// You will have to remove "/-" and edit it before it takes effect.
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
+
+output "Microtek International Inc. GF340C 0000000000000" {
+    mode "3440x1440@165.001" // Set resolution and refresh rate
+    scale 1 // No scaling (use 2 for HiDPI)
+    transform "normal"
+    position x=0 y=0
+}
+
+output "Dell Inc. DELL G2722HS G3N92H3" {
+    mode "1920x1080@60.000" // Set resolution and refresh rate
+    scale 1 // No scaling (use 2 for HiDPI)
+    transform "270"
+    position x=3440 y=0
+}
+
+// ────────────── Workspaces ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Named-Workspaces
+// Pre-create all workspaces with monitor assignments
+// Ultrawide (left/primary) for most workspaces, Dell (right) for remote, teams, work
+
+workspace "term" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "remote" { open-on-output "Dell Inc. DELL G2722HS G3N92H3"; }
+workspace "chatgpt" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "code" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "browser" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "vesktop" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "keepass" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "teams" { open-on-output "Dell Inc. DELL G2722HS G3N92H3"; }
+workspace "mail" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "extra2" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "obsidian" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "youtube" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "claude" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "work" { open-on-output "Dell Inc. DELL G2722HS G3N92H3"; }
+workspace "personal" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "scratchpad" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+
+// ────────────── Keybindings ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Key-Bindings
+
+binds {
+    MOD+SHIFT+ESCAPE                    hotkey-overlay-title="Show Keybinds" { show-hotkey-overlay; }
+
+    // ─── Applications ───
+    MOD+RETURN                          hotkey-overlay-title="Toggle Dropdown Terminal" { spawn-sh "~/.config/niri/scripts/niri-dropdown"; }
+    MOD+T                               hotkey-overlay-title="Open Terminal: ghostty" { spawn-sh "~/.config/niri/scripts/niri-spawn ghostty"; }
+    Super+T                             hotkey-overlay-title="OCR Screenshot" { spawn-sh "~/.config/niri/scripts/ocr-wayland"; }
+    MOD+F                               hotkey-overlay-title="Noctalia Launcher" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
+    MOD+S                               hotkey-overlay-title="Noctalia Control Center" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "controlCenter" "toggle"; }
+    MOD+COMMA                           hotkey-overlay-title="Noctalia Settings" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "settings" "toggle"; }
+    MOD+SHIFT+COMMA                     hotkey-overlay-title="Noctalia Emoji Picker" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "launcher" "emoji"; }
+    MOD+SHIFT+V                         hotkey-overlay-title="Noctalia Clipboard" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "launcher" "clipboard"; }
+    Super+N                             hotkey-overlay-title="Noctalia Notification History" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "notifications" "toggleHistory"; }
+    //Super+K                             hotkey-overlay-title="Noctalia Keybinds Helper" { spawn-sh "qs -c noctalia-shell ipc call keybind-cheatsheet toggle"; }
+    Super+L                             hotkey-overlay-title="Lock Screen" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "lockScreen" "lock"; }
+    Super+X                             hotkey-overlay-title="Noctalia Night Light" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "nightLight" "toggle"; }
+    //MOD+Z                               hotkey-overlay-title="Maximize window"  { expand-column-to-available-width; }
+    Super+C                             hotkey-overlay-title="Noctalia Calendar" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "calendar" "toggle"; }
+    Super+R                             hotkey-overlay-title="Noctalia Screen Recorder Start" { spawn-sh "qs -c noctalia-shell ipc call plugin:screen-recorder start"; }
+    Super+SHIFT+R                       hotkey-overlay-title="Noctalia Screen Recorder Stop" { spawn-sh "qs -c noctalia-shell ipc call plugin:screen-recorder stop"; }
+    MOD+B                               hotkey-overlay-title="Open Browser: firefox" { spawn-sh "~/.config/niri/scripts/niri-spawn firefox"; }
+
+    MOD+E                               hotkey-overlay-title="File Manager: Yazi" { spawn-sh "ghostty --title=YaziTerm -e yazi"; }
+    MOD+SHIFT+B                         hotkey-overlay-title="System Monitor: btop" { spawn-sh "ghostty --title=BtopTerm -e btop"; }
+    MOD+SHIFT+G                         hotkey-overlay-title="Text Corrector" { spawn-sh "text_corrector"; }
+
+    // ─── Audio Controls (Noctalia) ───
+    XF86AudioRaiseVolume                hotkey-overlay-title="Volume Up" allow-when-locked=true { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "volume" "increase"; }
+    XF86AudioLowerVolume                hotkey-overlay-title="Volume Down" allow-when-locked=true { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "volume" "decrease"; }
+    XF86AudioMute                       hotkey-overlay-title="Mute Output" allow-when-locked=true { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "volume" "muteOutput"; }
+    XF86AudioMicMute                    hotkey-overlay-title="Mute Microphone" allow-when-locked=true { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "volume" "muteInput"; }
+    XF86AudioNext                       hotkey-overlay-title="Next Track" allow-when-locked=true { spawn-sh "playerctl next"; }
+    XF86AudioPause                      hotkey-overlay-title="Play/Pause" allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    XF86AudioPlay                       hotkey-overlay-title="Play/Pause" allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    XF86AudioPrev                       hotkey-overlay-title="Previous Track" allow-when-locked=true { spawn-sh "playerctl previous"; }
+
+    // ─── Brightness Controls (Noctalia) ───
+    XF86MonBrightnessUp                 hotkey-overlay-title="Brightness Up" allow-when-locked=true { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "brightness" "increase"; }
+    XF86MonBrightnessDown               hotkey-overlay-title="Brightness Down" allow-when-locked=true { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "brightness" "decrease"; }
+
+    // ─── Window Movement and Focus ───
+    MOD+SHIFT+Q                         hotkey-overlay-title="Close Window" { close-window; }
+
+    MOD+LEFT                            hotkey-overlay-title="Focus Column Left" { focus-column-left; }
+    MOD+H                               hotkey-overlay-title="Focus Column Left" { focus-column-left; }
+    MOD+RIGHT                           hotkey-overlay-title="Focus Column Right" { focus-column-right; }
+    MOD+L                               hotkey-overlay-title="Focus Column Right" { focus-column-right; }
+    MOD+UP                              hotkey-overlay-title="Focus Window Up" { focus-window-up; }
+    MOD+K                               hotkey-overlay-title="Focus Window Up" { focus-window-up; }
+    MOD+DOWN                            hotkey-overlay-title="Focus Window Down" { focus-window-down; }
+    MOD+J                               hotkey-overlay-title="Focus Window Down" { focus-window-down; }
+
+    MOD+SHIFT+LEFT                      hotkey-overlay-title="Move Column Left" { move-column-left; }
+    MOD+SHIFT+H                         hotkey-overlay-title="Move Column Left" { move-column-left; }
+    MOD+SHIFT+RIGHT                     hotkey-overlay-title="Move Column Right" { move-column-right; }
+    MOD+SHIFT+L                         hotkey-overlay-title="Move Column Right" { move-column-right; }
+    MOD+SHIFT+UP                        hotkey-overlay-title="Move Window Up" { move-window-up; }
+    MOD+SHIFT+K                         hotkey-overlay-title="Consume/Expel Right" { consume-or-expel-window-right; }
+    MOD+SHIFT+DOWN                      hotkey-overlay-title="Move Window Down" { move-window-down; }
+    MOD+SHIFT+J                         hotkey-overlay-title="Consume/Expel Left" { consume-or-expel-window-left; }
+
+    // ─── Resize Windows ───
+    MOD+U                               hotkey-overlay-title="Shrink Column" { set-column-width "-5%"; }
+    MOD+P                               hotkey-overlay-title="Expand Column" { set-column-width "+5%"; }
+    MOD+I                               hotkey-overlay-title="Shrink Window" { set-window-height "-5%"; }
+    MOD+O                               hotkey-overlay-title="Expand Window" { set-window-height "+5%"; }
+
+    MOD+V                               hotkey-overlay-title="Toggle Column Tabs" { toggle-column-tabbed-display; } // Toggle tiling direction
+
+    MOD+HOME                            hotkey-overlay-title="Focus First Column" { focus-column-first; }
+    MOD+END                             hotkey-overlay-title="Focus Last Column" { focus-column-last; }
+    MOD+CTRL+HOME                       hotkey-overlay-title="Move Column To First" { move-column-to-first; }
+    MOD+CTRL+END                        hotkey-overlay-title="Move Column To Last" { move-column-to-last; }
+
+    // ─── Workspace Switching ───
+    MOD+WHEELSCROLLDOWN                hotkey-overlay-title="Workspace Down" cooldown-ms=150 { focus-workspace-down; }
+    MOD+WHEELSCROLLUP                  hotkey-overlay-title="Workspace Up" cooldown-ms=150 { focus-workspace-up; }
+    MOD+CTRL+WHEELSCROLLDOWN           hotkey-overlay-title="Move Column To Workspace Down" cooldown-ms=150 { move-column-to-workspace-down; }
+    MOD+CTRL+WHEELSCROLLUP             hotkey-overlay-title="Move Column To Workspace Up" cooldown-ms=150 { move-column-to-workspace-up; }
+
+    MOD+WHEELSCROLLRIGHT               hotkey-overlay-title="Focus Column Right" { focus-column-right; }
+    MOD+WHEELSCROLLLEFT                hotkey-overlay-title="Focus Column Left" { focus-column-left; }
+    MOD+CTRL+WHEELSCROLLRIGHT          hotkey-overlay-title="Move Column Right" { move-column-right; }
+    MOD+CTRL+WHEELSCROLLLEFT           hotkey-overlay-title="Move Column Left" { move-column-left; }
+
+    MOD+SHIFT+WHEELSCROLLDOWN          hotkey-overlay-title="Focus Column Right" { focus-column-right; }
+    MOD+SHIFT+WHEELSCROLLUP            hotkey-overlay-title="Focus Column Left" { focus-column-left; }
+    MOD+CTRL+SHIFT+WHEELSCROLLDOWN     hotkey-overlay-title="Move Column Right" { move-column-right; }
+    MOD+CTRL+SHIFT+WHEELSCROLLUP       hotkey-overlay-title="Move Column Left" { move-column-left; }
+
+    MOD+1                               { focus-workspace "term"; }
+    MOD+2                               { focus-workspace "remote"; }
+    MOD+3                               { focus-workspace "chatgpt"; }
+    MOD+4                               { focus-workspace "code"; }
+    MOD+5                               { focus-workspace "browser"; }
+    MOD+6                               { focus-workspace "vesktop"; }
+    MOD+7                               { focus-workspace "keepass"; }
+    MOD+8                               { focus-workspace "teams"; }
+    MOD+9                               { focus-workspace "mail"; }
+    MOD+N                               hotkey-overlay-title="Workspace: obsidian" { focus-workspace "obsidian"; }
+    MOD+Y                               hotkey-overlay-title="Workspace: youtube" { focus-workspace "youtube"; }
+    MOD+C                               hotkey-overlay-title="Workspace: claude" { focus-workspace "claude"; }
+    MOD+W                               hotkey-overlay-title="Workspace: work" { focus-workspace "work"; }
+    // MOD+P conflicts with resize, using MOD+0 for workspace personal
+    MOD+0                               { focus-workspace "personal"; }
+
+    MOD+D                               hotkey-overlay-title="Previous Workspace" { focus-workspace-previous; } // Recent workspace
+    MOD+TAB                             hotkey-overlay-title="Previous Workspace" { focus-workspace-previous; }
+
+    MOD+CTRL+LEFT                       hotkey-overlay-title="Move Workspace Left Monitor" { move-workspace-to-monitor-left; }
+    MOD+CTRL+H                          hotkey-overlay-title="Move Workspace Left Monitor" { move-workspace-to-monitor-left; }
+    MOD+CTRL+RIGHT                      hotkey-overlay-title="Move Workspace Right Monitor" { move-workspace-to-monitor-right; }
+    MOD+CTRL+L                          hotkey-overlay-title="Move Workspace Right Monitor" { move-workspace-to-monitor-right; }
+
+    MOD+SHIFT+1                         { move-column-to-workspace "term"; }
+    MOD+SHIFT+2                         { move-column-to-workspace "remote"; }
+    MOD+SHIFT+3                         { move-column-to-workspace "chatgpt"; }
+    MOD+SHIFT+4                         { move-column-to-workspace "code"; }
+    MOD+SHIFT+5                         { move-column-to-workspace "browser"; }
+    MOD+SHIFT+6                         { move-column-to-workspace "vesktop"; }
+    MOD+SHIFT+7                         { move-column-to-workspace "keepass"; }
+    MOD+SHIFT+8                         { move-column-to-workspace "teams"; }
+    MOD+SHIFT+9                         { move-column-to-workspace "mail"; }
+    MOD+SHIFT+N                         hotkey-overlay-title="Move Column: obsidian" { move-column-to-workspace "obsidian"; }
+    MOD+SHIFT+Y                         hotkey-overlay-title="Move Column: youtube" { move-column-to-workspace "youtube"; }
+    MOD+SHIFT+C                         hotkey-overlay-title="Move Column: claude" { move-column-to-workspace "claude"; }
+    MOD+SHIFT+W                         hotkey-overlay-title="Move Column: work" { move-column-to-workspace "work"; }
+    MOD+SHIFT+0                         { move-column-to-workspace "personal"; }
+
+    // ─── Layout Controls ───
+    MOD+CTRL+F                          hotkey-overlay-title="Expand Column To Available" { expand-column-to-available-width; }
+    MOD+MINUS                           hotkey-overlay-title="Shrink Column 10%" { set-column-width "-10%"; }
+    MOD+EQUAL                           hotkey-overlay-title="Expand Column 10%" { set-column-width "+10%"; }
+    MOD+SHIFT+MINUS                     hotkey-overlay-title="Shrink Window 10%" { set-window-height "-10%"; }
+    MOD+SHIFT+EQUAL                     hotkey-overlay-title="Expand Window 10%" { set-window-height "+10%"; }
+
+    // ─── Modes ───
+    MOD+SHIFT+SPACE                     hotkey-overlay-title="Toggle Floating" { toggle-window-floating; }
+    MOD+SHIFT+F                         hotkey-overlay-title="Fullscreen Window" { fullscreen-window; }
+    Mod+Ctrl+Shift+F                    hotkey-overlay-title="fullscreen-windowedOn" { toggle-windowed-fullscreen; }
+
+    // ─── Screenshots ───
+    CTRL+SHIFT+1                        hotkey-overlay-title="Screenshot (Region)" { screenshot; }
+    CTRL+SHIFT+2                        hotkey-overlay-title="Screenshot (Screen)" { screenshot-screen; }
+    CTRL+SHIFT+3                        hotkey-overlay-title="Screenshot (Window)" { screenshot-window; }
+    Print                               hotkey-overlay-title="Screenshot (Annotate)" { spawn-sh "~/.config/niri/scripts/satty-screenshot"; }
+
+    // ─── Emergency Escape Key ───
+    // Use this when a fullscreen app blocks your keybinds.
+    // It disables any active keyboard shortcut inhibitor, restoring control.
+    MOD+ESCAPE                          hotkey-overlay-title="Disable Shortcut Inhibit" allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+    Super+ESCAPE                        hotkey-overlay-title="Noctalia Session Menu" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "sessionMenu" "toggle"; }
+
+    // ─── WM Controls ───
+    MOD+SHIFT+E                         hotkey-overlay-title="Quit Session" { quit; }
+    // Note: Config auto-reloads on save. Manual reload: niri msg action load-config-file
+
+    // ─── Exit / Power ───
+    CTRL+ALT+DELETE                     hotkey-overlay-title="Quit Session" { quit; }
+    Super+P                             hotkey-overlay-title="Power Off Monitors" { power-off-monitors; }
+    Super+O                             hotkey-overlay-title="Toggle Overview" repeat=false { toggle-overview; }
+    Super+W                             hotkey-overlay-title="Noctalia Wallpaper Toggle" { spawn-sh "qs -c noctalia-shell ipc call wallpaper toggle"; }
+    Super+SHIFT+W                       hotkey-overlay-title="Noctalia Wallpaper Random" { spawn-sh "qs -c noctalia-shell ipc call wallpaper random"; }
+}
+
+// ────────────── Startup Applications ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Miscellaneous#spawn-sh-at-startup
+
+    spawn-sh-at-startup "/usr/lib/polkit-kde-authentication-agent-1 &" // Polkit
+    // spawn-sh-at-startup "swww-daemon" // Wallpaper daemon (managed by Noctalia)
+    // spawn-sh-at-startup "swww img /usr/share/wallpapers/cachyos-wallpapers/Skyscraper.png" // Set wallpaper (managed by Noctalia)
+    spawn-sh-at-startup "qs -c noctalia-shell" // Noctalia shell
+    spawn-sh-at-startup "~/.config/niri/scripts/auto-split-windows &" // Auto-split windows
+    // Workspace-to-monitor assignment is now handled via open-on-output in workspace definitions
+
+    prefer-no-csd // Disable program decorations
+    screenshot-path null // Disable screenshot saving
+
+// ────────────── Layout Settings ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
+
+    layout {
+        gaps 12 // Gap between windows (matches GlazeWM 10px)
+        center-focused-column "never" // Don't auto-center focused column
+
+        preset-column-widths {
+            proportion 0.33333
+            proportion 0.5
+            proportion 0.66667
+        }
+
+        focus-ring {
+            width 3
+            active-color "#9ccfd8" // Matches GlazeWM focused border
+            inactive-color "#ebbcba" // Matches GlazeWM other windows border
+        }
+
+        shadow {
+            softness 30
+            spread 5
+            offset x=0 y=5
+            color "#0007"
+        }
+
+        struts {}
+    }
+
+// ────────────── Animation Settings ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Animations
+    animations {
+        workspace-switch {
+            spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
+        }
+        window-open {
+            duration-ms 200
+            curve "ease-out-quad"
+        }
+        window-close {
+            duration-ms 200
+            curve "ease-out-cubic"
+        }
+        horizontal-view-movement {
+            spring damping-ratio=1.0 stiffness=900 epsilon=0.0001
+        }
+        window-movement {
+            spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+        }
+        window-resize {
+            spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
+        }
+        config-notification-open-close {
+            spring damping-ratio=0.6 stiffness=1200 epsilon=0.001
+        }
+        screenshot-ui-open {
+            duration-ms 300
+            curve "ease-out-quad"
+        }
+        overview-open-close {
+            spring damping-ratio=1.0 stiffness=900 epsilon=0.0001
+        }
+    }
+
+// ────────────── Window Rules ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
+
+    // ─── Workspace term: Terminal ───
+    window-rule {
+        match app-id=r#"wezterm|org.wezfurlong.wezterm"#
+        exclude app-id=r#"YaziTerm"#
+        open-on-workspace "term"
+    }
+    // Block out password managers from screencasts.
+    window-rule {
+        match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+        match app-id=r#"^org\.gnome\.World\.Secrets$"#
+        block-out-from "screencast"
+    }
+    // Block out mako notifications from screencasts.
+    layer-rule {
+        match namespace="^notifications$"
+        block-out-from "screencast"
+    }
+    // Indicate screencasted windows with red colors.
+        window-rule {
+        match is-window-cast-target=true
+    
+        focus-ring {
+            active-color "#f3eba8"
+            inactive-color "#7d0d2d"
+        }
+    
+        border {
+            inactive-color "#7d0d2d"
+        }
+    
+        shadow {
+            color "#7d0d2d70"
+        }
+    
+        tab-indicator {
+            active-color "#f38ba8"
+            inactive-color "#7d0d2d"
+        }
+    }
+
+    // ─── Workspace remote: Remote Desktop ───
+    window-rule {
+        match app-id=r#"mremoteng|remmina"#
+        open-on-workspace "remote"
+    }
+
+    // ─── Workspace chatgpt: ChatGPT ───
+    window-rule {
+        match app-id=r#"chatgpt|com.openai.chat|chrome-chat\.openai\.com__-Default"#
+        open-on-workspace "chatgpt"
+    }
+    window-rule {
+        match title=r#"ChatGPT"#
+        open-on-workspace "chatgpt"
+    }
+
+    // ─── Workspace code: Code Editor (Cursor) ───
+    window-rule {
+        match app-id=r#"cursor|Cursor"#
+        open-on-workspace "code"
+    }
+
+    // ─── Workspace youtube: YouTube ───
+    window-rule {
+        match app-id=r#"chrome-(music\.youtube\.com|youtube\.com)__-Default"#
+        open-on-workspace "youtube"
+    }
+    window-rule {
+        match title=r#"YouTube"#
+        open-on-workspace "youtube"
+    }
+
+    // ─── Workspace personal: Personal / X ───
+    window-rule {
+        match app-id=r#"chrome-(x\.com|twitter\.com)__-Default"#
+        open-on-workspace "personal"
+    }
+    window-rule {
+        match title=r#"^X$"#
+        open-on-workspace "personal"
+    }
+
+    // ─── Workspace browser: Browser (Firefox, Edge) ───
+    window-rule {
+        match app-id=r#"firefox|org\.mozilla\.firefox|chromium|org\.chromium\.Chromium|brave|brave-browser|google-chrome|microsoft-edge|edge|msedge"#
+        exclude title=r#"YouTube"#
+        exclude title=r#"Claude"#
+        exclude title=r#"ChatGPT"#
+        exclude title=r#"Gmail"#
+        exclude title=r#"Inbox"#
+        exclude title=r#"Outlook"#
+        exclude title=r#"^X$"#
+        open-on-workspace "browser"
+    }
+
+    // ─── Workspace personal: Vesktop / Discord ───
+    window-rule {
+        match app-id=r#"vesktop|WebCord"#
+        open-on-workspace "personal"
+    }
+
+    // ─── Workspace keepass: KeePassXC ───
+    window-rule {
+        match app-id=r#"org.keepassxc.KeePassXC|keepassxc"#
+        exclude title=r#"^Auto-Type"#
+        open-on-workspace "keepass"
+    }
+
+    // ─── Workspace teams: Teams / Communication ───
+    window-rule {
+        match app-id=r#"teams|ms-teams|teams-for-linux|avaya"#
+        open-on-workspace "teams"
+    }
+
+    // ─── Workspace mail: Outlook / Mail ───
+    window-rule {
+        match app-id=r#"outlook|olk|hxoutlook|org\.gnome\.Evolution|thunderbird"#
+        open-on-workspace "mail"
+    }
+    window-rule {
+        match title=r#"Outlook"#
+        open-on-workspace "mail"
+    }
+    window-rule {
+        match title=r#"Gmail|Inbox"#
+        open-on-workspace "mail"
+    }
+
+    // ─── Workspace obsidian: Obsidian, Documents ───
+    window-rule {
+        match app-id=r#"obsidian|md\.obsidian\.Obsidian|libreoffice-writer|onlyoffice-desktopeditors"#
+        open-on-workspace "obsidian"
+    }
+
+    // ─── Workspace claude: Claude ───
+    window-rule {
+        match title=r#"Claude"#
+        open-on-workspace "claude"
+    }
+    window-rule {
+        match app-id=r#"claude"#
+        open-on-workspace "claude"
+    }
+
+    // ─── Floating Windows ───
+
+    // Dropdown terminal - matched by title, floats centered at 70%
+    window-rule {
+        match title="dropdown-terminal"
+        open-floating true
+        default-column-width { proportion 0.7; }
+        default-window-height { proportion 0.7; }
+    }
+
+    window-rule {
+        match title="YaziTerm"
+        open-floating true
+        default-column-width { proportion 0.9; }
+        default-window-height { proportion 0.85; }
+    }
+
+    window-rule {
+        match title="BtopTerm"
+        open-floating true
+        default-column-width { proportion 0.9; }
+        default-window-height { proportion 0.85; }
+    }
+
+    window-rule {
+        match app-id=r#"github|com.github.pwa"#
+        open-floating true
+        default-column-width { proportion 0.75; }
+    }
+
+    window-rule {
+        match app-id=r#"org.gnome.Nautilus|thunar|pcmanfm|nemo"#
+        open-floating true
+        default-column-width { proportion 0.65; }
+        default-window-height { proportion 0.65; }
+    }
+
+    // GNOME portal file picker sizing
+    window-rule {
+        match app-id=r#"org\.freedesktop\.impl\.portal\.desktop\.gnome|xdg-desktop-portal-gnome|org\.gnome\.Portal"#
+        open-floating true
+        default-column-width { proportion 0.85; }
+        default-window-height { proportion 0.85; }
+    }
+
+    window-rule {
+        match app-id=r#"org.kde.polkit-kde-authentication-agent-1|polkit"#
+        open-floating true
+    }
+
+    window-rule {
+        match app-id="com.gabm.satty"
+        open-floating true
+        min-width 730
+        min-height 300
+    }
+
+    // ─── Picture-in-Picture ───
+    window-rule {
+        match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+        open-floating true
+    }
+
+    window-rule {
+        match title=r#"[Pp]icture.in.[Pp]icture"#
+        open-floating true
+    }
+
+    // ─── KeePassXC Auto-Type ───
+    window-rule {
+        match app-id=r#"org.keepassxc.KeePassXC"# title=r#"^Auto-Type"#
+        open-floating true
+    }
+
+    window-rule {
+        geometry-corner-radius 20 // Set every window radius to 20
+        clip-to-geometry true
+        opacity 0.9
+    }
+
+// ────────────── Noctalia Integration ──────────────
+// https://docs.noctalia.dev/getting-started/compositor-settings/niri/
+
+    debug {
+        // Allows notification actions and window activation from Noctalia.
+        honor-xdg-activation-with-invalid-serial
+    }
+
+    // Optional Noctalia wallpaper integration (pick one option).
+    // Option 1: Blurred overview wallpaper (requires "Enable overview wallpaper" ON).
+    /-layer-rule {
+        match namespace="^noctalia-overview*"
+        place-within-backdrop true
+    }
+
+    // Option 2: Stationary wallpaper (requires "Enable overview wallpaper" OFF).
+    /-layer-rule {
+        match namespace="^noctalia-wallpaper*"
+        place-within-backdrop true
+    }
+    /-layout {
+        background-color "transparent"
+    }
+    /-overview {
+        workspace-shadow {
+            off
+        }
+    }
+
+    // Option 3: Flat colored overview (requires "Enable overview wallpaper" OFF).
+    /-overview {
+        // Choose your favorite color.
+        backdrop-color "#26233a"
+    }
+
+// ────────────── Environment Variables ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Miscellaneous#environment
+
+    environment {
+        DISPLAY ":1"
+        ELECTRON_OZONE_PLATFORM_HINT "auto"
+        QT_QPA_PLATFORM "wayland"
+        QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
+        XDG_SESSION_TYPE "wayland"
+        XDG_CURRENT_DESKTOP "niri"
+    }
+
+    hotkey-overlay {
+        skip-at-startup
+    }
+
+include "./noctalia.kdl"

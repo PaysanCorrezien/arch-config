@@ -1,0 +1,12 @@
+# WinApps dependencies for Arch Linux
+
+description: WinApps dependencies (winapps, RDP, and Docker VM)
+
+packages:
+  - curl                 # WinApps dependency
+  - dialog               # WinApps dependency
+  - freerdp              # RDP client used by WinApps
+  - iproute2             # Networking tools used by WinApps
+  - openbsd-netcat       # WinApps dependency
+  - docker               # Container runtime for dockurr/windows
+  - docker-compose       # Compose tooling for the VM container

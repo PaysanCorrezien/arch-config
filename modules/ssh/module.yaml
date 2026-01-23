@@ -1,0 +1,9 @@
+# SSH Module
+# Secure SSH server configuration with key-based authentication only
+# Includes UFW firewall rules and service setup
+
+description: Secure SSH server with key-based authentication and firewall
+
+# Post-install hook for complete SSH setup
+post_install_hook: scripts/setup-ssh.sh
+hook_behavior: ask

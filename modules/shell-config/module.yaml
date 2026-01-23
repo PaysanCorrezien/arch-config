@@ -1,0 +1,29 @@
+# Shell Configuration Module (ZSH + Starship)
+# Comprehensive shell setup matching NixOS configuration
+
+description: ZSH and Starship shell configuration with custom dotfiles
+
+# Auto-sync dotfiles
+dotfiles:
+  - source: dotfiles/zsh/aliases.zsh
+    target: ~/.config/zsh/aliases.zsh
+  - source: dotfiles/zsh/exports.zsh
+    target: ~/.config/zsh/exports.zsh
+  - source: dotfiles/zsh/bindings.zsh
+    target: ~/.config/zsh/bindings.zsh
+  - source: dotfiles/zshrc
+    target: ~/.zshrc
+  - source: dotfiles/yazi
+    target: ~/.config/yazi
+  - source: dotfiles/claude/statusline-enhanced.sh
+    target: ~/.claude/statusline-enhanced.sh
+  - source: dotfiles/claude/settings.json
+    target: ~/.claude/settings.json
+  - source: dotfiles/local/bin/claude-renew-daemon
+    target: ~/.local/bin/claude-renew-daemon
+  - source: dotfiles/systemd/user/claude-renew-daemon.service
+    target: ~/.config/systemd/user/claude-renew-daemon.service
+
+# Post-install hook
+post_install_hook: scripts/setup-zsh.sh
+hook_behavior: always

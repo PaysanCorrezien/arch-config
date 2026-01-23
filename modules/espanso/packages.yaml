@@ -1,0 +1,6 @@
+# Espanso packages (Wayland)
+
+description: Espanso text expander for Wayland
+
+packages:
+  - espanso-wayland # Espanso Wayland build (AUR)

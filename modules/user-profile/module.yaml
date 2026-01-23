@@ -1,0 +1,13 @@
+# User Profile Configuration Module
+# Manages user profile picture (.face file) for display managers and desktop environments
+
+description: User profile picture configuration
+
+# Auto-sync dotfiles
+dotfiles:
+  - source: dotfiles/profile.png
+    target: ~/.face
+
+# Post-install hook
+post_install_hook: scripts/setup-profile.sh
+hook_behavior: always

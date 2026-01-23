@@ -1,0 +1,9 @@
+# LocalSend Module
+# Cross-platform file sharing application
+# Requires firewall rules for receiving files
+
+description: LocalSend file sharing with UFW firewall configuration
+
+# Post-install hook for firewall setup
+post_install_hook: scripts/setup-localsend-firewall.sh
+hook_behavior: ask

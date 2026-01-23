@@ -1,0 +1,16 @@
+# Tmux and related tools
+
+description: Tmux terminal multiplexer and session management
+
+packages:
+  # Tmux itself
+  - tmux
+
+  # Session management
+  - sesh-bin           # Session manager with fzf integration (AUR)
+
+  # Dependencies for tmux plugins and features
+  - git                # For TPM (Tmux Plugin Manager)
+  - fzf                # For sesh and tmux-fzf plugin
+  - bc                 # For calculations in scripts
+  - gawk               # For text processing in scripts

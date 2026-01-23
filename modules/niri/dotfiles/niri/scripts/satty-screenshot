@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Pick a Wayland display if not set (you have wayland-1)
+if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
+  if [[ -S "${XDG_RUNTIME_DIR}/wayland-1" ]]; then
+    export WAYLAND_DISPLAY=wayland-1
+  elif [[ -S "${XDG_RUNTIME_DIR}/wayland-0" ]]; then
+    export WAYLAND_DISPLAY=wayland-0
+  else
+    notify-send "Screenshot" "No Wayland display socket found in ${XDG_RUNTIME_DIR}."
+    exit 1
+  fi
+fi
+
+mode="${1:-region}"
+
+output_dir="${HOME}/Images/Screenshots"
+mkdir -p "$output_dir"
+
+case "$mode" in
+  region)
+    geom="$(slurp -d)" || exit 0
+    grim -g "$geom" -
+    ;;
+  window)
+    niri msg action screenshot-window
+    sleep 0.2
+    wl-paste --type image/png
+    ;;
+  monitor-focused)
+    niri msg action screenshot-screen
+    sleep 0.2
+    wl-paste --type image/png
+    ;;
+  monitor-all)
+    grim -
+    ;;
+  *)
+    echo "'$mode' is not a supported mode, aborting!" >&2
+    exit 1
+    ;;
+esac | satty --filename -

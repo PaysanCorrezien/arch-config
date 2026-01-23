@@ -1,0 +1,13 @@
+# Chromium Extensions Module
+# Manages automatic installation of Chromium extensions via policy
+
+description: Chromium extensions auto-install via policy
+
+# Auto-sync extension configuration dotfiles
+dotfiles:
+  - source: dotfiles/surfingkeys/config.js
+    target: ~/.config/surfingkeys/config.js
+
+# Post-install hook to deploy extension policy
+post_install_hook: scripts/setup-extensions.sh
+hook_behavior: always

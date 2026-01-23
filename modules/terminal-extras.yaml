@@ -1,0 +1,55 @@
+# Terminal extras - additional terminal tools
+# From Nix modules/system/terminal/extra and home-manager/terminals/extras
+
+description: Additional terminal tools and utilities
+
+packages:
+  # System monitoring and management
+  - btop              # System monitor
+  - htop              # Process viewer
+  - dust              # Disk usage analyzer
+  - duf               # Filesystem info
+  - systemctl-tui     # Systemctl TUI manager
+
+  # Development and scripting tools
+  - gum               # Shell scripting toolkit
+  - rich-cli          # Rich terminal output
+  - navi              # Interactive cheatsheet
+  - pandoc-cli        # Document converter
+  - tokei             # Code statistics
+  - github-cli        # GitHub CLI
+  - gcc               # C compiler
+  - sshfs             # SSH filesystem
+  - gitleaks          # Git secret scanner
+  - zig               # Zig programming language
+  - ffmpeg            # Video/audio processing
+  - pyenv             # Python version management
+
+  # Terminal utilities
+  - ddcutil           # Monitor control
+  - powershell-bin    # PowerShell (from AUR)
+  - ripgrep-all       # All-format grep
+  - stylua            # Lua formatter
+  - imagemagick       # Image processing
+  - rustscan          # Network scanner
+  - bluetuith         # Bluetooth TUI
+  - monolith          # Web archiver
+  - gping             # Graphical ping
+  - hyperfine         # Benchmarking tool
+  - hexyl             # Hex viewer
+  - dnsx              # DNS client
+
+  # Git and version control
+  - lazygit           # Git TUI
+
+  # Shell enhancements
+  - atuin             # Shell history sync
+  - aichat            # AI chat CLI
+  - carapace-bin      # Multi-shell completions
+  - cava              # Audio visualizer
+  - thefuck           # Command corrector
+  - ytfzf             # YouTube TUI
+
+  # Rust toolchain
+  - rustup            # Rust toolchain (rust/cargo via rustup)
+  - rust-analyzer

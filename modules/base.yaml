@@ -1,0 +1,64 @@
+# Base packages installed on all systems
+# Core terminal tools matching NixOS flake configuration
+
+description: Base system packages and core terminal tools
+
+packages:
+  # Essential base system
+  - base
+  - base-devel
+  - linux-cachyos          # CachyOS kernel
+  - linux-cachyos-headers
+  - linux-firmware
+
+  # CachyOS specific packages
+  - cachyos-hooks
+  - cachyos-keyring
+  - cachyos-mirrorlist
+  - cachyos-v3-mirrorlist
+  - cachyos-v4-mirrorlist
+  - cachyos-settings
+  - cachyos-rate-mirrors
+  - cachyos-kernel-manager
+  - cachyos-snapper-support
+  - cachyos-ananicy-rules
+  - ananicy-cpp
+
+  # dcli dependencies
+  - paru         # AUR helper (required for AUR package management)
+  - fzf          # Fuzzy finder (required for dcli search/module/backup TUI)
+  - snapper      # System backup tool (using snapper as detected)
+
+  # Core terminal tools (from Nix modules/system/terminal/core)
+  - git
+  - starship          # Modern shell prompt
+  - tealdeer          # Simplified man pages (tldr client)
+  - xclip             # Clipboard management
+  - openssl           # SSL/TLS toolkit
+  - zoxide            # Smart cd replacement
+  - fd                # Fast file finder (fd-find)
+  - yazi              # Terminal file manager
+  - lsd               # Modern ls replacement
+  - eza               # Modern ls (alternative to lsd)
+  - unzip
+  - zip
+  - bc                # Calculator
+  - ripgrep           # Fast grep replacement
+  - wget
+
+  # Terminal emulators
+  - ghostty           # Fast, native terminal emulator (primary)
+  - ghostty-shell-integration
+  - ghostty-terminfo
+  - alacritty         # Alternative terminal
+
+  # Bat and extras (cat replacement)
+  - bat               # Cat with syntax highlighting
+  - bat-extras        # batdiff, batgrep, batman, etc.
+
+  # Shell
+  - zsh
+  - zsh-completions
+  - zsh-autosuggestions
+  - zsh-syntax-highlighting
+  - cachyos-zsh-config  # CachyOS zsh configuration

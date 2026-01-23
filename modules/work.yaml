@@ -1,0 +1,11 @@
+# Work Applications Module
+# From Nix modules/system/gui/extra/work.nix
+
+description: Work-related applications and tools
+
+packages:
+  # VPN
+  - openfortivpn        # FortiVPN client
+
+  # Browser for web apps (required for PWA module)
+  - chromium            # Chromium browser (better PWA support)

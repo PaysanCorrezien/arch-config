@@ -1,0 +1,8 @@
+# Espanso text expander
+# Wayland-focused setup for Niri/CachyOS
+
+description: Espanso text expander (Wayland build) with user service registration
+
+# Post-install hook for capabilities + systemd user service
+post_install_hook: scripts/setup-espanso.sh
+hook_behavior: ask

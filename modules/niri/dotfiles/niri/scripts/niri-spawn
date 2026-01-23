@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Spawn wrapper that implements dynamic tiling behavior:
+# - First window on workspace: opens full width (handled by niri default-column-width)
+# - Second window: 70/30 split (existing gets 70%, new gets 30%)
+
+set -euo pipefail
+
+if [[ $# -eq 0 ]]; then
+    echo "Usage: niri-spawn <command> [args...]"
+    exit 1
+fi
+
+# Get current focused workspace ID
+get_focused_workspace_id() {
+    niri msg -j workspaces | jq '.[] | select(.is_focused == true) | .id'
+}
+
+# Count windows on a specific workspace
+get_window_count() {
+    local ws_id="$1"
+    niri msg -j windows | jq --arg ws "$ws_id" '[.[] | select(.workspace_id == ($ws | tonumber))] | length'
+}
+
+WORKSPACE_ID=$(get_focused_workspace_id)
+BEFORE_COUNT=$(get_window_count "$WORKSPACE_ID")
+
+# Spawn the application in background
+"$@" &
+disown
+
+# Wait briefly for window to appear
+sleep 0.15
+
+AFTER_COUNT=$(get_window_count "$WORKSPACE_ID")
+
+# If there was already at least one window and a new one appeared,
+# apply 70/30 split
+if [[ $BEFORE_COUNT -gt 0 ]] && [[ $AFTER_COUNT -gt $BEFORE_COUNT ]]; then
+    # Resize the new window (currently focused) to 30% first
+    niri msg action set-column-width -- "30%"
+    # Go to first column, resize to 70%
+    niri msg action focus-column-first
+    niri msg action set-column-width -- "70%"
+    # Focus back to new window - this recalculates scroll with correct sizes
+    niri msg action focus-column-last
+fi

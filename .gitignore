@@ -1,0 +1,18 @@
+# System packages merged from host (auto-generated, host-specific)
+system-packages-*.yaml
+secrets.zsh
+
+# OneDrive runtime state (do not version)
+modules/onedrive/dotfiles/onedrive/items.sqlite3*
+modules/onedrive/dotfiles/onedrive/refresh_token
+modules/onedrive/dotfiles/onedrive/.config.backup
+modules/onedrive/dotfiles/onedrive/.config.hash
+modules/onedrive/dotfiles/onedrive/.sync_list.hash
+modules/onedrive/dotfiles/onedrive/sync_list
+
+# Local state (do not version)
+state/
+.docs/
+
+# Nested Neovim config repo (managed separately)
+modules/shell-config/dotfiles/nvim/

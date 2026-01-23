@@ -1,0 +1,65 @@
+# Development module - Language servers, formatters, and dev tools
+# From Nix modules/home-manager/programs/nvim.nix
+
+description: Development tools, language servers, and IDE support
+
+packages:
+  # Neovim and text editors
+  - neovim
+  - helix              # Modern terminal text editor
+
+  # Language Servers
+  - bash-language-server
+  - cmake-language-server
+  - clang              # Provides clang-tools
+  - lua-language-server
+  - nil-git            # Nix language server (AUR)
+  - python-lsp-server  # Pyright alternative
+  - pyright            # Python language server
+  - typescript-language-server  # vtsls alternative
+  - svelte-language-server
+  - vscode-langservers-extracted  # HTML/CSS/JSON/ESLint servers
+  - dockerfile-language-server
+  - marksman           # Markdown language server
+  - taplo-cli          # TOML language server
+  - yaml-language-server
+  - ltex-ls-bin        # LaTeX language server (AUR)
+  - harper             # Grammar checker
+
+  # Formatters
+  - python-black       # Python formatter
+  - ruff               # Python linter
+  - prettier           # JavaScript/TypeScript formatter
+  - stylua             # Lua formatter (already in terminal-extras)
+  - shfmt              # Shell script formatter
+  - nixfmt             # Nix formatter
+
+  # Linters
+  - shellcheck         # Shell script linter
+  - markdownlint-cli2  # Markdown linter
+
+  # Build tools and runtimes
+  - nodejs-lts-jod
+  - npm
+  - pnpm               # Fast package manager
+  - jdk-openjdk        # Java JDK (jdk21 equivalent)
+  - poppler            # PDF utilities
+  - make
+  - cmake
+  - neocmakelsp        # CMake language server
+
+  # Node version management
+  - nvm                # Node version manager
+
+  # Docker and containers
+  - docker
+  - docker-compose
+  - lazydocker         # Docker TUI
+
+  # AI coding assistants
+  - claude-code        # Anthropic's Claude Code CLI
+  - openai-codex       # OpenAI Codex CLI
+  - cursor-bin         # Cursor AI-powered IDE (AUR)
+
+  # Additional dev tools
+  - code               # VS Code (if needed, can be excluded)

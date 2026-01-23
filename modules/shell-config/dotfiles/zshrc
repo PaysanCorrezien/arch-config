@@ -1,0 +1,88 @@
+# ZSH Configuration for Arch Linux
+# Matches NixOS configuration from home-manager
+
+# Environment type
+export ENV_TYPE="ARCH"
+
+# History settings
+HISTFILE=~/.zsh_history
+HISTSIZE=100000
+SAVEHIST=20000
+FUNCNEST=150
+
+setopt hist_expire_dups_first
+setopt hist_ignore_dups
+setopt hist_ignore_space
+setopt hist_verify
+setopt inc_append_history
+setopt SHARE_HISTORY
+
+# Case insensitive completion + filename
+zstyle ':completion:*' matcher-list 'm:{[:lower:]}={[:upper:]}'
+setopt NO_CASE_GLOB
+
+# Enable completion system
+autoload -Uz compinit
+compinit
+
+# Initialize zoxide
+eval "$(zoxide init zsh)"
+
+# Carapace completions
+export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
+zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
+source <(carapace _carapace)
+
+# FZF key bindings and completion
+if [ -f /usr/share/fzf/key-bindings.zsh ]; then
+  source /usr/share/fzf/key-bindings.zsh
+fi
+
+if [ -f /usr/share/fzf/completion.zsh ]; then
+  source /usr/share/fzf/completion.zsh
+fi
+
+# ZSH plugins
+if [ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+  source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
+
+if [ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+  source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
+
+# Source custom zsh configuration files
+if [ -d ~/.config/zsh ]; then
+  [ -f ~/.config/zsh/exports.zsh ] && source ~/.config/zsh/exports.zsh
+  [ -f ~/.config/zsh/aliases.zsh ] && source ~/.config/zsh/aliases.zsh
+  [ -f ~/.config/zsh/bindings.zsh ] && source ~/.config/zsh/bindings.zsh
+fi
+
+# Source secrets file if it exists
+if [ -f ~/.config/zsh/secrets.zsh ]; then
+  source ~/.config/zsh/secrets.zsh
+fi
+
+# Prevent command from being written to history before execution
+function zshaddhistory() {
+  LASTHIST=${1//\\$'\n'/}
+  return 2
+}
+
+# Write the last command if successful
+function precmd() {
+  if [[ $? == 0 && -n ${LASTHIST//[[:space:]\n]/} && -n $HISTFILE ]] ; then
+    print -sr -- ${=${LASTHIST%%'\n'}}
+  fi
+}
+
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	command yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
+
+# Initialize Starship prompt
+eval "$(starship init zsh)"

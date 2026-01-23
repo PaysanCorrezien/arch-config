@@ -1,0 +1,8 @@
+# SDDM Noctalia Theme Module
+# Installs SDDM and configures the Noctalia login theme
+
+description: SDDM display manager with Noctalia theme
+
+# Post-install hook to install theme + set current theme
+post_install_hook: scripts/setup-sddm-noctalia.sh
+hook_behavior: ask

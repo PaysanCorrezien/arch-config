@@ -1,0 +1,43 @@
+# Yazi Configuration
+# Main settings for yazi file manager
+
+[manager]
+show_hidden = true
+sort_by = "mtime"
+sort_dir_first = false
+sort_reverse = true
+linemode = "size_and_mtime"
+
+[preview]
+max_width = 1920
+max_height = 1080
+
+[flavor]
+use = "noctalia"
+
+[log]
+enabled = true
+
+[[prepend_previewers]]
+mime = "application/zip"
+run = "ouch"
+
+[[prepend_previewers]]
+mime = "application/tar"
+run = "ouch"
+
+[[prepend_previewers]]
+mime = "application/bzip2"
+run = "ouch"
+
+[[prepend_previewers]]
+mime = "application/7z-compressed"
+run = "ouch"
+
+[[prepend_previewers]]
+mime = "application/rar"
+run = "ouch"
+
+[[prepend_previewers]]
+mime = "application/xz"
+run = "ouch"

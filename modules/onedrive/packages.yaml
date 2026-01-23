@@ -1,0 +1,6 @@
+# OneDrive sync client
+
+description: OneDrive sync client
+
+packages:
+  - onedrive-abraunegg

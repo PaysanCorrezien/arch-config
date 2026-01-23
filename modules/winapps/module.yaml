@@ -1,0 +1,8 @@
+# WinApps Module
+# Windows apps integration via winapps-org/winapps + dockurr/windows
+
+description: WinApps integration with a dockurr/windows Docker VM
+
+# Post-install hook to set up WinApps + dockurr/windows
+post_install_hook: scripts/setup-winapps-dockur.sh
+hook_behavior: ask

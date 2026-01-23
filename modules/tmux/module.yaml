@@ -1,0 +1,19 @@
+# Tmux Terminal Multiplexer Module
+# Complete tmux setup matching NixOS configuration with TPM plugins
+
+description: Tmux terminal multiplexer with advanced features and plugins
+
+# Auto-sync dotfiles
+dotfiles:
+  - source: dotfiles/tmux/tmux.conf
+    target: ~/.config/tmux/tmux.conf
+  - source: dotfiles/tmux.conf
+    target: ~/.tmux.conf
+  - source: dotfiles/sesh.toml
+    target: ~/.config/sesh/sesh.toml
+  - source: dotfiles/systemd/user/tmux.service
+    target: ~/.config/systemd/user/tmux.service
+
+# Post-install hook to set up TPM and install plugins
+post_install_hook: scripts/setup-tmux.sh
+hook_behavior: ask

@@ -1,0 +1,31 @@
+# Sesh Configuration
+# Session manager for tmux
+
+blacklist = ["scratch"]
+dir_length = 2  # Uses last 2 directories: "projects/sesh" instead of just "sesh"
+
+sort_order = [
+  "tmuxinator", # show first
+  "config",
+  "tmux",
+  "zoxide", # show last
+]
+
+[default_session]
+startup_command = "yazi"
+preview_command = "lsd --all --git --icon=auto --color=always"
+
+[[session]]
+name = "Downloads"
+path = "~/Downloads"
+startup_command = "yazi"
+
+[[session]]
+name = "repositories (c)"
+path = "~/repo"
+startup_command = "ls"
+
+[[session]]
+name = "home (~)"
+path = "~"
+disable_startup_command = true

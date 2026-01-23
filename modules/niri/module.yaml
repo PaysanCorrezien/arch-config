@@ -1,0 +1,20 @@
+# Niri Window Manager Module
+# Scrollable-tiling Wayland compositor with Noctalia integration
+# From Nix modules/system/gui/extra/niri.nix and modules/home-manager/niri
+# NOTE: Using Noctalia instead of waybar/mako for dashboard and notifications
+
+description: Niri scrollable-tiling Wayland compositor with Noctalia
+
+# Conflicts with other desktop environments
+conflicts:
+  - hyprland
+  - gnome
+  - kde
+  - xfce
+
+# Auto-sync dotfiles from dotfiles/ to ~/.config/
+dotfiles_sync: true
+
+# Post-install hook for additional setup
+post_install_hook: scripts/setup-niri.sh
+hook_behavior: ask

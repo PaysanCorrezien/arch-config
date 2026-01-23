@@ -1,0 +1,12 @@
+# Web Applications Module
+# PWA-style web app launchers for common services
+# From Nix modules/system/gui/extra/work.nix web app system
+
+description: Progressive Web App launchers for web services
+
+# No packages - this module only creates desktop entries
+# Requires chromium or microsoft-edge to be installed
+
+# Post-install hook creates .desktop files
+post_install_hook: scripts/create-webapps.sh
+hook_behavior: ask

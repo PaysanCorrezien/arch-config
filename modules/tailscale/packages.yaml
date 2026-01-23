@@ -1,0 +1,6 @@
+# Tailscale VPN packages
+
+description: Tailscale VPN and secure mesh networking
+
+packages:
+  - tailscale  # Tailscale VPN client and daemon

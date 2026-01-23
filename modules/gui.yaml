@@ -1,0 +1,73 @@
+# GUI Desktop Applications
+# From Nix modules/system/gui/gui.nix
+
+description: GUI desktop applications and tools
+
+packages:
+  # Browsers
+  - firefox
+
+  # Productivity
+  - obsidian # Note-taking app
+  #- todoist-appimage # Task manager (AUR)
+
+  # Graphics and media
+  - gimp # Image editor
+  - flameshot # Screenshot tool
+  - mpv # Video player
+  - zathura # PDF viewer
+  - zathura-pdf-mupdf # PDF support for zathura
+  - imv # Image viewer
+
+  # File management
+  - udiskie # Automount removable media
+
+  # Communication
+  - thunderbird # Email client
+
+  # System tools
+  - libnotify # Notifications
+  - xdg-desktop-portal # Desktop integration
+  - xdg-desktop-portal-gnome
+  - xdg-utils # XDG utilities
+
+  # iOS device support
+  #- libimobiledevice
+  #- ifuse # iOS filesystem
+
+  # VPN and networking
+  #- mullvad-vpn # VPN client (AUR)
+  - localsend-bin # File sharing (AUR)
+
+  # Time tracking
+  #- activitywatch-bin # Time tracking (AUR)
+
+  # Application launcher
+  #- wofi # Wayland application launcher
+  #- rofi # X11 application launcher
+  #- rofi-calc # Calculator plugin
+  #- rofi-bluetooth-git # Bluetooth plugin (AUR)
+
+  # Password management
+  - keepassxc # Password manager
+  # - bitwarden # Bitwarden client
+  #- bitwarden-cli # Bitwarden CLI
+  - pinentry # PIN entry dialog
+
+  # Remote desktop
+  - remmina # Remote desktop client
+
+  # Audio tools
+  - yt-dlp # YouTube downloader
+
+  # Audio control
+  - pavucontrol # PulseAudio volume control
+  - playerctl # Media player controller
+
+  # Flatpak apps
+  - flatpak # Flatpak support
+
+
+# Flatpak applications (optional - uncomment as needed)
+# - flatpak:com.spotify.Client
+# - flatpak:org.videolan.VLC

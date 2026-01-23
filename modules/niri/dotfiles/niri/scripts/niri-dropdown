@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# Scratchpad-style dropdown terminal
+# - Uses scratchpad workspace to properly hide/show the window
+# - When toggled: moves to/from scratchpad workspace
+
+set -euo pipefail
+
+ID_FILE="/tmp/niri-dropdown-id"
+TITLE="dropdown-terminal"
+SCRATCHPAD_WORKSPACE="scratchpad"
+
+# Check if window exists
+window_exists() {
+    niri msg -j windows | jq -e --argjson id "$1" '.[] | select(.id == $id)' >/dev/null 2>&1
+}
+
+# Get current workspace name
+get_current_workspace() {
+    niri msg -j workspaces | jq -r '.[] | select(.is_focused == true) | .name // .id'
+}
+
+# Get window's workspace name
+get_window_workspace() {
+    local id="$1"
+    local ws_id=$(niri msg -j windows | jq -r --argjson id "$id" '.[] | select(.id == $id) | .workspace_id')
+    niri msg -j workspaces | jq -r --argjson ws_id "$ws_id" '.[] | select(.id == $ws_id) | .name // empty'
+}
+
+# If dropdown exists
+if [[ -f "$ID_FILE" ]] && window_exists "$(cat "$ID_FILE")"; then
+    ID=$(cat "$ID_FILE")
+    CURRENT_WS=$(get_current_workspace)
+    WINDOW_WS=$(get_window_workspace "$ID")
+    
+    # If window is on scratchpad workspace, show it (move to current workspace)
+    if [[ "$WINDOW_WS" == "$SCRATCHPAD_WORKSPACE" ]]; then
+        # Move to current workspace without animation (no focus switch)
+        niri msg action move-window-to-workspace --window-id "$ID" "$CURRENT_WS"
+        sleep 0.1
+        niri msg action focus-window --id "$ID"
+        niri msg action center-window
+    else
+        # Window is visible -> hide it (move to scratchpad without following focus)
+        niri msg action move-window-to-workspace --window-id "$ID" --focus false "$SCRATCHPAD_WORKSPACE"
+    fi
+    exit 0
+fi
+
+# No window exists, create new one
+rm -f "$ID_FILE"
+
+# Get IDs before spawn
+BEFORE=$(niri msg -j windows | jq '[.[] | .id]')
+
+# Spawn ghostty with fixed title and tmux session (window rule makes it float at 70%)
+# tmux new-session -A: attach to session "scratchpad" if exists, create if not
+niri msg action spawn -- ghostty --title="$TITLE" -e bash -c "tmux new-session -A -s scratchpad"
+
+# Wait and find new window
+sleep 0.3
+NEW_ID=$(niri msg -j windows | jq -r --argjson before "$BEFORE" '
+    [.[] | .id] - $before | .[0]
+')
+
+if [[ -n "$NEW_ID" && "$NEW_ID" != "null" ]]; then
+    echo "$NEW_ID" > "$ID_FILE"
+    niri msg action center-window
+fi

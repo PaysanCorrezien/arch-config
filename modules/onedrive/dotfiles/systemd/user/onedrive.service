@@ -1,0 +1,16 @@
+[Unit]
+Description=OneDrive Sync Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/onedrive --monitor
+Restart=on-failure
+RestartSec=10
+Environment=HOME=%h
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

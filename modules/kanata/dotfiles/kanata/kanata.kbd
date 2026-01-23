@@ -1,0 +1,84 @@
+;; Kanata config (French AZERTY output via OS layout)
+;; Home-row mods handled on keyboard firmware; keep this layer simple.
+
+(defcfg
+  process-unmapped-keys yes
+  movemouse-smooth-diagonals yes
+  linux-output-device-name "kanata"
+)
+
+;; French AZERTY: keep US-position keycodes so the OS layout provides AZERTY output.
+(defsrc
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt menu rctl
+)
+
+(defvar
+  ;; Adjust as needed for your typing cadence.
+  tap-time 200
+  hold-time 150
+  space-tap-time 200
+  space-hold-time 200
+)
+
+(deflayer base
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           @spc           ralt menu rctl
+)
+
+(deflayer nomods
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           @spc           ralt menu rctl
+)
+
+(deflayer mouse-layer
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    @ml  @mu  @rclk _    _    _    _    _    _    _    _    _    _
+  _    @lclk @md  @mr  _    _    _    _    _    _    _    _    _
+  _    @mu  _    _    _    _    _    _    _    _    _    _
+  _    _    _            _             _    _    _
+)
+
+(deflayer nav-layer
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    home pgdn pgup end  _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _            _             _    _    _
+)
+
+(deffakekeys
+  to-base (layer-switch base)
+)
+
+(defalias
+  tap (multi
+    (layer-switch nomods)
+    (on-idle-fakekey to-base tap 20)
+  )
+
+  ;; Space toggles mouse layer on hold
+  spc (tap-hold-press $space-tap-time $space-hold-time spc (layer-while-held mouse-layer))
+
+  ;; Caps acts as Escape on tap, tmux leader (C-b) on hold
+  caps (tap-hold-press $tap-time $hold-time esc C-b)
+
+  ;; Q holds navigation layer
+  q (tap-hold-press $tap-time $hold-time q (layer-while-held nav-layer))
+
+  mu (movemouse-accel-up 1 600 1 6)
+  md (movemouse-accel-down 1 600 1 6)
+  ml (movemouse-accel-left 1 600 1 6)
+  mr (movemouse-accel-right 1 600 1 6)
+  lclk mltp
+  rclk mrtp
+)

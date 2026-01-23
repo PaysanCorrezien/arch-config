@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# OneDrive management script with fzf menu
+
+if ! command -v fzf >/dev/null 2>&1; then
+  echo "Error: fzf is not installed" >&2
+  exit 1
+fi
+
+menu_options=(
+  "📊 Status|Check OneDrive service status|systemctl --user status onedrive"
+  "📋 Logs|View OneDrive service logs|journalctl --user -t onedrive | less"
+  "⚙️  Config|Display OneDrive configuration|onedrive --display-config"
+  "🧪 Dry Run|Test sync without making changes|onedrive --dry-run"
+  "🔄 Monitor|Start continuous sync daemon (Recommended)|onedrive --monitor"
+  "📥 Sync|Perform a full synchronization|onedrive --sync"
+  "⚠️  Resync + Sync|Full reset with sync (DANGEROUS)|onedrive --resync --sync"
+  "⚠️  Resync + Monitor|Full reset with monitor (DANGEROUS)|onedrive --resync --monitor"
+)
+
+menu_text=$(printf '%s\n' "${menu_options[@]}" | awk -F'|' '{printf "%-25s %s\n", $1, $2}')
+
+selected=$(echo "$menu_text" | fzf \
+  --height=40% \
+  --border \
+  --border-label=" OneDrive Manager " \
+  --prompt="⚡  " \
+  --header="Select an action (ESC to cancel)" \
+  --preview-window=bottom:3:wrap \
+  --ansi \
+  --pointer="➜" \
+  --marker="✓" \
+  --bind='ctrl-c:abort' \
+  --bind='esc:abort')
+
+if [ -z "$selected" ]; then
+  exit 0
+fi
+
+indicator=$(echo "$selected" | awk '{print $1}')
+command=""
+for option in "${menu_options[@]}"; do
+  if echo "$option" | cut -d'|' -f1 | grep -q "$indicator"; then
+    command=$(echo "$option" | cut -d'|' -f3)
+    break
+  fi
+done
+
+if [ -n "$command" ]; then
+  if echo "$command" | grep -q "resync"; then
+    echo ""
+    echo "⚠️  WARNING: This is a dangerous operation!"
+    echo "   It will reset local DB and re-evaluate all remote state."
+    echo "   Risk of overwriting local changes."
+    echo ""
+    read -p "Are you sure you want to continue? (type 'yes' to confirm): " confirm
+    if [ "$confirm" != "yes" ]; then
+      echo "Operation cancelled."
+      exit 0
+    fi
+  fi
+
+  echo ""
+  echo "Executing: $command"
+  echo ""
+  eval "$command"
+  exit $?
+else
+  echo "Error: Could not find command for selection" >&2
+  exit 1
+fi

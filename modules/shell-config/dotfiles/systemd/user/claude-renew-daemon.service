@@ -1,0 +1,13 @@
+[Unit]
+Description=Claude usage auto-renew daemon (ccusage)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/claude-renew-daemon
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

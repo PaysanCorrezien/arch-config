@@ -1,0 +1,11 @@
+# OneDrive Module
+# Sync client and user service with local config
+
+description: OneDrive sync client with config, script, and user service
+
+# Auto-sync dotfiles from dotfiles/ to ~/.config/
+dotfiles_sync: true
+
+# Post-install hook to enable the user service
+post_install_hook: scripts/setup-onedrive.sh
+hook_behavior: ask

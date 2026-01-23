@@ -1,0 +1,10 @@
+# Social Applications Module
+
+description: Social and communication applications
+
+packages:
+  # Matrix/Element
+  - element-desktop # Matrix client
+
+  # Discord (Vesktop)
+  - vesktop # Discord client (Vesktop) - AUR

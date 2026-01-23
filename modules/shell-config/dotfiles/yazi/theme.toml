@@ -1,0 +1,6 @@
+# Yazi Theme Configuration
+# Use the Noctalia flavor for both dark and light modes.
+
+[flavor]
+dark = "noctalia"
+light = "noctalia"
