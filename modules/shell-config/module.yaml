@@ -23,6 +23,8 @@ dotfiles:
     target: ~/.local/bin/claude-renew-daemon
   - source: dotfiles/systemd/user/claude-renew-daemon.service
     target: ~/.config/systemd/user/claude-renew-daemon.service
+  - source: dotfiles/environment.d/90-ssh-auth-sock.conf
+    target: ~/.config/environment.d/90-ssh-auth-sock.conf
 
 # Post-install hook
 post_install_hook: scripts/setup-zsh.sh
