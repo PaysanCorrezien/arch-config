@@ -82,7 +82,7 @@ binds {
     MOD+SHIFT+COMMA                     hotkey-overlay-title="Noctalia Emoji Picker" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "launcher" "emoji"; }
     MOD+SHIFT+V                         hotkey-overlay-title="Noctalia Clipboard" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "launcher" "clipboard"; }
     Super+N                             hotkey-overlay-title="Noctalia Notification History" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "notifications" "toggleHistory"; }
-    //Super+K                             hotkey-overlay-title="Noctalia Keybinds Helper" { spawn-sh "qs -c noctalia-shell ipc call keybind-cheatsheet toggle"; }
+    Super+K                             hotkey-overlay-title="Noctalia Keybinds Helper" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "plugin:keybind-cheatsheet" "toggle"; }
     Super+L                             hotkey-overlay-title="Lock Screen" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "lockScreen" "lock"; }
     Super+X                             hotkey-overlay-title="Noctalia Night Light" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "nightLight" "toggle"; }
     //MOD+Z                               hotkey-overlay-title="Maximize window"  { expand-column-to-available-width; }

@@ -29,8 +29,10 @@ enabled_modules:
   - webapps                  # PWA launchers for web services
   - winapps                  # Windows apps via WinApps + libvirt
   - ssh                      # Secure SSH server with key-based auth
+  - snapper                  # Snapper root/home snapshots + GRUB entries
   - tailscale                # Tailscale VPN with Tailscale SSH
   - localsend                # LocalSend file sharing with firewall
+  - clovis                   # Clovis config dotfiles
 
 # Module processing mode
 # parallel: Collect and install all modules at once (faster, default)

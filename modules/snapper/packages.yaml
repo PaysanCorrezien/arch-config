@@ -1,0 +1,8 @@
+# Snapper and GRUB snapshot integration packages
+
+description: Snapper + snap-pac + grub-btrfs packages
+
+packages:
+  - snapper
+  - snap-pac
+  - grub-btrfs

@@ -1,0 +1,7 @@
+# Clovis configuration module
+# Manage Clovis config dotfiles
+
+description: Clovis configuration (dotfiles only)
+
+# Auto-sync dotfiles from dotfiles/ to ~/.config/
+dotfiles_sync: true

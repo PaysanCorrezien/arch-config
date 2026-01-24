@@ -1,0 +1,7 @@
+# Snapper snapshots with GRUB integration
+# Configures root + home snapshots and bootable rollbacks
+
+description: Snapper root/home snapshots with GRUB rollback entries
+
+post_install_hook: scripts/setup-snapper.sh
+hook_behavior: ask

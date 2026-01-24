@@ -1,0 +1,16 @@
+---
+environments:
+  work:
+    - chromium
+    - com.mitchellh.ghostty
+    - cursor
+    - espanso
+    - nm-applet
+    - org.keepassxc.KeePassXC
+    - org.mozilla.Thunderbird
+    - org.remmina.Remmina
+  personal:
+    - firefox
+    - thunderbird
+    - vscode
+    - discord
