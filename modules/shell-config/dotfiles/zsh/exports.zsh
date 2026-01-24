@@ -1,10 +1,14 @@
 # Add ~/.local/bin to PATH (includes WSL clipboard wrapper)
 export PATH="$HOME/.local/bin:$HOME/.local/share/pythonautomation/bin:$PATH"
 
+# GTK/Qt Dark Theme
+export GTK_THEME=adw-gtk3-dark
+export QT_QPA_PLATFORMTHEME=qt5ct
+
 # Wayland display (for wl-clipboard support in terminals)
 if [[ -z "$WAYLAND_DISPLAY" && -d "$XDG_RUNTIME_DIR" ]]; then
   # Auto-detect Wayland socket (niri uses wayland-1)
-  for sock in "$XDG_RUNTIME_DIR"/wayland-*; do
+  for sock in "$XDG_RUNTIME_DIR"/wayland-*(N); do
     if [[ -S "$sock" && ! "$sock" =~ \.lock$ ]]; then
       export WAYLAND_DISPLAY="${sock##*/}"
       break

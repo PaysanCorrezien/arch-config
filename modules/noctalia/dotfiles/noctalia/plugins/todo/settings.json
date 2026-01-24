@@ -1,0 +1,40 @@
+{
+  "todos": [
+    {
+      "id": 1769274281585,
+      "text": "The dcli error is a bug where hook paths are resolved relative to the config root instead of the module directory. The path in modules/webapps/module.yaml is\n  scripts/create-webapps.sh (correct convention), but dcli looks for /home/dylan/.config/arch-config/scripts/create-webapps.sh instead of\n  /home/dylan/.config/arch-config/modules/webapps/scripts/create-webapps.sh.\n\n  You may want to report this at https://gitlab.com/theblackdon/dcli.",
+      "completed": false,
+      "createdAt": "2026-01-24T17:04:41.585Z",
+      "pageId": 0
+    },
+    {
+      "id": 1769270360752,
+      "text": "ask to make the cli hook execute individually and not kill dcli when one is failing , execute all the one that work",
+      "completed": false,
+      "createdAt": "2026-01-24T15:59:20.752Z",
+      "pageId": 0
+    },
+    {
+      "id": 1769270314665,
+      "text": "cleanup the script message ouput, and only at the end mention manual action still required",
+      "completed": false,
+      "createdAt": "2026-01-24T15:58:34.665Z",
+      "pageId": 0
+    },
+    {
+      "id": 1769270298183,
+      "text": "sudo should cache to not ask 50 times",
+      "completed": false,
+      "createdAt": "2026-01-24T15:58:18.183Z",
+      "pageId": 0
+    },
+    {
+      "id": 1769270281452,
+      "text": "find package that have not precise enough def and ask user query",
+      "completed": false,
+      "createdAt": "2026-01-24T15:58:01.452Z",
+      "pageId": 0
+    }
+  ],
+  "count": 5
+}

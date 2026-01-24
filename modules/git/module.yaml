@@ -1,0 +1,10 @@
+# Git configuration module
+# Ensures git identity is properly configured
+
+description: Git configuration and identity setup
+
+packages:
+  - git
+
+post_install_hook: scripts/setup-git.sh
+hook_behavior: ask

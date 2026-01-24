@@ -8,3 +8,4 @@ packages:
   - qt5-quickcontrols2
   - qt5-quickcontrols
   - git
+  - weston  # Required for SDDM Wayland greeter

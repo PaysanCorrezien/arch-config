@@ -49,7 +49,3 @@ packages:
   - cava              # Audio visualizer
   - thefuck           # Command corrector
   - ytfzf             # YouTube TUI
-
-  # Rust toolchain
-  - rustup            # Rust toolchain (rust/cargo via rustup)
-  - rust-analyzer

@@ -40,10 +40,16 @@
         "marginHorizontal": 4,
         "marginVertical": 6,
         "monitors": [
+            "DP-1"
         ],
         "outerCorners": true,
         "position": "top",
         "screenOverrides": [
+            {
+                "density": "mini",
+                "enabled": false,
+                "name": "HDMI-A-1"
+            }
         ],
         "showCapsule": true,
         "showOutline": false,
@@ -69,6 +75,29 @@
                     "hideWhenIdle": true,
                     "id": "AudioVisualizer",
                     "width": 200
+                },
+                {
+                    "defaultSettings": {
+                        "autoResetEnabled": true,
+                        "claudeEnabled": true,
+                        "claudeResetEnabled": true,
+                        "claudeResetMessage": "hi",
+                        "codexCredentialsPath": "$HOME/.codex/auth.json",
+                        "codexEnabled": true,
+                        "codexResetEnabled": false,
+                        "codexResetMessage": "hi",
+                        "openaiCredentialsPath": "$HOME/.codex/auth.json",
+                        "openaiEnabled": true,
+                        "refreshIntervalSeconds": 60,
+                        "showBar": true,
+                        "showClaudeInBar": true,
+                        "showCodexInBar": true,
+                        "showInBar": true,
+                        "showOpenaiInBar": true,
+                        "watcherEnabled": true,
+                        "watcherMessage": "hi"
+                    },
+                    "id": "plugin:ai-usage"
                 }
             ],
             "left": [
@@ -128,6 +157,9 @@
                     "showVisualizer": false,
                     "useFixedWidth": false,
                     "visualizerType": "linear"
+                },
+                {
+                    "id": "NightLight"
                 }
             ],
             "right": [
@@ -212,6 +244,31 @@
                     "id": "plugin:weekly-calendar"
                 },
                 {
+                    "defaultSettings": {
+                        "completedCount": 0,
+                        "count": 0,
+                        "current_page_id": 0,
+                        "isExpanded": false,
+                        "pages": [
+                            {
+                                "id": 0,
+                                "name": "General"
+                            }
+                        ],
+                        "showBackground": true,
+                        "showCompleted": true,
+                        "todos": [
+                        ]
+                    },
+                    "id": "plugin:todo"
+                },
+                {
+                    "defaultSettings": {
+                        "position": "Bottom"
+                    },
+                    "id": "plugin:clipper"
+                },
+                {
                     "customFont": "",
                     "formatHorizontal": "HH:mm ddd, MMM dd",
                     "formatVertical": "HH mm - dd MM",
@@ -219,29 +276,6 @@
                     "tooltipFormat": "HH:mm ddd, MMM dd",
                     "useCustomFont": false,
                     "usePrimaryColor": false
-                },
-                {
-                    "defaultSettings": {
-                        "autoResetEnabled": true,
-                        "claudeEnabled": true,
-                        "claudeResetEnabled": true,
-                        "claudeResetMessage": "hi",
-                        "codexCredentialsPath": "$HOME/.codex/auth.json",
-                        "codexEnabled": true,
-                        "codexResetEnabled": false,
-                        "codexResetMessage": "hi",
-                        "openaiCredentialsPath": "$HOME/.codex/auth.json",
-                        "openaiEnabled": true,
-                        "refreshIntervalSeconds": 60,
-                        "showBar": true,
-                        "showClaudeInBar": true,
-                        "showCodexInBar": true,
-                        "showInBar": true,
-                        "showOpenaiInBar": true,
-                        "watcherEnabled": true,
-                        "watcherMessage": "hi"
-                    },
-                    "id": "plugin:ai-usage"
                 }
             ]
         }
@@ -426,11 +460,11 @@
     "nightLight": {
         "autoSchedule": true,
         "dayTemp": "6500",
-        "enabled": false,
+        "enabled": true,
         "forced": false,
         "manualSunrise": "06:30",
         "manualSunset": "18:30",
-        "nightTemp": "4000"
+        "nightTemp": "2963"
     },
     "notifications": {
         "backgroundOpacity": 1,
@@ -627,7 +661,7 @@
     },
     "wallpaper": {
         "automationEnabled": true,
-        "directory": "/home/dylan/OneDrive/Configuration/wallpaper",
+        "directory": "/home/dylan/Pictures/Wallpapers",
         "enableMultiMonitorDirectories": false,
         "enabled": true,
         "fillColor": "#000000",

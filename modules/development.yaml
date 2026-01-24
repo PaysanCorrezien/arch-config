@@ -46,7 +46,6 @@ packages:
   - poppler            # PDF utilities
   - make
   - cmake
-  - neocmakelsp        # CMake language server
 
   # Node version management
   - nvm                # Node version manager

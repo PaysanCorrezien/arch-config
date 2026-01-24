@@ -203,8 +203,8 @@ All scripts in `~/.config/scripts/`:
 - `save_tmux_context.sh`
 
 ### Plugin Directory
-- **TPM**: `~/.tmux/plugins/tpm/`
-- **Plugins**: `~/.tmux/plugins/*/`
+- **TPM**: `~/.config/tmux/plugins/tpm/`
+- **Plugins**: `~/.config/tmux/plugins/*/`
 
 ### Data Directories
 - **Resurrect**: `~/.tmux/resurrect/`
@@ -270,7 +270,7 @@ set -g @catppuccin_flavor "mocha"    # or "latte", "frappe", "macchiato"
 ### Plugins Not Loading
 ```bash
 # Ensure TPM is installed
-ls ~/.tmux/plugins/tpm
+ls ~/.config/tmux/plugins/tpm
 
 # Reinstall plugins
 Prefix + I

@@ -84,6 +84,8 @@ binds {
     Super+N                             hotkey-overlay-title="Noctalia Notification History" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "notifications" "toggleHistory"; }
     Super+K                             hotkey-overlay-title="Noctalia Keybinds Helper" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "plugin:keybind-cheatsheet" "toggle"; }
     Super+I                             hotkey-overlay-title="Noctalia AI-Usage Panel" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "plugin:ai-usage" "openPanel"; }
+    MOD+SHIFT+T                         hotkey-overlay-title="Noctalia Todo Panel" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "plugin:todo" "togglePanel"; }
+    Super+V                             hotkey-overlay-title="Noctalia Clipper Panel" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "plugin:clipper" "togglePanel"; }
     Super+L                             hotkey-overlay-title="Lock Screen" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "lockScreen" "lock"; }
     Super+X                             hotkey-overlay-title="Noctalia Night Light" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "nightLight" "toggle"; }
     //MOD+Z                               hotkey-overlay-title="Maximize window"  { expand-column-to-available-width; }
@@ -584,6 +586,7 @@ binds {
         QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
         XDG_SESSION_TYPE "wayland"
         XDG_CURRENT_DESKTOP "niri"
+        SSH_AUTH_SOCK "/run/user/1000/ssh-agent.socket"
     }
 
     hotkey-overlay {

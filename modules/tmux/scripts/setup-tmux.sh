@@ -21,14 +21,34 @@ run_user_cmd() {
   fi
 }
 
+# Fix ownership from prior root runs so user writes work reliably.
+if [ "$(id -u)" -eq 0 ] && [ "${target_user}" != "root" ]; then
+  for path in "${user_home}/.tmux" "${user_home}/.config/scripts" "${user_home}/.config/tmux"; do
+    if [ -e "${path}" ] && [ "$(stat -c %u "${path}")" -ne "$(id -u "${target_user}")" ]; then
+      chown -R "${target_user}:${target_user}" "${path}"
+    fi
+  done
+fi
+
 # Create necessary directories
 echo "→ Creating tmux directories..."
-mkdir -p "${user_home}/.config/tmux"
-mkdir -p "${user_home}/.config/scripts"
-mkdir -p "${user_home}/.tmux/resurrect"
-mkdir -p "${user_home}/.tmux/scripts"
-mkdir -p "${user_home}/Notes"
+run_user_cmd mkdir -p "${user_home}/.config/tmux"
+run_user_cmd mkdir -p "${user_home}/.config/scripts"
+run_user_cmd mkdir -p "${user_home}/.config/tmux/plugins"
+run_user_cmd mkdir -p "${user_home}/.tmux/resurrect"
+run_user_cmd mkdir -p "${user_home}/.tmux/scripts"
+run_user_cmd mkdir -p "${user_home}/Notes"
 echo "✓ Directories created"
+
+# Migrate plugins from legacy path if present
+legacy_plugins_dir="${user_home}/.tmux/plugins"
+xdg_plugins_dir="${user_home}/.config/tmux/plugins"
+if [ -d "${legacy_plugins_dir}" ] && [ ! -d "${xdg_plugins_dir}/tpm" ]; then
+  echo "→ Migrating tmux plugins to XDG path..."
+  run_user_cmd mkdir -p "${xdg_plugins_dir}"
+  run_user_cmd cp -a "${legacy_plugins_dir}/." "${xdg_plugins_dir}/" 2>/dev/null || true
+  echo "✓ Plugin migration complete"
+fi
 
 # Copy and make executable all helper scripts
 echo
@@ -54,8 +74,8 @@ scripts=(
 
 for script in "${scripts[@]}"; do
   if [ -f "$SCRIPT_DIR/$script" ]; then
-    cp "$SCRIPT_DIR/$script" "${user_home}/.config/scripts/"
-    chmod +x "${user_home}/.config/scripts/$script"
+    run_user_cmd cp "$SCRIPT_DIR/$script" "${user_home}/.config/scripts/"
+    run_user_cmd chmod +x "${user_home}/.config/scripts/$script"
     echo "  ✓ Installed $script"
   else
     echo "  ⚠ Warning: $script not found"
@@ -66,8 +86,8 @@ echo "✓ Helper scripts installed"
 
 # Install ensure-session helper script
 if [ -f "$SCRIPT_DIR/ensure-session" ]; then
-  cp "$SCRIPT_DIR/ensure-session" "${user_home}/.tmux/scripts/ensure-session"
-  chmod +x "${user_home}/.tmux/scripts/ensure-session"
+  run_user_cmd cp "$SCRIPT_DIR/ensure-session" "${user_home}/.tmux/scripts/ensure-session"
+  run_user_cmd chmod +x "${user_home}/.tmux/scripts/ensure-session"
   echo "✓ Installed ensure-session"
 else
   echo "⚠ Warning: ensure-session not found"
@@ -76,9 +96,8 @@ fi
 # Install TPM (Tmux Plugin Manager) if not already installed
 echo
 echo "→ Installing TPM (Tmux Plugin Manager) for ${target_user}..."
-if [ ! -d "${user_home}/.tmux/plugins/tpm" ]; then
-  run_user_cmd mkdir -p "${user_home}/.tmux/plugins"
-  run_user_cmd git clone https://github.com/tmux-plugins/tpm "${user_home}/.tmux/plugins/tpm"
+if [ ! -d "${user_home}/.config/tmux/plugins/tpm" ]; then
+  run_user_cmd git clone https://github.com/tmux-plugins/tpm "${user_home}/.config/tmux/plugins/tpm"
   echo "✓ TPM installed"
 else
   echo "✓ TPM already installed"
@@ -87,7 +106,7 @@ fi
 # Install critical tmux plugins manually (TPM sometimes fails to clone)
 echo
 echo "→ Installing critical tmux plugins..."
-plugins_dir="${user_home}/.tmux/plugins"
+plugins_dir="${user_home}/.config/tmux/plugins"
 
 critical_plugins=(
   "tmux-plugins/tmux-sensible"
@@ -119,9 +138,9 @@ echo "✓ Critical plugins installed"
 echo
 echo "→ Running TPM plugin installation..."
 tmux_conf="${user_home}/.config/tmux/tmux.conf"
-if [ -d "${user_home}/.tmux/plugins/tpm" ] && [ -f "${tmux_conf}" ]; then
-  TMUX_PLUGIN_MANAGER_PATH="${user_home}/.tmux/plugins" \
-    run_user_cmd "${user_home}/.tmux/plugins/tpm/bin/install_plugins" 2>/dev/null || true
+if [ -d "${user_home}/.config/tmux/plugins/tpm" ] && [ -f "${tmux_conf}" ]; then
+  TMUX_PLUGIN_MANAGER_PATH="${user_home}/.config/tmux/plugins" \
+    run_user_cmd "${user_home}/.config/tmux/plugins/tpm/bin/install_plugins" 2>/dev/null || true
   echo "✓ TPM plugin installation complete"
 elif [ ! -f "${tmux_conf}" ]; then
   echo "⚠ tmux.conf not found; skipping TPM plugin installation"

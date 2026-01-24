@@ -20,6 +20,9 @@ fi
 # Grant input/uinput access to the current user
 sudo usermod -aG input,uinput "$TARGET_USER"
 
+# Load the uinput kernel module first so udev can work with the device.
+sudo modprobe uinput
+
 # Allow the uinput device for the uinput group
 RULE_PATH="/etc/udev/rules.d/99-kanata.rules"
 sudo tee "$RULE_PATH" >/dev/null <<'RULE'
@@ -28,7 +31,6 @@ RULE
 
 sudo udevadm control --reload-rules
 sudo udevadm trigger --name-match=uinput
-sudo modprobe uinput
 
 # Ensure permissions stay correct on boot even if udev is late.
 TMPFILES_PATH="/etc/tmpfiles.d/kanata-uinput.conf"
@@ -37,12 +39,14 @@ z /dev/uinput 0660 root uinput -
 RULE
 sudo systemd-tmpfiles --create "$TMPFILES_PATH"
 
-# Enable the user service if possible
+# Enable the user service (don't start yet - group changes need re-login)
 if systemctl --user daemon-reload >/dev/null 2>&1; then
-  systemctl --user enable --now kanata.service
-  echo "Kanata user service enabled."
+  systemctl --user enable kanata.service
+  echo "Kanata user service enabled (will start after re-login)."
 else
-  echo "Run: systemctl --user enable --now kanata.service"
+  echo "Run: systemctl --user enable kanata.service"
 fi
 
-echo "Note: log out and back in for group changes to take effect."
+echo ""
+echo "IMPORTANT: Log out and back in for group changes to take effect."
+echo "After re-login, kanata will start automatically."

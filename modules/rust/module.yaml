@@ -1,0 +1,11 @@
+# Rust toolchain module
+# Manages rustup, toolchains, and Rust development tools
+
+description: Rust toolchain via rustup with stable toolchain
+
+packages:
+  - rustup            # Rust toolchain manager
+  - rust-analyzer     # Rust language server
+
+scripts:
+  - scripts/setup-rust.sh

@@ -1,7 +1,9 @@
 # Neovim Config Module
-# Manage Neovim configuration from a remote git repo
+# Symlinks the neovim config from external/nvim-config submodule
 
-description: Neovim configuration synced from https://github.com/PaysanCorrezien/config.nvim
+description: Neovim configuration from external git submodule
 
-post_install_hook: scripts/setup-nvim-config.sh
-hook_behavior: always
+# Symlink the entire submodule to ~/.config/nvim
+dotfiles:
+  - source: ../../external/nvim-config
+    target: ~/.config/nvim

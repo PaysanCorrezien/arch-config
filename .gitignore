@@ -16,3 +16,4 @@ state/
 
 # Nested Neovim config repo (managed separately)
 modules/shell-config/dotfiles/nvim/
+modules/noctalia/dotfiles/noctalia/plugins/ai-usage/

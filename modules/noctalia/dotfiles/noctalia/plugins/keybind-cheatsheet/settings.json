@@ -49,6 +49,10 @@
           "desc": "Noctalia AI-Usage Panel"
         },
         {
+          "keys": "MOD+SHIFT+T",
+          "desc": "Noctalia Todo Panel"
+        },
+        {
           "keys": "Super + L",
           "desc": "Lock Screen"
         },

@@ -23,7 +23,18 @@ sudo install -d "${config_dir}"
 sudo tee "${config_file}" >/dev/null <<EOF_CONF
 [Theme]
 Current=${theme_name}
+
+[General]
+DisplayServer=wayland
+InputMethod=
+
+[Wayland]
+CompositorCommand=weston --shell=kiosk
+EnableHiDPI=true
 EOF_CONF
+
+# Enable SDDM service (disables any existing display manager)
+sudo systemctl enable sddm.service
 
 user_name="${SUDO_USER:-${USER}}"
 user_home="$(getent passwd "${user_name}" | cut -d: -f6)"
