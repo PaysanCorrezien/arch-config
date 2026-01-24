@@ -1,0 +1,41 @@
+{
+  "id": "ai-usage",
+  "name": "AI Usage",
+  "version": "0.3.0",
+  "minNoctaliaVersion": "3.6.0",
+  "author": "You",
+  "license": "MIT",
+  "description": "Show AI provider usage (Claude, Codex) in the bar.",
+  "tags": ["Bar", "Claude", "OpenAI", "Codex", "Usage", "API", "AI"],
+  "entryPoints": {
+    "main": "Main.qml",
+    "barWidget": "BarWidget.qml",
+    "panel": "Panel.qml",
+    "settings": "Settings.qml"
+  },
+  "dependencies": {
+    "plugins": []
+  },
+  "metadata": {
+    "defaultSettings": {
+      "claudeEnabled": true,
+      "showClaudeInBar": true,
+      "refreshIntervalSeconds": 60,
+      "showBar": true,
+      "showInBar": true,
+      "autoResetEnabled": true,
+      "claudeResetEnabled": true,
+      "claudeResetMessage": "hi",
+      "watcherEnabled": true,
+      "watcherMessage": "hi",
+      "codexResetEnabled": false,
+      "codexResetMessage": "hi",
+      "codexEnabled": true,
+      "showCodexInBar": true,
+      "openaiEnabled": true,
+      "showOpenaiInBar": true,
+      "codexCredentialsPath": "$HOME/.codex/auth.json",
+      "openaiCredentialsPath": "$HOME/.codex/auth.json"
+    }
+  }
+}

@@ -1,15 +1,7 @@
 #!/bin/bash
 
-# Read stdin JSON input without blocking if the pipe stays open
-input="{}"
-if [ ! -t 0 ]; then
-    if IFS= read -r -t 0.05 first_line; then
-        input="$first_line"
-        while IFS= read -r -t 0.01 line; do
-            input="${input}"$'\n'"$line"
-        done
-    fi
-fi
+# Read stdin JSON input
+input=$(cat)
 
 # Extract basic session info
 model=$(echo "$input" | jq -r '.model.display_name // empty' | sed -E 's/Claude ([0-9.]+) /\1 /; s/Claude //')
@@ -27,27 +19,23 @@ if [ -z "$model_id" ]; then
     model_id="claude-sonnet-4-5-20250929"
 fi
 
-# Extract context window info
-usage=$(echo "$input" | jq '.context_window.current_usage')
-size=$(echo "$input" | jq '.context_window.context_window_size')
+# Extract context window info - use pre-calculated used_percentage for accuracy
+pct=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
+size=$(echo "$input" | jq -r '.context_window.context_window_size // 200000')
+total_input=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
+total_output=$(echo "$input" | jq -r '.context_window.total_output_tokens // 0')
 
-# Calculate context usage bar
-if [ "$usage" != "null" ] && [ "$size" != "null" ] && [ "$size" -gt 0 ] 2>/dev/null; then
-    current=$(echo "$usage" | jq '.input_tokens + .cache_creation_input_tokens + .cache_read_input_tokens')
-    pct=$((current * 100 / size))
-    filled=$((pct / 10))
-    empty=$((10 - filled))
-    bar=""
-    for ((i=0; i<filled; i++)); do bar="${bar}="; done
-    for ((i=0; i<empty; i++)); do bar="${bar} "; done
-    current_k=$((current / 1000))
-    size_k=$((size / 1000))
-else
-    pct=0
-    bar="          "
-    current_k=0
-    size_k=200
-fi
+# Calculate display values
+current=$((total_input + total_output))
+current_k=$((current / 1000))
+size_k=$((size / 1000))
+
+# Build context usage bar from percentage
+filled=$((pct / 10))
+empty=$((10 - filled))
+bar=""
+for ((i=0; i<filled; i++)); do bar="${bar}="; done
+for ((i=0; i<empty; i++)); do bar="${bar} "; done
 
 # Get git branch with FIXED color escaping
 git_branch=$(cd "$cwd" 2>/dev/null && git --no-optional-locks branch --show-current 2>/dev/null)

@@ -4,6 +4,8 @@ initial-tool = "rectangle"
 # Smaller annotations
 annotation-size-factor = 1
 output-filename = "/home/dylan/Images/Screenshots/%Y-%m-%d_%H:%M:%S.png"
+# Use wl-copy so clipboard persists after satty exits
+copy-command = "wl-copy"
 
 [color-palette]
 # Keep a minimal palette with red

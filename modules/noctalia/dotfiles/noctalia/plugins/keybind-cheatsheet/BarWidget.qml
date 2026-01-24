@@ -12,11 +12,11 @@ Rectangle {
   property string widgetId: ""
   property string section: ""
 
-  readonly property string barPosition: Settings.data.bar.position || "top"
+  readonly property string barPosition: Settings.getBarPositionForScreen(screen.name)
   readonly property bool barIsVertical: barPosition === "left" || barPosition === "right"
 
-  implicitWidth: Style.capsuleHeight
-  implicitHeight: Style.capsuleHeight
+  implicitWidth: Style.getCapsuleHeightForScreen(screen.name)
+  implicitHeight: Style.getCapsuleHeightForScreen(screen.name)
 
   color: Style.capsuleColor
   radius: Style.radiusL

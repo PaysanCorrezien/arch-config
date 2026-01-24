@@ -6,6 +6,7 @@
         "customLaunchPrefixEnabled": false,
         "enableClipPreview": true,
         "enableClipboardHistory": true,
+        "enableSettingsSearch": true,
         "iconMode": "tabler",
         "ignoreMouseInput": false,
         "pinnedApps": [
@@ -25,25 +26,28 @@
         ],
         "preferredPlayer": "",
         "visualizerType": "mirrored",
+        "volumeFeedback": false,
         "volumeOverdrive": false,
         "volumeStep": 5
     },
     "bar": {
-        "backgroundOpacity": 0.93,
-        "capsuleOpacity": 1,
+        "backgroundOpacity": 0,
+        "capsuleOpacity": 0.8300000000000001,
         "density": "default",
         "exclusive": true,
         "floating": true,
         "hideOnOverview": false,
         "marginHorizontal": 4,
-        "marginVertical": 4,
+        "marginVertical": 6,
         "monitors": [
         ],
         "outerCorners": true,
         "position": "top",
+        "screenOverrides": [
+        ],
         "showCapsule": true,
         "showOutline": false,
-        "useSeparateOpacity": false,
+        "useSeparateOpacity": true,
         "widgets": {
             "center": [
                 {
@@ -94,6 +98,7 @@
                     "showMemoryAsPercent": false,
                     "showMemoryUsage": true,
                     "showNetworkStats": false,
+                    "showSwapUsage": false,
                     "useMonospaceFont": true,
                     "usePrimaryColor": false
                 },
@@ -129,9 +134,9 @@
                 {
                     "blacklist": [
                     ],
-                    "colorizeIcons": false,
+                    "colorizeIcons": true,
                     "drawerEnabled": true,
-                    "hidePassive": false,
+                    "hidePassive": true,
                     "id": "Tray",
                     "pinned": [
                     ]
@@ -145,6 +150,7 @@
                 {
                     "deviceNativePath": "",
                     "displayMode": "onhover",
+                    "hideIfIdle": false,
                     "hideIfNotDetected": true,
                     "id": "Battery",
                     "showNoctaliaPerformance": false,
@@ -168,20 +174,6 @@
                     "icon": "noctalia",
                     "id": "ControlCenter",
                     "useDistroLogo": false
-                },
-                {
-                    "defaultSettings": {
-                        "autoHeight": true,
-                        "cheatsheetData": [
-                        ],
-                        "columnCount": 3,
-                        "detectedCompositor": "",
-                        "hyprlandConfigPath": "~/.config/hypr/hyprland.conf",
-                        "niriConfigPath": "~/.config/niri/config.kdl",
-                        "windowHeight": 0,
-                        "windowWidth": 1400
-                    },
-                    "id": "plugin:keybind-cheatsheet"
                 },
                 {
                     "defaultSettings": {
@@ -217,28 +209,39 @@
                     "id": "plugin:update-count"
                 },
                 {
-                    "defaultSettings": {
-                        "planBudgetUsd": 10,
-                        "planName": "Claude Plan",
-                        "refreshIntervalSeconds": 60,
-                        "showInBar": true
-                    },
-                    "id": "plugin:ccusage-bar"
-                },
-                {
                     "id": "plugin:weekly-calendar"
                 },
                 {
+                    "customFont": "",
+                    "formatHorizontal": "HH:mm ddd, MMM dd",
+                    "formatVertical": "HH mm - dd MM",
+                    "id": "Clock",
+                    "tooltipFormat": "HH:mm ddd, MMM dd",
+                    "useCustomFont": false,
+                    "usePrimaryColor": false
+                },
+                {
                     "defaultSettings": {
-                        "autoStartBreaks": false,
-                        "autoStartWork": false,
-                        "compactMode": false,
-                        "longBreakDuration": 15,
-                        "sessionsBeforeLongBreak": 4,
-                        "shortBreakDuration": 5,
-                        "workDuration": 25
+                        "autoResetEnabled": true,
+                        "claudeEnabled": true,
+                        "claudeResetEnabled": true,
+                        "claudeResetMessage": "hi",
+                        "codexCredentialsPath": "$HOME/.codex/auth.json",
+                        "codexEnabled": true,
+                        "codexResetEnabled": false,
+                        "codexResetMessage": "hi",
+                        "openaiCredentialsPath": "$HOME/.codex/auth.json",
+                        "openaiEnabled": true,
+                        "refreshIntervalSeconds": 60,
+                        "showBar": true,
+                        "showClaudeInBar": true,
+                        "showCodexInBar": true,
+                        "showInBar": true,
+                        "showOpenaiInBar": true,
+                        "watcherEnabled": true,
+                        "watcherMessage": "hi"
                     },
-                    "id": "plugin:pomodoro"
+                    "id": "plugin:ai-usage"
                 }
             ]
         }
@@ -266,9 +269,10 @@
     },
     "colorSchemes": {
         "darkMode": true,
+        "generationMethod": "tonal-spot",
         "manualSunrise": "06:30",
         "manualSunset": "18:30",
-        "matugenSchemeType": "scheme-fruit-salad",
+        "monitorForColors": "",
         "predefinedScheme": "Noctalia (default)",
         "schedulingMode": "off",
         "useWallpaperColors": true
@@ -367,11 +371,13 @@
         "boxRadiusRatio": 1,
         "compactLockScreen": false,
         "dimmerOpacity": 0.2,
+        "enableLockScreenCountdown": true,
         "enableShadows": true,
         "forceBlackScreenCorners": false,
         "iRadiusRatio": 1,
         "language": "",
         "lockOnSuspend": true,
+        "lockScreenCountdownDuration": 10000,
         "radiusRatio": 1,
         "scaleRatio": 1,
         "screenRadiusRatio": 1,
@@ -392,6 +398,7 @@
         "screenLock": "",
         "screenUnlock": "",
         "session": "",
+        "startup": "",
         "wallpaperChange": ""
     },
     "location": {
@@ -515,7 +522,7 @@
         "showHeader": true,
         "showNumberLabels": true
     },
-    "settingsVersion": 41,
+    "settingsVersion": 44,
     "systemMonitor": {
         "cpuCriticalThreshold": 90,
         "cpuPollingInterval": 3000,
@@ -534,6 +541,8 @@
         "memPollingInterval": 3000,
         "memWarningThreshold": 80,
         "networkPollingInterval": 3000,
+        "swapCriticalThreshold": 90,
+        "swapWarningThreshold": 80,
         "tempCriticalThreshold": 90,
         "tempPollingInterval": 3000,
         "tempWarningThreshold": 80,
@@ -593,15 +602,19 @@
             {
                 "enabled": true,
                 "id": "helix"
+            },
+            {
+                "enabled": true,
+                "id": "btop"
             }
         ],
-        "enableUserTemplates": true
+        "enableUserTheming": false
     },
     "ui": {
         "bluetoothDetailsViewMode": "grid",
         "bluetoothHideUnnamedDevices": false,
         "boxBorderEnabled": false,
-        "fontDefault": "Sans Serif",
+        "fontDefault": "Adwaita Sans",
         "fontDefaultScale": 1,
         "fontFixed": "monospace",
         "fontFixedScale": 1,
@@ -613,7 +626,8 @@
         "wifiDetailsViewMode": "grid"
     },
     "wallpaper": {
-        "directory": "/home/dylan/Images/wallpapers",
+        "automationEnabled": true,
+        "directory": "/home/dylan/OneDrive/Configuration/wallpaper",
         "enableMultiMonitorDirectories": false,
         "enabled": true,
         "fillColor": "#000000",
@@ -623,16 +637,16 @@
         ],
         "overviewEnabled": false,
         "panelPosition": "follow_bar",
-        "randomEnabled": true,
         "randomIntervalSec": 3600,
-        "recursiveSearch": true,
         "setWallpaperOnAllMonitors": true,
+        "showHiddenFiles": false,
         "solidColor": "#1a1a2e",
         "transitionDuration": 1500,
         "transitionEdgeSmoothness": 0.05,
         "transitionType": "random",
         "useSolidColor": false,
         "useWallhaven": false,
+        "viewMode": "recursive",
         "wallhavenApiKey": "",
         "wallhavenCategories": "111",
         "wallhavenOrder": "desc",

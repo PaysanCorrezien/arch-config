@@ -280,7 +280,7 @@ Item {
 
   function parseNiriFileContent(text) {
     logInfo("parseNiriFileContent called, text length: " + text.length);
-    var lines = text.split('\n');
+   var lines = text.split('\n');
     var inBindsBlock = false;
     var braceDepth = 0;
     var currentCategory = null;
@@ -498,7 +498,7 @@ Item {
     var categories = [];
     var currentCategory = null;
     
-    // TUTAJ ZMIANA: Pobierz ustawioną zmienną (domyślnie $mod) i zamień na wielkie litery
+    // Take Variable and change to UpperCase
     var modVar = pluginApi?.pluginSettings?.modKeyVariable || "$mod";
     var modVarUpper = modVar.toUpperCase();
 
@@ -528,7 +528,7 @@ Item {
 
             // Build modifiers list properly
             var mods = [];
-            // TUTAJ ZMIANA: Sprawdzamy czy to ustawiony mod (np. $MAINMOD) albo SUPER
+            // We are checking what Variable is set
             if (modPart.includes(modVarUpper) || modPart.includes("SUPER")) mods.push("Super");
             
             if (modPart.includes("SHIFT")) mods.push("Shift");

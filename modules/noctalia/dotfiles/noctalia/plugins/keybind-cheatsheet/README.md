@@ -37,7 +37,7 @@ Hyprland
 Add to your config:
 Bash
 
-bind = $mod, F1, exec, qs -c "noctalia-shell" ipc call "keybind-cheatsheet" "toggle"
+bind = $mod, F1, exec, qs -c "noctalia-shell" ipc call "plugin:keybind-cheatsheet" "toggle"
 
 Niri
 
@@ -45,7 +45,7 @@ Add to your config:
 Fragment kodu
 
 binds {
-    Mod+F1 { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "keybind-cheatsheet" "toggle"; }
+    Mod+F1 { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "plugin:keybind-cheatsheet" "toggle"; }
 }
 
 Config Format

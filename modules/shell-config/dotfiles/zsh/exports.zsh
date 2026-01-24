@@ -1,8 +1,22 @@
 # Add ~/.local/bin to PATH (includes WSL clipboard wrapper)
 export PATH="$HOME/.local/bin:$HOME/.local/share/pythonautomation/bin:$PATH"
 
+# Wayland display (for wl-clipboard support in terminals)
+if [[ -z "$WAYLAND_DISPLAY" && -d "$XDG_RUNTIME_DIR" ]]; then
+  # Auto-detect Wayland socket (niri uses wayland-1)
+  for sock in "$XDG_RUNTIME_DIR"/wayland-*; do
+    if [[ -S "$sock" && ! "$sock" =~ \.lock$ ]]; then
+      export WAYLAND_DISPLAY="${sock##*/}"
+      break
+    fi
+  done
+fi
+
 # Default editor
 export EDITOR=nvim
+
+# SSH Agent (systemd user socket)
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 
 # Common clipboard helper (WSL-safe)
 export CLIPBOARD_HELPER="$HOME/.config/scripts/clipboard-copy.sh"

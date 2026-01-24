@@ -1,0 +1,20 @@
+{
+  "refreshIntervalSeconds": 60,
+  "showBar": true,
+  "claudeEnabled": true,
+  "showClaudeInBar": true,
+  "watcherEnabled": true,
+  "watcherMessage": "hi",
+  "codexEnabled": true,
+  "showCodexInBar": true,
+  "codexCredentialsPath": "$HOME/.codex/auth.json",
+  "openaiEnabled": true,
+  "showOpenaiInBar": true,
+  "openaiCredentialsPath": "$HOME/.codex/auth.json",
+  "showInBar": true,
+  "autoResetEnabled": true,
+  "claudeResetEnabled": true,
+  "claudeResetMessage": "hi",
+  "codexResetEnabled": true,
+  "codexResetMessage": "hi"
+}
