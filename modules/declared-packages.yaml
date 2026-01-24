@@ -84,3 +84,4 @@ packages:
 - uv
 - ccusage
 - python-dbus
+- gemini-cli
