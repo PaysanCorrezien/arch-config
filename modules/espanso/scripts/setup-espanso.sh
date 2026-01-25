@@ -37,6 +37,17 @@ fi
 
 if command -v systemctl >/dev/null 2>&1; then
   run_user_cmd espanso service register
+
+  # Patch systemd service for Wayland/niri compatibility
+  service_file="${user_home}/.config/systemd/user/espanso.service"
+  if [ -f "${service_file}" ]; then
+    # Add environment variables if not already present
+    if ! grep -q "WAYLAND_DISPLAY" "${service_file}"; then
+      sed -i '/^\[Service\]/a Environment="WAYLAND_DISPLAY=wayland-1"\nEnvironment="XDG_CURRENT_DESKTOP=niri"\nEnvironment="GTK_THEME="' "${service_file}"
+      echo "✓ Patched espanso.service for Wayland/niri"
+    fi
+  fi
+
   run_user_cmd systemctl --user daemon-reload
   run_user_cmd systemctl --user enable --now espanso.service
   echo "✓ Espanso user service enabled"

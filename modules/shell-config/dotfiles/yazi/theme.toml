@@ -2,5 +2,8 @@
 # Use the Noctalia flavor for both dark and light modes.
 
 [flavor]
-dark = "noctalia"
+dark  = "noctalia"
 light = "noctalia"
+
+[manager.preview_hovered]
+underline = true

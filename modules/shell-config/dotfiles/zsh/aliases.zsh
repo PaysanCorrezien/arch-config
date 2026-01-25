@@ -70,6 +70,8 @@
 
   #alias y="yazi";
   alias ccd="claude --dangerously-skip-permissions"
+  alias ccds="ccd --model sonnet"
+  alias ccdo="ccd --model opus"
   alias cod='codex --dangerously-bypass-approvals-and-sandbox'
 
   # inv - use INVENTAIRE_PATH as first argument to xlsx

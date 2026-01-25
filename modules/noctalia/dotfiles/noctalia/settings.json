@@ -171,6 +171,7 @@
                     "hidePassive": true,
                     "id": "Tray",
                     "pinned": [
+                        "tray-icon tray app 3617193-1"
                     ]
                 },
                 {
@@ -190,7 +191,7 @@
                     "warningThreshold": 30
                 },
                 {
-                    "displayMode": "onhover",
+                    "displayMode": "alwaysShow",
                     "id": "Volume",
                     "middleClickCommand": "pwvucontrol || pavucontrol"
                 },
@@ -202,10 +203,10 @@
                     "colorizeDistroLogo": false,
                     "colorizeSystemIcon": "none",
                     "customIconPath": "",
-                    "enableColorization": false,
+                    "enableColorization": true,
                     "icon": "noctalia",
                     "id": "ControlCenter",
-                    "useDistroLogo": false
+                    "useDistroLogo": true
                 },
                 {
                     "defaultSettings": {
@@ -461,7 +462,7 @@
         "autoSchedule": true,
         "dayTemp": "6500",
         "enabled": true,
-        "forced": false,
+        "forced": true,
         "manualSunrise": "06:30",
         "manualSunset": "18:30",
         "nightTemp": "2963"
@@ -661,7 +662,7 @@
     },
     "wallpaper": {
         "automationEnabled": true,
-        "directory": "/home/dylan/Pictures/Wallpapers",
+        "directory": "/home/dylan/OneDrive/Configuration/wallpaper",
         "enableMultiMonitorDirectories": false,
         "enabled": true,
         "fillColor": "#000000",
@@ -671,11 +672,11 @@
         ],
         "overviewEnabled": false,
         "panelPosition": "follow_bar",
-        "randomIntervalSec": 3600,
+        "randomIntervalSec": 1800,
         "setWallpaperOnAllMonitors": true,
         "showHiddenFiles": false,
         "solidColor": "#1a1a2e",
-        "transitionDuration": 1500,
+        "transitionDuration": 2100,
         "transitionEdgeSmoothness": 0.05,
         "transitionType": "random",
         "useSolidColor": false,

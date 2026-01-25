@@ -13,11 +13,32 @@ else
   user_home="$HOME"
 fi
 
+# Add user to docker group
+echo "→ Adding user to docker group..."
+if getent group docker >/dev/null 2>&1; then
+  sudo usermod -aG docker "$target_user"
+  echo "✓ User added to docker group"
+else
+  echo "⚠ docker group not found, skipping"
+fi
+echo
+
 # Create config directories
 echo "→ Creating ZSH config directories..."
 mkdir -p "${user_home}/.config/zsh"
 mkdir -p "${user_home}/.config/scripts"
 echo "✓ Directories created"
+
+# Setup npm global directory
+echo
+echo "→ Setting up npm global directory..."
+mkdir -p "${user_home}/.npm-global"
+if command -v npm &>/dev/null; then
+  sudo -u "${target_user}" npm config set prefix "${user_home}/.npm-global"
+  echo "✓ npm global directory configured"
+else
+  echo "⚠ npm not found, skipping npm configuration"
+fi
 
 # Create clipboard copy script
 echo

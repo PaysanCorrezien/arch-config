@@ -93,8 +93,12 @@ binds {
     Super+R                             hotkey-overlay-title="Noctalia Screen Recorder Start" { spawn-sh "qs -c noctalia-shell ipc call plugin:screen-recorder start"; }
     Super+SHIFT+R                       hotkey-overlay-title="Noctalia Screen Recorder Stop" { spawn-sh "qs -c noctalia-shell ipc call plugin:screen-recorder stop"; }
     MOD+B                               hotkey-overlay-title="Open Browser: firefox" { spawn-sh "~/.config/niri/scripts/niri-spawn firefox"; }
+    MOD+A                               hotkey-overlay-title="Brassens: Toggle Recorder" { spawn-sh "echo toggle-audio-recorder | socat - UNIX-CONNECT:/run/user/1000/brassens.sock"; }
+    MOD+SHIFT+A                         hotkey-overlay-title="Brassens: Toggle Window" { spawn-sh "echo toggle-main-window | socat - UNIX-CONNECT:/run/user/1000/brassens.sock"; }
+
 
     MOD+E                               hotkey-overlay-title="File Manager: Yazi" { spawn-sh "ghostty --title=YaziTerm -e yazi"; }
+    Super+B                             hotkey-overlay-title="Audio Mixer: pulsemixer" { spawn-sh "ghostty --title=PulsemixerTerm -e pulsemixer"; }
     MOD+SHIFT+B                         hotkey-overlay-title="System Monitor: btop" { spawn-sh "ghostty --title=BtopTerm -e btop"; }
     MOD+SHIFT+G                         hotkey-overlay-title="Text Corrector" { spawn-sh "text_corrector"; }
 
@@ -483,6 +487,18 @@ binds {
         open-floating true
         default-column-width { proportion 0.9; }
         default-window-height { proportion 0.85; }
+    }
+
+    window-rule {
+        match title="PulsemixerTerm"
+        open-floating true
+        default-column-width { proportion 0.7; }
+        default-window-height { proportion 0.7; }
+    }
+
+    window-rule {
+        match app-id=r#"ripdrag"#
+        open-floating true
     }
 
     window-rule {

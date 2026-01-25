@@ -86,6 +86,11 @@ packages:
 - python-dbus
 - gemini-cli
 - wlsunset
+- pulsemixer
+- webkit2gtk-4.1
+- wtype
+- just
+- socat
 exclude: []
 conflicts: []
 pre_install_hook: null

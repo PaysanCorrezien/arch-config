@@ -17,3 +17,12 @@ state/
 # Nested Neovim config repo (managed separately)
 modules/shell-config/dotfiles/nvim/
 modules/noctalia/dotfiles/noctalia/plugins/ai-usage/
+
+# Noctalia auto-generated theme files (regenerated on theme change)
+modules/niri/dotfiles/gtk-3.0/noctalia.css
+modules/niri/dotfiles/gtk-3.0/gtk.css
+modules/niri/dotfiles/gtk-4.0/noctalia.css
+modules/niri/dotfiles/gtk-4.0/gtk.css
+modules/niri/dotfiles/qt5ct/colors/noctalia.conf
+modules/niri/dotfiles/niri/noctalia.kdl
+modules/shell-config/dotfiles/yazi/flavors/noctalia.yazi/

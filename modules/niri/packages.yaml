@@ -18,6 +18,7 @@ packages:
 
   # Desktop portals
   - xdg-desktop-portal
+  - xdg-desktop-portal-wlr # Portal backend for wlroots compositors (Niri)
   - xdg-desktop-portal-gtk
   - xdg-desktop-portal-gnome
 

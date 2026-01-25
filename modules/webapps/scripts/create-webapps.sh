@@ -70,10 +70,10 @@ create_webapp() {
     local exec_cmd
     if [[ "$BROWSER" == "microsoft-edge" ]]; then
         # Edge on Wayland: use --app-id for consistent window class
-        exec_cmd="${BROWSER_BIN} --ozone-platform-hint=auto --app=${url} --class=${app_id}"
+        exec_cmd="${BROWSER_BIN} --ozone-platform-hint=auto --enable-features=WebAppEnableKeyboardShortcuts --app=${url} --class=${app_id}"
     else
         # Chromium/Chrome: use profile directory to isolate and --class
-        exec_cmd="${BROWSER_BIN} --ozone-platform-hint=auto --app=${url} --class=${app_id}"
+        exec_cmd="${BROWSER_BIN} --ozone-platform-hint=auto --enable-features=WebAppEnableKeyboardShortcuts --app=${url} --class=${app_id}"
     fi
 
     cat > "$desktop_file" <<EOF

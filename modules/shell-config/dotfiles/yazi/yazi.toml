@@ -1,7 +1,7 @@
 # Yazi Configuration
 # Main settings for yazi file manager
 
-[manager]
+[mgr]
 show_hidden = true
 sort_by = "mtime"
 sort_dir_first = false
@@ -18,26 +18,26 @@ use = "noctalia"
 [log]
 enabled = true
 
-[[prepend_previewers]]
+[[previewers.prepend]]
 mime = "application/zip"
 run = "ouch"
 
-[[prepend_previewers]]
+[[previewers.prepend]]
 mime = "application/tar"
 run = "ouch"
 
-[[prepend_previewers]]
+[[previewers.prepend]]
 mime = "application/bzip2"
 run = "ouch"
 
-[[prepend_previewers]]
+[[previewers.prepend]]
 mime = "application/7z-compressed"
 run = "ouch"
 
-[[prepend_previewers]]
+[[previewers.prepend]]
 mime = "application/rar"
 run = "ouch"
 
-[[prepend_previewers]]
+[[previewers.prepend]]
 mime = "application/xz"
 run = "ouch"

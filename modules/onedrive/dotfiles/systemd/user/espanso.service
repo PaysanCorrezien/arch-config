@@ -2,7 +2,10 @@
 Description=espanso
 
 [Service]
-ExecStart=/usr/bin/espanso launcher 
+Environment="WAYLAND_DISPLAY=wayland-1"
+Environment="XDG_CURRENT_DESKTOP=niri"
+Environment="GTK_THEME="
+ExecStart=/usr/bin/espanso launcher
 Restart=on-failure
 RestartSec=3
 
