@@ -19,6 +19,14 @@ git clone --depth 1 --branch "${repo_branch}" "${repo_url}" "${tmp_dir}/noctalia
 sudo install -d "${install_dir}"
 sudo cp -a "${tmp_dir}/noctalia/." "${install_dir}"
 
+# Apply our patched Main.qml (fixes empty username bug)
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+module_dir="$(dirname "${script_dir}")"
+if [ -f "${module_dir}/theme/Main.qml" ]; then
+  sudo cp "${module_dir}/theme/Main.qml" "${install_dir}/Main.qml"
+  echo "Applied patched Main.qml"
+fi
+
 sudo install -d "${config_dir}"
 sudo tee "${config_file}" >/dev/null <<EOF_CONF
 [Theme]

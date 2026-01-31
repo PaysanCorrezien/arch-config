@@ -91,6 +91,9 @@ packages:
 - wtype
 - just
 - socat
+- gst-plugins-good
+- gnome-terminal
+- xdg-desktop-portal-termfilechooser-hunkyburrito-git
 exclude: []
 conflicts: []
 pre_install_hook: null

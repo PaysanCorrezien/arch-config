@@ -1,6 +1,27 @@
 {
   "todos": [
     {
+      "id": 1769299869427,
+      "text": "fix winapps",
+      "completed": false,
+      "createdAt": "2026-01-25T00:11:09.427Z",
+      "pageId": 0
+    },
+    {
+      "id": 1769299867316,
+      "text": "fix espanso",
+      "completed": false,
+      "createdAt": "2026-01-25T00:11:07.316Z",
+      "pageId": 0
+    },
+    {
+      "id": 1769299858690,
+      "text": "fix drag and drop yazi",
+      "completed": false,
+      "createdAt": "2026-01-25T00:10:58.690Z",
+      "pageId": 0
+    },
+    {
       "id": 1769274281585,
       "text": "The dcli error is a bug where hook paths are resolved relative to the config root instead of the module directory. The path in modules/webapps/module.yaml is\n  scripts/create-webapps.sh (correct convention), but dcli looks for /home/dylan/.config/arch-config/scripts/create-webapps.sh instead of\n  /home/dylan/.config/arch-config/modules/webapps/scripts/create-webapps.sh.\n\n  You may want to report this at https://gitlab.com/theblackdon/dcli.",
       "completed": false,
@@ -36,5 +57,13 @@
       "pageId": 0
     }
   ],
-  "count": 5
+  "count": 8,
+  "pages": [
+    {
+      "id": 0,
+      "name": "General"
+    }
+  ],
+  "current_page_id": 0,
+  "isExpanded": false
 }

@@ -10,3 +10,5 @@ packages:
   - openbsd-netcat       # WinApps dependency
   - docker               # Container runtime for dockurr/windows
   - docker-compose       # Compose tooling for the VM container
+  - yad                  # GUI dialog tool for winapps-launcher
+  - git                  # Required by winapps setup.sh

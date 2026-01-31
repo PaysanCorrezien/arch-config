@@ -1,0 +1,7 @@
+# Terminal file chooser portal
+# Uses yazi + ghostty as the system file picker
+
+description: XDG Desktop Portal with terminal file chooser (yazi)
+
+packages:
+  - xdg-desktop-portal-termfilechooser-hunkyburrito-git # AUR: terminal file chooser portal backend

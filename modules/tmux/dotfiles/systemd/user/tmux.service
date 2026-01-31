@@ -1,16 +1,38 @@
 [Unit]
 Description=tmux default session (detached)
 Documentation=man:tmux(1)
+After=graphical-session.target
+Wants=graphical-session.target
 
 [Service]
-Type=forking
+# Use oneshot+RemainAfterExit since tmux forks to background
+Type=oneshot
+RemainAfterExit=yes
+
+# Environment for proper terminal/display handling
 Environment=DISPLAY=:0
-ExecStart=/usr/bin/tmux new-session -d
+Environment=TERM=tmux-256color
 
+# Start tmux server (not a session - let continuum restore sessions)
+ExecStart=/usr/bin/tmux start-server
+ExecStart=/usr/bin/tmux new-session -d -s default
+
+# Graceful stop - detach clients first, then kill server
+ExecStop=-/usr/bin/tmux detach-client -a
 ExecStop=-/usr/bin/tmux kill-server
-KillMode=control-group
 
-RestartSec=2
+# Restart policy for reliability
+Restart=on-failure
+RestartSec=3
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+# Protect tmux server from OOM killer (-1000 to 1000, lower = less likely to kill)
+OOMScoreAdjust=-900
+
+# Keep running even if main process exits (tmux server handles its own lifecycle)
+KillMode=control-group
+TimeoutStopSec=10
 
 [Install]
 WantedBy=default.target

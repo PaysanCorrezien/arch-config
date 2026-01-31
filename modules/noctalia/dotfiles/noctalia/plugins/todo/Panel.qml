@@ -18,6 +18,16 @@ Item {
   property ListModel filteredTodosModel: ListModel {}
   property bool showCompleted: false
   property var rawTodos: []
+  property bool showEmptyState: false
+
+  // Timer to delay the empty state check
+  Timer {
+    id: emptyStateTimer
+    interval: 100
+    onTriggered: {
+      root.showEmptyState = (root.filteredTodosModel.count === 0);
+    }
+  }
 
   Binding {
     target: root
@@ -88,6 +98,8 @@ Item {
       root.showCompleted = pluginApi?.pluginSettings?.showCompleted !== undefined
                            ? pluginApi.pluginSettings.showCompleted
                            : pluginApi?.manifest?.metadata?.defaultSettings?.showCompleted || false;
+      // Reset the flag before loading
+      root.showEmptyState = false;
       loadTodos();
     }
   }
@@ -132,10 +144,15 @@ Item {
         todoListView.contentY = currentScrollPos;
       });
     }
+
+    // Start the timer to delay checking if the model is empty
+    emptyStateTimer.start();
   }
 
   onPluginApiChanged: {
     if (pluginApi) {
+      // Reset the flag when plugin API changes
+      root.showEmptyState = false;
       loadTodos();
     }
   }
@@ -145,7 +162,7 @@ Item {
 
   Timer {
     id: settingsWatcher
-    interval: 200
+    interval: 100
     running: !!pluginApi
     repeat: true
     onTriggered: {
@@ -935,10 +952,11 @@ Item {
               Layout.fillWidth: true
               Layout.fillHeight: true
               Layout.alignment: Qt.AlignCenter
-              visible: root.filteredTodosModel.count === 0
+              visible: root.filteredTodosModel.count === 0 && root.showEmptyState
 
               NText {
                 anchors.centerIn: parent
+                anchors.verticalCenterOffset: -100
                 text: pluginApi?.tr("panel.empty_state.message") || "No todo items yet"
                 color: Color.mOnSurfaceVariant
                 font.pointSize: Style.fontSizeM

@@ -49,8 +49,23 @@ Item {
       });
     }
 
-    function addTodo(text: string, pageId: int = 0) {
+    function addTodo(text: string, pageId: int) {
       if (pluginApi && text) {
+        var pages = pluginApi.pluginSettings.pages || [];
+        var isValidPageId = false;
+
+        for (var i = 0; i < pages.length; i++) {
+          if (pages[i].id === pageId) {
+            isValidPageId = true;
+            break;
+          }
+        }
+
+        if (!isValidPageId) {
+          Logger.e("Todo", "Invalid pageId: " + pageId);
+          return;
+        }
+
         var todos = pluginApi.pluginSettings.todos || [];
 
         var newTodo = {
@@ -69,6 +84,10 @@ Item {
 
         ToastService.showNotice(pluginApi?.tr("main.added_new_todo") + text);
       }
+    }
+
+    function addTodoDefault(text: string) {
+      addTodo(text, 0);
     }
 
     function toggleTodo(id: int) {

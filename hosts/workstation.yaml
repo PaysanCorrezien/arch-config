@@ -29,7 +29,7 @@ enabled_modules:
   - espanso                  # Text expander (Wayland)
   - chromium-extensions      # Chromium extensions auto-install
   - webapps                  # PWA launchers for web services
-  - winapps                  # Windows apps via WinApps + libvirt
+  - winapps                  # Windows apps via WinApps + dockurr/windows
   - ssh                      # Secure SSH server with key-based auth
   - snapper                  # Snapper root/home snapshots + GRUB entries
   - tailscale                # Tailscale VPN with Tailscale SSH

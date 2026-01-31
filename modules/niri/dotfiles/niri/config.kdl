@@ -522,6 +522,14 @@ binds {
         default-window-height { proportion 0.85; }
     }
 
+    // Yazi terminal file picker (via xdg-desktop-portal-termfilechooser)
+    window-rule {
+        match app-id="org.yazi.filechooser"
+        open-floating true
+        default-column-width { proportion 0.7; }
+        default-window-height { proportion 0.7; }
+    }
+
     window-rule {
         match app-id=r#"org.kde.polkit-kde-authentication-agent-1|polkit"#
         open-floating true
@@ -532,6 +540,46 @@ binds {
         open-floating true
         min-width 730
         min-height 300
+    }
+
+    // ─── Brassens Audio Recorder (transparent floating windows) ───
+    // Minimal mode: small pill at 80% from top (near bottom)
+    window-rule {
+        match app-id="brassens" title="Audio Recorder - Minimal"
+        open-floating true
+        default-floating-position x=1645 y=1152
+        draw-border-with-background false
+        geometry-corner-radius 0
+        clip-to-geometry false
+        focus-ring { off; }
+        border { off; }
+        shadow { off; }
+    }
+
+    // Normal mode: standard recorder at 20% from top
+    window-rule {
+        match app-id="brassens" title="Audio Recorder - Normal"
+        open-floating true
+        default-floating-position x=1460 y=288
+        draw-border-with-background false
+        geometry-corner-radius 0
+        clip-to-geometry false
+        focus-ring { off; }
+        border { off; }
+        shadow { off; }
+    }
+
+    // Debug mode: large window centered
+    window-rule {
+        match app-id="brassens" title="Audio Recorder - Debug"
+        open-floating true
+        default-floating-position x=820 y=220
+        draw-border-with-background false
+        geometry-corner-radius 0
+        clip-to-geometry false
+        focus-ring { off; }
+        border { off; }
+        shadow { off; }
     }
 
     // ─── Picture-in-Picture ───
@@ -552,6 +600,7 @@ binds {
     }
 
     window-rule {
+        exclude app-id="brassens" title="Audio Recorder"
         geometry-corner-radius 20 // Set every window radius to 20
         clip-to-geometry true
         opacity 0.9
@@ -597,6 +646,7 @@ binds {
 
     environment {
         DISPLAY ":1"
+        GDK_BACKEND "wayland"
         ELECTRON_OZONE_PLATFORM_HINT "auto"
         QT_QPA_PLATFORM "wayland"
         QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
@@ -604,6 +654,10 @@ binds {
         XDG_CURRENT_DESKTOP "niri"
         SSH_AUTH_SOCK "/run/user/1000/ssh-agent.socket"
     }
+
+// ────────────── Startup Commands ──────────────
+// Export environment to systemd/dbus for portals and other services
+spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP"
 
     hotkey-overlay {
         skip-at-startup

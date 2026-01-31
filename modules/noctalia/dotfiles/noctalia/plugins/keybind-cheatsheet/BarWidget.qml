@@ -12,20 +12,14 @@ Rectangle {
   property string widgetId: ""
   property string section: ""
 
-  readonly property string barPosition: Settings.getBarPositionForScreen(screen.name)
+  readonly property string barPosition: Settings.data.bar.position || "top"
   readonly property bool barIsVertical: barPosition === "left" || barPosition === "right"
 
-  implicitWidth: Style.getCapsuleHeightForScreen(screen.name)
-  implicitHeight: Style.getCapsuleHeightForScreen(screen.name)
+  implicitWidth: Style.capsuleHeight
+  implicitHeight: Style.capsuleHeight
 
   color: Style.capsuleColor
   radius: Style.radiusL
-
-  Connections {
-    target: Color
-    function onMOnHoverChanged() { }
-    function onMOnSurfaceChanged() { }
-  }
 
   NIcon {
     id: contentIcon
@@ -51,10 +45,14 @@ Rectangle {
 
     onClicked: {
       if (pluginApi) {
-        // Set flag to trigger parser in Main.qml
-        pluginApi.pluginSettings.triggerToggle = Date.now();
-        pluginApi.saveSettings();
+        // Only open panel, don't trigger parsing
+        pluginApi.withCurrentScreen(screen => pluginApi.openPanel(screen));
       }
+    }
+
+    // Memory leak prevention: cleanup hover state
+    Component.onDestruction: {
+      hoverEnabled = false;
     }
   }
 }

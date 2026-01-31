@@ -10,19 +10,17 @@ Item {
   property string compositor: ""
 
   Component.onCompleted: {
-    console.log("[KeybindCheatsheet] Main.qml Component.onCompleted, pluginApi:", pluginApi);
+    logInfo("Main.qml Component.onCompleted - will parse once on first load");
     if (pluginApi && !parserStarted) {
       parserStarted = true;
-      logInfo("Component.onCompleted, detecting compositor");
       detectCompositor();
     }
   }
 
   onPluginApiChanged: {
-    console.log("[KeybindCheatsheet] pluginApi changed to:", pluginApi);
+    logInfo("pluginApi changed");
     if (pluginApi && !parserStarted) {
       parserStarted = true;
-      logInfo("pluginApi loaded, detecting compositor");
       detectCompositor();
     }
   }
@@ -50,18 +48,33 @@ Item {
 
   property bool parserStarted: false
 
-  // Watch for toggle trigger from BarWidget
-  property var triggerToggle: pluginApi?.pluginSettings?.triggerToggle || 0
-  onTriggerToggleChanged: {
-    if (triggerToggle > 0 && pluginApi) {
-      logInfo("Toggle triggered from bar widget");
-      if (!compositor) {
-        detectCompositor();
-      } else {
-        runParser();
-      }
-      pluginApi.withCurrentScreen(screen => pluginApi.openPanel(screen));
-    }
+  // Memory leak prevention: cleanup on destruction
+  Component.onDestruction: {
+    logInfo("Cleaning up Main.qml resources");
+    clearParsingData();
+    cleanupProcesses();
+  }
+
+  function cleanupProcesses() {
+    if (detectProcess.running) detectProcess.running = false;
+    if (niriGlobProcess.running) niriGlobProcess.running = false;
+    if (niriReadProcess.running) niriReadProcess.running = false;
+    if (hyprGlobProcess.running) hyprGlobProcess.running = false;
+    if (hyprReadProcess.running) hyprReadProcess.running = false;
+
+    // Clear process buffers
+    niriGlobProcess.expandedFiles = [];
+    hyprGlobProcess.expandedFiles = [];
+    currentLines = [];
+  }
+
+  function clearParsingData() {
+    filesToParse = [];
+    parsedFiles = {};
+    accumulatedLines = [];
+    currentLines = [];
+    collectedBinds = {};
+    parseDepthCounter = 0;
   }
 
   function detectCompositor() {
@@ -133,12 +146,25 @@ Item {
   property var currentLines: []
   property var collectedBinds: ({})  // Collect keybinds from all files
 
+  // Memory leak prevention: recursion limits
+  property int maxParseDepth: 50
+  property int parseDepthCounter: 0
+  property bool isCurrentlyParsing: false
+
   function runParser() {
+    if (isCurrentlyParsing) {
+      logWarn("Parser already running, ignoring request");
+      return;
+    }
+
+    isCurrentlyParsing = true;
+    parseDepthCounter = 0;
     logInfo("=== START PARSER for " + compositor + " ===");
 
     var homeDir = Quickshell.env("HOME");
     if (!homeDir) {
       logError("Cannot get $HOME");
+      isCurrentlyParsing = false;
       saveToDb([{
         "title": "ERROR",
         "binds": [{ "keys": "ERROR", "desc": "Cannot get $HOME" }]
@@ -192,6 +218,14 @@ Item {
 
   // ========== NIRI RECURSIVE PARSING ==========
   function parseNextNiriFile() {
+    if (parseDepthCounter >= maxParseDepth) {
+      logError("Max parse depth reached (" + maxParseDepth + "), stopping recursion");
+      isCurrentlyParsing = false;
+      clearParsingData();
+      return;
+    }
+    parseDepthCounter++;
+
     if (filesToParse.length === 0) {
       logInfo("All Niri files parsed, converting " + Object.keys(collectedBinds).length + " categories");
       finalizeNiriBinds();
@@ -202,6 +236,7 @@ Item {
 
     // Handle glob patterns
     if (isGlobPattern(nextFile)) {
+      niriGlobProcess.expandedFiles = []; // Clear previous results
       niriGlobProcess.command = ["sh", "-c", "for f in " + nextFile + "; do [ -f \"$f\" ] && echo \"$f\"; done"];
       niriGlobProcess.running = true;
       return;
@@ -229,7 +264,13 @@ Item {
     stdout: SplitParser {
       onRead: data => {
         var trimmed = data.trim();
-        if (trimmed.length > 0) niriGlobProcess.expandedFiles.push(trimmed);
+        if (trimmed.length > 0) {
+          if (niriGlobProcess.expandedFiles.length < 100) {
+            niriGlobProcess.expandedFiles.push(trimmed);
+          } else {
+            root.logWarn("Max glob expansion limit reached (100 files)");
+          }
+        }
       }
     }
 
@@ -251,7 +292,13 @@ Item {
     running: false
 
     stdout: SplitParser {
-      onRead: data => { root.currentLines.push(data); }
+      onRead: data => {
+        if (root.currentLines.length < 10000) {
+          root.currentLines.push(data);
+        } else {
+          root.logError("Config file too large (>10000 lines)");
+        }
+      }
     }
 
     onExited: (exitCode, exitStatus) => {
@@ -280,7 +327,7 @@ Item {
 
   function parseNiriFileContent(text) {
     logInfo("parseNiriFileContent called, text length: " + text.length);
-   var lines = text.split('\n');
+    var lines = text.split('\n');
     var inBindsBlock = false;
     var braceDepth = 0;
     var currentCategory = null;
@@ -396,16 +443,27 @@ Item {
 
     logInfo("Found " + categories.length + " categories total");
     saveToDb(categories);
+    isCurrentlyParsing = false;
+    clearParsingData();
   }
 
   // ========== HYPRLAND RECURSIVE PARSING ==========
   function parseNextHyprlandFile() {
+    if (parseDepthCounter >= maxParseDepth) {
+      logError("Max parse depth reached (" + maxParseDepth + "), stopping recursion");
+      isCurrentlyParsing = false;
+      clearParsingData();
+      return;
+    }
+    parseDepthCounter++;
+
     if (filesToParse.length === 0) {
       logInfo("All Hyprland files parsed, total lines: " + accumulatedLines.length);
       if (accumulatedLines.length > 0) {
         parseHyprlandConfig(accumulatedLines.join("\n"));
       } else {
         logWarn("No content found in config files");
+        isCurrentlyParsing = false;
       }
       return;
     }
@@ -414,6 +472,7 @@ Item {
 
     // Handle glob patterns
     if (isGlobPattern(nextFile)) {
+      hyprGlobProcess.expandedFiles = []; // Clear previous results
       hyprGlobProcess.command = ["sh", "-c", "for f in " + nextFile + "; do [ -f \"$f\" ] && echo \"$f\"; done"];
       hyprGlobProcess.running = true;
       return;
@@ -441,7 +500,13 @@ Item {
     stdout: SplitParser {
       onRead: data => {
         var trimmed = data.trim();
-        if (trimmed.length > 0) hyprGlobProcess.expandedFiles.push(trimmed);
+        if (trimmed.length > 0) {
+          if (hyprGlobProcess.expandedFiles.length < 100) {
+            hyprGlobProcess.expandedFiles.push(trimmed);
+          } else {
+            root.logWarn("Max glob expansion limit reached (100 files)");
+          }
+        }
       }
     }
 
@@ -463,7 +528,13 @@ Item {
     running: false
 
     stdout: SplitParser {
-      onRead: data => { root.currentLines.push(data); }
+      onRead: data => {
+        if (root.currentLines.length < 10000) {
+          root.currentLines.push(data);
+        } else {
+          root.logError("Config file too large (>10000 lines)");
+        }
+      }
     }
 
     onExited: (exitCode, exitStatus) => {
@@ -497,8 +568,8 @@ Item {
     var lines = text.split('\n');
     var categories = [];
     var currentCategory = null;
-    
-    // Take Variable and change to UpperCase
+
+    // TUTAJ ZMIANA: Pobierz ustawioną zmienną (domyślnie $mod) i zamień na wielkie litery
     var modVar = pluginApi?.pluginSettings?.modKeyVariable || "$mod";
     var modVarUpper = modVar.toUpperCase();
 
@@ -528,9 +599,9 @@ Item {
 
             // Build modifiers list properly
             var mods = [];
-            // We are checking what Variable is set
+            // TUTAJ ZMIANA: Sprawdzamy czy to ustawiony mod (np. $MAINMOD) albo SUPER
             if (modPart.includes(modVarUpper) || modPart.includes("SUPER")) mods.push("Super");
-            
+
             if (modPart.includes("SHIFT")) mods.push("Shift");
             if (modPart.includes("CTRL") || modPart.includes("CONTROL")) mods.push("Ctrl");
             if (modPart.includes("ALT")) mods.push("Alt");
@@ -559,6 +630,8 @@ Item {
 
     logDebug("Found " + categories.length + " categories");
     saveToDb(categories);
+    isCurrentlyParsing = false;
+    clearParsingData();
   }
 
   // ========== NIRI PARSER ==========
@@ -798,22 +871,14 @@ Item {
 
   IpcHandler {
     target: "plugin:keybind-cheatsheet"
-    function toggle() {
-      logDebug("IPC toggle called");
-      if (pluginApi) {
-        if (!compositor) {
-          detectCompositor();
-        } else {
-          runParser();
-        }
-        pluginApi.withCurrentScreen(screen => pluginApi.openPanel(screen));
-      }
-    }
+
+    // Note: "toggle" is now handled by built-in "togglePanel" action
+    // Use: qs -c "noctalia-shell" ipc call plugin togglePanel keybind-cheatsheet
 
     function refresh() {
-      logDebug("IPC refresh called");
+      logInfo("IPC refresh called - triggering manual parse");
       if (pluginApi) {
-        parserStarted = false;
+        // Always re-detect compositor to ensure up-to-date detection
         compositor = "";
         detectCompositor();
       }

@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Io
 import qs.Commons
 import qs.Services.UI
 import qs.Widgets
@@ -24,8 +25,40 @@ Item {
   property var categories: processCategories(rawCategories)
   property string compositor: pluginApi?.pluginSettings?.detectedCompositor || ""
 
+  function getConfigName() {
+    // Try environment variable first (for dev setups)
+    var qsConfig = Quickshell.env("QS_CONFIG_NAME");
+    if (qsConfig && qsConfig.length > 0) {
+      return qsConfig;
+    }
+
+    // Default for standard installations
+    return "noctalia-shell";
+  }
+
   // Dynamic column items (up to 4 columns)
   property var columnItems: []
+
+  // Memory leak prevention: debounce column updates
+  Timer {
+    id: columnUpdateDebounce
+    interval: 100
+    repeat: false
+    onTriggered: updateColumnItemsNow()
+  }
+
+  Component.onDestruction: {
+    // Stop timer to prevent firing after destruction
+    columnUpdateDebounce.stop();
+
+    // Stop refresh process if running
+    if (refreshProcess.running) {
+      refreshProcess.running = false;
+    }
+
+    // Clear column items
+    columnItems = [];
+  }
 
   onRawCategoriesChanged: {
     categories = processCategories(rawCategories);
@@ -52,6 +85,11 @@ Item {
   }
 
   function updateColumnItems() {
+    columnUpdateDebounce.restart();
+  }
+
+  function updateColumnItemsNow() {
+    columnItems = []; // Clear old items explicitly
     var assignments = distributeCategories();
     var items = [];
     for (var i = 0; i < columnCount; i++) {
@@ -146,11 +184,13 @@ Item {
         }
         NText {
           text: {
-            var title = "Keybind Cheatsheet";
-            if (root.compositor) {
-              title += " (" + root.compositor.charAt(0).toUpperCase() + root.compositor.slice(1) + ")";
+            if (root.compositor === "hyprland") {
+              return "Hyprland Keymap";
+            } else if (root.compositor === "niri") {
+              return "Niri Keymap";
+            } else {
+              return "Keymap";
             }
-            return title;
           }
           font.pointSize: Style.fontSizeM
           font.weight: Font.Bold
@@ -159,12 +199,21 @@ Item {
 
         Item { Layout.fillWidth: true }
 
-        // Settings button in corner
+        // Refresh button
+        NIconButton {
+          icon: "refresh"
+          onClicked: {
+            refreshProcess.running = true;
+          }
+        }
+
+        // Settings button
         NIconButton {
           icon: "settings"
           onClicked: {
             var screen = pluginApi?.panelOpenScreen;
             if (screen && pluginApi?.manifest) {
+              console.log("[KeybindCheatsheet] Opening plugin settings on screen:", screen.name);
               BarService.openPluginSettings(screen, pluginApi.manifest);
             }
           }
@@ -196,7 +245,7 @@ Item {
 
       RowLayout {
         id: mainLayout
-        width: scrollView.availableWidth - Style.marginS  
+        width: scrollView.availableWidth - Style.marginS
         spacing: Style.marginS
 
         Repeater {
@@ -216,6 +265,12 @@ Item {
                 sourceComponent: modelData.type === "header" ? headerComponent :
                                (modelData.type === "spacer" ? spacerComponent : bindComponent)
                 property var itemData: modelData
+
+                // Memory leak prevention: explicit cleanup
+                Component.onDestruction: {
+                  active = false;
+                  sourceComponent = undefined;
+                }
               }
             }
           }
@@ -226,27 +281,27 @@ Item {
 
   Component {
     id: headerComponent
-    ColumnLayout {  
-      Layout.preferredWidth: 300      
+    ColumnLayout {
+      Layout.preferredWidth: 300
       Layout.topMargin: Style.marginM
       Layout.bottomMargin: 4
       spacing: 0
-  
-      Item { Layout.fillWidth: true; height: 1 }  
-  
+
+      Item { Layout.fillWidth: true; height: 1 }
+
       NText {
-        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter  
-        x: parent.width - implicitWidth             
+        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+        x: parent.width - implicitWidth
         text: itemData.title
         font.pointSize: 11
         font.weight: Font.Bold
         color: Color.mPrimary
       }
-  
-      Item { Layout.fillWidth: true; height: 1 }  
+
+      Item { Layout.fillWidth: true; height: 1 }
     }
   }
- 
+
 
   Component {
     id: spacerComponent
@@ -407,5 +462,13 @@ Item {
     }
 
     return columns;
+  }
+
+  // Process to call IPC refresh command
+  // Note: We need to use custom IPC handler since there's no built-in "refresh" action
+  Process {
+    id: refreshProcess
+    command: ["qs", "-c", root.getConfigName(), "ipc", "call", "plugin:keybind-cheatsheet", "refresh"]
+    running: false
   }
 }
