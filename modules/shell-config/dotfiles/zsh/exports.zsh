@@ -1,6 +1,9 @@
 # Add ~/.local/bin to PATH (includes WSL clipboard wrapper)
 export PATH="$HOME/.local/bin:$HOME/.local/share/pythonautomation/bin:$PATH"
 
+# Cargo bin directory
+export PATH="$HOME/.cargo/bin:$PATH"
+
 # npm global packages
 export NPM_CONFIG_PREFIX="$HOME/.npm-global"
 export PATH="$HOME/.npm-global/bin:$PATH"
@@ -46,3 +49,7 @@ export FZF_CTRL_R_OPTS="
   --bind 'ctrl-y:execute-silent(echo -n {2..} | ${CLIPBOARD_HELPER:-$HOME/.config/scripts/clipboard-copy.sh})+abort'
   --color header:italic
   --header 'Press CTRL-Y to copy command into clipboard'"
+
+
+ export PATH="/home/dylan/repo/pythonautomation/.venv/bin:$PATH"
+

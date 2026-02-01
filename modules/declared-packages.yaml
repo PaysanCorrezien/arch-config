@@ -94,6 +94,7 @@ packages:
 - gst-plugins-good
 - gnome-terminal
 - xdg-desktop-portal-termfilechooser-hunkyburrito-git
+- 7zip
 exclude: []
 conflicts: []
 pre_install_hook: null

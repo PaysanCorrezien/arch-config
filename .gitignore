@@ -9,6 +9,7 @@ modules/onedrive/dotfiles/onedrive/.config.backup
 modules/onedrive/dotfiles/onedrive/.config.hash
 modules/onedrive/dotfiles/onedrive/.sync_list.hash
 modules/onedrive/dotfiles/onedrive/sync_list
+modules/onedrive/dotfiles/systemd/user/openclaw-gateway.service
 
 # Local state (do not version)
 state/
