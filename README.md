@@ -16,7 +16,7 @@ sudo pacman -S git
 3. Bootstrap the repo and run `dcli sync`:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/PaysanCorrezien/arch-config/main/scripts/bootstrap.sh | sh
+curl -fsSL https://raw.githubusercontent.com/PaysanCorrezien/arch-config/refs/heads/master/scripts/bootstrap.sh | bash
 ```
 
 This will:
