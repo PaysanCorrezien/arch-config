@@ -52,21 +52,23 @@ cd "${TARGET_DIR}"
 
 # Pick host if not provided
 if [ -z "${ARCH_CONFIG_HOST:-}" ]; then
-  mapfile -t hosts < <(ls hosts/*.yaml 2>/dev/null | xargs -n1 basename | sed 's/\\.yaml$//')
+  mapfile -t hosts < <(find hosts -maxdepth 1 -type f -name '*.yaml' -printf '%f\n' 2>/dev/null | sed 's/\\.yaml$//')
   if [ "${#hosts[@]}" -eq 0 ]; then
     echo "No hosts found in ${TARGET_DIR}/hosts."
     exit 1
   fi
 
-  # Ensure we can read from a TTY even when piped (curl | bash)
-  input_fd=0
-  if ! [ -t 0 ]; then
-    exec 3</dev/tty
-    input_fd=3
-  fi
-
   if command -v fzf >/dev/null 2>&1; then
-    host_choice="$(printf '%s\n' "${hosts[@]}" | fzf --prompt='Select host: ' --height=40% --layout=reverse --border <&${input_fd})"
+    if [ -t 0 ]; then
+      host_choice="$(printf '%s\n' "${hosts[@]}" | fzf --prompt='Select host: ' --height=40% --layout=reverse --border)"
+    else
+      # When piped (curl | bash), feed list via default command and read input from tty
+      tmp_hosts="$(mktemp)"
+      printf '%s\n' "${hosts[@]}" > "${tmp_hosts}"
+      FZF_DEFAULT_COMMAND="cat ${tmp_hosts}" \
+        host_choice="$(fzf --prompt='Select host: ' --height=40% --layout=reverse --border < /dev/tty)"
+      rm -f "${tmp_hosts}"
+    fi
     if [ -n "${host_choice}" ]; then
       HOST_NAME="${host_choice}"
     else
@@ -79,7 +81,7 @@ if [ -z "${ARCH_CONFIG_HOST:-}" ]; then
       echo "  $((i+1))) ${hosts[$i]}"
     done
     while true; do
-      read -r -u "${input_fd}" -p "Select host [1-${#hosts[@]}]: " choice
+      read -r -p "Select host [1-${#hosts[@]}]: " choice
       if [[ "${choice}" =~ ^[0-9]+$ ]] && [ "${choice}" -ge 1 ] && [ "${choice}" -le "${#hosts[@]}" ]; then
         HOST_NAME="${hosts[$((choice-1))]}"
         break
