@@ -1,0 +1,7 @@
+# Homebot SDDM overrides
+# Adds autologin configuration for the homebot host
+
+description: Homebot SDDM autologin configuration
+
+post_install_hook: scripts/setup-sddm-autologin.sh
+hook_behavior: ask

@@ -1,7 +1,24 @@
 {
   "keybind-cheatsheet": {
+    "error": {
+      "unsupported-compositor": "Unsupported Compositor",
+      "sway-not-supported": "Sway is not yet supported",
+      "sway-detail": "Sway support may be added in a future update (similar format to Hyprland)",
+      "labwc-not-supported": "LabWC is not supported",
+      "labwc-detail": "LabWC uses XML config format which is incompatible with this plugin",
+      "mango-not-supported": "MangoWC is not supported",
+      "mango-detail": "MangoWC config format is not compatible with this plugin",
+      "unknown-compositor": "Unknown compositor detected",
+      "unknown-detail": "This plugin only supports Hyprland and Niri compositors"
+    },
     "panel": {
-      "loading": "Loading..."
+      "loading": "Loading...",
+      "title": "Keymap",
+      "title-hyprland": "Hyprland Keymap",
+      "title-niri": "Niri Keymap",
+      "workspace-switching": "WORKSPACES - SWITCHING",
+      "workspace-moving": "WORKSPACES - MOVING",
+      "workspace-mouse": "WORKSPACES - MOUSE"
     },
     "settings": {
       "title": "Keybind Cheatsheet Settings",
@@ -26,10 +43,19 @@
       "saved": "Settings saved successfully.",
       "keybind-setup": "Keybind Setup",
       "keybind-setup-description": "To open the keybind cheatsheet with a keyboard shortcut, add this bind to your compositor config:",
-      "keybind-example-hyprland": "Hyprland example: bind = $mod, F1, exec, qs -c \"noctalia-shell\" ipc call plugin togglePanel keybind-cheatsheet",
+      "keybind-example-hyprland": "Hyprland example: bind = $mod, F1, exec, qs -c \"noctalia-shell\" ipc call plugin:keybind-cheatsheet toggle",
       "keybind-example-niri": "Niri example: Super+F1 { spawn \"qs\" \"-c\" \"noctalia-shell\" \"ipc\" \"call\" \"plugin\" \"togglePanel\" \"keybind-cheatsheet\"; }",
       "mod-var": "Mod Key Variable",
-      "mod-var-hint": "The variable name used for your Super key (e.g., $mod or $mainMod)."
+      "mod-var-hint": "The variable name used for your Super key (e.g., $mod or $mainMod).",
+      "width-range": "px (400-3000)",
+      "height-range": "px (300-2000)",
+      "hyprland-path": "Hyprland Path",
+      "niri-path": "Niri Path"
+    },
+    "barwidget": {
+      "tooltip": "Keybind Cheatsheet",
+      "open": "Open Cheatsheet",
+      "settings": "Plugin Settings"
     }
   }
 }

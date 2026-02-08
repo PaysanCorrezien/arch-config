@@ -1,0 +1,84 @@
+# Host configuration for homebot
+# Configuration for homebot
+
+host: homebot
+description: Arch Linux homebot with Niri (Wayland) and minimal desktop software
+
+# Import shared configurations (optional)
+# Example:
+# import:
+#   - hosts/shared/laptop-common.yaml
+
+# Enabled modules - comprehensive setup matching your Nix flake
+enabled_modules:
+  - git                      # Git configuration and identity setup
+  - terminal-extras          # Additional terminal tools and utilities
+  - development              # Language servers, formatters, dev tools
+  - rust                     # Rust toolchain via rustup
+  - sddm                     # SDDM display manager + Noctalia theme
+  - homebot-sddm             # SDDM autologin for homebot
+  - niri                     # Niri window manager (Wayland)
+  - homebot-niri             # Host-specific Niri monitor/workspace config
+  - kanata                   # Keyboard remapping (Kanata)
+  - onedrive                 # OneDrive client + config + user service
+  - shell-config             # ZSH configuration and dotfiles
+  - nvim-config              # Neovim config from remote repo
+  - tmux                     # Tmux terminal multiplexer with plugins
+  - ssh                      # Secure SSH server with key-based auth
+  - snapper                  # Snapper root/home snapshots + GRUB entries
+  - tailscale                # Tailscale VPN with Tailscale SSH
+
+# Module processing mode
+# parallel: Collect and install all modules at once (faster, default)
+# sequential: Process modules one-by-one in enabled_modules order (more control)
+module_processing: parallel
+
+# Host-specific packages (beyond what's in modules)
+packages: []
+# Add any homebot-specific packages here
+
+# Exclude packages from base or modules
+exclude:
+  - cachyos-niri-noctalia
+  - noctalia-shell
+
+# Configuration backup settings
+config_backups:
+  enabled: true      # Auto-backup on sync
+  max_backups: 5     # Keep last 5 backups (0 = unlimited)
+
+# System backup settings
+system_backups:
+  enabled: true           # Global toggle for system backups
+  backup_on_sync: true    # Create backup during dcli sync
+  backup_on_update: true  # Create backup during dcli update
+  tool: snapper                # Backup tool: timeshift or snapper
+  snapper_config: root    # Snapper config name (if using snapper)
+
+# Update hooks (optional - run scripts before/after system updates)
+# update_hooks:
+#   pre_update: "scripts/pre-update.sh"   # Run before yay -Syu
+#   post_update: "scripts/post-update.sh" # Run after flatpak update
+#   behavior: ask                          # Options: ask, always, once, skip
+
+# Settings
+flatpak_scope: user           # Install flatpaks per-user
+auto_prune: false             # Don't auto-remove unmanaged packages
+aur_helper: paru              # Use paru for AUR packages
+
+# Default applications (uncomment after running 'dcli sync')
+# default_apps:
+#   scope: user                 # User-level MIME associations
+#   browser: firefox.desktop
+#   text_editor: nvim.desktop
+#   terminal: com.mitchellh.ghostty.desktop  # Ghostty terminal
+#   file_manager: thunar.desktop
+#   video: mpv.desktop
+#   image: imv.desktop
+
+# Services to enable
+services:
+  enabled:
+    - docker                  # Docker service
+    - bluetooth               # Bluetooth
+  disabled: []

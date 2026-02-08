@@ -1,0 +1,8 @@
+# Workstation Niri display configuration
+# Host-specific monitor config for workstation
+
+description: Workstation Niri monitors and workspace/output config
+
+dotfiles:
+  - source: dotfiles/niri/monitors.kdl
+    target: ~/.config/niri/monitors.kdl

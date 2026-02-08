@@ -5,56 +5,72 @@
       "text": "fix winapps",
       "completed": false,
       "createdAt": "2026-01-25T00:11:09.427Z",
-      "pageId": 0
+      "pageId": 0,
+      "priority": "medium",
+      "details": ""
     },
     {
       "id": 1769299867316,
       "text": "fix espanso",
       "completed": false,
       "createdAt": "2026-01-25T00:11:07.316Z",
-      "pageId": 0
+      "pageId": 0,
+      "priority": "medium",
+      "details": ""
     },
     {
       "id": 1769299858690,
       "text": "fix drag and drop yazi",
       "completed": false,
       "createdAt": "2026-01-25T00:10:58.690Z",
-      "pageId": 0
+      "pageId": 0,
+      "priority": "medium",
+      "details": ""
     },
     {
       "id": 1769274281585,
       "text": "The dcli error is a bug where hook paths are resolved relative to the config root instead of the module directory. The path in modules/webapps/module.yaml is\n  scripts/create-webapps.sh (correct convention), but dcli looks for /home/dylan/.config/arch-config/scripts/create-webapps.sh instead of\n  /home/dylan/.config/arch-config/modules/webapps/scripts/create-webapps.sh.\n\n  You may want to report this at https://gitlab.com/theblackdon/dcli.",
       "completed": false,
       "createdAt": "2026-01-24T17:04:41.585Z",
-      "pageId": 0
+      "pageId": 0,
+      "priority": "medium",
+      "details": ""
     },
     {
       "id": 1769270360752,
       "text": "ask to make the cli hook execute individually and not kill dcli when one is failing , execute all the one that work",
       "completed": false,
       "createdAt": "2026-01-24T15:59:20.752Z",
-      "pageId": 0
+      "pageId": 0,
+      "priority": "medium",
+      "details": ""
     },
     {
       "id": 1769270314665,
       "text": "cleanup the script message ouput, and only at the end mention manual action still required",
       "completed": false,
       "createdAt": "2026-01-24T15:58:34.665Z",
-      "pageId": 0
+      "pageId": 0,
+      "priority": "medium",
+      "details": ""
     },
     {
       "id": 1769270298183,
       "text": "sudo should cache to not ask 50 times",
       "completed": false,
       "createdAt": "2026-01-24T15:58:18.183Z",
-      "pageId": 0
+      "pageId": 0,
+      "priority": "medium",
+      "details": ""
     },
     {
       "id": 1769270281452,
       "text": "find package that have not precise enough def and ask user query",
       "completed": false,
       "createdAt": "2026-01-24T15:58:01.452Z",
-      "pageId": 0
+      "pageId": 0,
+      "priority": "medium",
+      "details": ""
     }
   ],
   "count": 8,
@@ -65,5 +81,47 @@
     }
   ],
   "current_page_id": 0,
-  "isExpanded": false
+  "isExpanded": false,
+  "useCustomColors": false,
+  "priorityColors": {
+    "high": {
+      "r": 1,
+      "g": 0.7058823704719543,
+      "b": 0.6705882549285889,
+      "a": 1,
+      "hsvHue": 0.01786111108958721,
+      "hsvSaturation": 0.3294117748737335,
+      "hsvValue": 1,
+      "hslHue": 0.01786111108958721,
+      "hslSaturation": 1,
+      "hslLightness": 0.8352941274642944,
+      "valid": true
+    },
+    "medium": {
+      "r": 0.7686274647712708,
+      "g": 0.7529411911964417,
+      "b": 1,
+      "a": 1,
+      "hsvHue": 0.6772500276565552,
+      "hsvSaturation": 0.24705882370471954,
+      "hsvValue": 1,
+      "hslHue": 0.6772500276565552,
+      "hslSaturation": 1,
+      "hslLightness": 0.8764781951904297,
+      "valid": true
+    },
+    "low": {
+      "r": 0.7843137383460999,
+      "g": 0.772549033164978,
+      "b": 0.8156862854957581,
+      "a": 1,
+      "hsvHue": 0.7121111154556274,
+      "hsvSaturation": 0.052887771278619766,
+      "hsvValue": 0.8156862854957581,
+      "hslHue": 0.7121111154556274,
+      "hslSaturation": 0.10476844757795334,
+      "hslLightness": 0.7941252589225769,
+      "valid": true
+    }
+  }
 }

@@ -18,6 +18,7 @@ enabled_modules:
   - gui                      # Desktop applications
   - sddm                     # SDDM display manager + Noctalia theme
   - niri                     # Niri window manager (Wayland)
+  - workstation-niri         # Host-specific Niri monitor/workspace config
   - noctalia                 # Noctalia config dotfiles
   - kanata                   # Keyboard remapping (Kanata)
   - onedrive                 # OneDrive client + config + user service
@@ -44,7 +45,7 @@ module_processing: parallel
 # Host-specific packages (beyond what's in modules)
 packages:
   # Add any workstation-specific packages here
-  # - example-package
+  - code # VS Code
 
 # Exclude packages from base or modules
 exclude: []

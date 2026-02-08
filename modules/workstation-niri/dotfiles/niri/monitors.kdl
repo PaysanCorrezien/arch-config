@@ -1,0 +1,36 @@
+// Workstation monitor configuration
+
+output "Microtek International Inc. GF340C 0000000000000" {
+    mode "3440x1440@165.001" // Set resolution and refresh rate
+    scale 1 // No scaling (use 2 for HiDPI)
+    transform "normal"
+    position x=0 y=0
+}
+
+output "Dell Inc. DELL G2722HS G3N92H3" {
+    mode "1920x1080@60.000" // Set resolution and refresh rate
+    scale 1 // No scaling (use 2 for HiDPI)
+    transform "270"
+    position x=3440 y=0
+}
+
+// ────────────── Workspaces ──────────────
+// Pre-create all workspaces with monitor assignments
+// Ultrawide (left/primary) for most workspaces, Dell (right) for remote, teams, work
+
+workspace "term" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "remote" { open-on-output "Dell Inc. DELL G2722HS G3N92H3"; }
+workspace "chatgpt" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "code" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "browser" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "vesktop" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "keepass" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "teams" { open-on-output "Dell Inc. DELL G2722HS G3N92H3"; }
+workspace "mail" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "extra2" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "obsidian" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "youtube" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "claude" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "work" { open-on-output "Dell Inc. DELL G2722HS G3N92H3"; }
+workspace "personal" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
+workspace "scratchpad" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }

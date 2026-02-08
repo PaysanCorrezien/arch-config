@@ -6,6 +6,8 @@
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
-    "commit-commands@claude-plugins-official": true
-  }
+    "commit-commands@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true
+  },
+  "autoUpdatesChannel": "latest"
 }
