@@ -16,8 +16,7 @@ sudo pacman -S git
 3. Bootstrap the repo and run `dcli sync`:
 
 ```bash
-ARCH_CONFIG_HOST='homebot' \
-./scripts/bootstrap.sh
+curl -fsSL https://raw.githubusercontent.com/PaysanCorrezien/arch-config/main/scripts/bootstrap.sh | sh
 ```
 
 This will:
