@@ -1,23 +1,20 @@
-// Workstation monitor configuration
+// Default monitor configuration (workstation).
+// Host-specific modules can overwrite ~/.config/niri/monitors.kdl during host sync.
 // Ultrawide (left/primary), Dell vertical (right)
 
 output "Microtek International Inc. GF340C 0000000000000" {
-    mode "3440x1440@165.001" // Set resolution and refresh rate
-    scale 1 // No scaling (use 2 for HiDPI)
+    mode "3440x1440@165.001"
+    scale 1
     transform "normal"
     position x=0 y=0
 }
 
 output "Dell Inc. DELL G2722HS G3N92H3" {
-    mode "1920x1080@60.000" // Set resolution and refresh rate
-    scale 1 // No scaling (use 2 for HiDPI)
+    mode "1920x1080@60.000"
+    scale 1
     transform "270"
     position x=3440 y=0
 }
-
-// ────────────── Workspaces ──────────────
-// Pre-create all workspaces with monitor assignments
-// Ultrawide (left/primary) for most workspaces, Dell (right) for remote, teams, work
 
 workspace "term" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
 workspace "remote" { open-on-output "Dell Inc. DELL G2722HS G3N92H3"; }
