@@ -26,6 +26,11 @@ packages:
   - arch-audit               # Vulnerable package detection
   - curl                     # HTTP client
   - rsync                    # File sync
+  - carapace-bin             # Multi-shell completions
+  - nodejs-lts-jod           # Node.js LTS runtime
+  - npm                      # Node package manager
+  - claude-code              # Anthropic's Claude Code CLI
+  - openai-codex             # OpenAI Codex CLI
 
 # Exclude desktop/GUI/hardware packages from base and declared-packages
 exclude:
