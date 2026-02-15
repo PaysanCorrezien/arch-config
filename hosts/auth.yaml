@@ -117,16 +117,30 @@ exclude:
   - noto-color-emoji-fontconfig
   - noto-fonts-cjk
   - ttf-opensans
-  # Desktop tools not needed on server
+  # Desktop/dev tools not needed on server
   - ffmpegthumbnailer
   - tigervnc
   - python-dbus
   - nano
   - nano-syntax-highlighting
-  # CachyOS kernel (VPS uses stock arch kernel)
+  - ccusage
+  - gemini-cli
+  - uv
+  - just
+  - socat
+  - 7zip
+  # CachyOS (VPS is stock Arch, no CachyOS repos)
   - linux-cachyos
   - linux-cachyos-headers
   - linux-firmware
+  - cachyos-hooks
+  - cachyos-keyring
+  - cachyos-mirrorlist
+  - cachyos-v3-mirrorlist
+  - cachyos-v4-mirrorlist
+  - cachyos-settings
+  - cachyos-rate-mirrors
+  - cachyos-zsh-config
 
 # Configuration backup settings
 config_backups:
