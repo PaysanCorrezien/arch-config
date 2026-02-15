@@ -24,12 +24,109 @@ packages:
   - lynis                    # Security auditing
   - curl                     # HTTP client
 
-# Exclude desktop/GUI packages from base
+# Exclude desktop/GUI/hardware packages from base and declared-packages
 exclude:
+  # Terminal emulators (base.yaml — headless, not needed)
   - ghostty
   - ghostty-shell-integration
   - ghostty-terminfo
   - alacritty
+  # CachyOS desktop/hardware (base.yaml)
+  - cachyos-kernel-manager
+  - cachyos-snapper-support
+  - cachyos-ananicy-rules
+  - ananicy-cpp
+  - xclip
+  - snapper
+  # Conflicts with existing iptables
+  - iptables-nft
+  # Desktop/GUI (declared-packages.yaml)
+  - octopi
+  - mako
+  - wlogout
+  - wlsunset
+  - wtype
+  - bemenu-wayland
+  - meld
+  - gnome-terminal
+  - gnome-keyring
+  - accountsservice
+  - btrfs-assistant
+  - fastfetch
+  - vesktop-bin
+  - webkit2gtk-4.1
+  - xdg-desktop-portal-termfilechooser-hunkyburrito-git
+  # Audio/video (not needed headless)
+  - alsa-firmware
+  - alsa-plugins
+  - alsa-utils
+  - gst-plugin-pipewire
+  - gst-plugin-va
+  - gst-plugins-good
+  - wireplumber
+  - pulsemixer
+  - pipewire-jack
+  # Printing (not needed on VPS)
+  - cups
+  - cups-filters
+  - cups-pdf
+  - foomatic-db
+  - foomatic-db-engine
+  - foomatic-db-gutenprint-ppds
+  - foomatic-db-nonfree
+  - foomatic-db-nonfree-ppds
+  - foomatic-db-ppds
+  - ghostscript
+  - gsfonts
+  - gutenprint
+  # Hardware/boot (VPS — no local hardware management)
+  - bluez-hid2hci
+  - cpupower
+  - efibootmgr
+  - efitools
+  - grub
+  - grub-btrfs-support
+  - grub-hook
+  - hdparm
+  - hwdetect
+  - hwinfo
+  - lvm2
+  - mkinitcpio
+  - modemmanager
+  - usb_modeswitch
+  - usbutils
+  - vulkan-radeon
+  - mesa-utils
+  # Filesystem tools (VPS uses ext4, not btrfs/jfs/nilfs/f2fs)
+  - btrfs-assistant
+  - dosfstools
+  - exfatprogs
+  - f2fs-tools
+  - fsarchiver
+  - jfsutils
+  - nilfs-utils
+  # Networking tools (VPS uses systemd-networkd, not iwd/netctl)
+  - dhclient
+  - iwd
+  - netctl
+  - nfs-utils
+  - wireless-regdb
+  - nss-mdns
+  - dnsmasq
+  # Fonts (headless)
+  - noto-color-emoji-fontconfig
+  - noto-fonts-cjk
+  - ttf-opensans
+  # Desktop tools not needed on server
+  - ffmpegthumbnailer
+  - tigervnc
+  - python-dbus
+  - nano
+  - nano-syntax-highlighting
+  # CachyOS kernel (VPS uses stock arch kernel)
+  - linux-cachyos
+  - linux-cachyos-headers
+  - linux-firmware
 
 # Configuration backup settings
 config_backups:
