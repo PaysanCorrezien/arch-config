@@ -1,0 +1,52 @@
+# Host configuration for auth
+# Hetzner VPS — headless server running auth stack (Traefik, Authelia, Pi-hole, etc.)
+
+host: auth
+description: Headless Arch Linux VPS for authentication and networking services
+
+# Enabled modules — minimal server profile, no GUI/desktop
+enabled_modules:
+  - git                      # Git configuration and identity setup
+  - shell-config             # ZSH configuration and dotfiles
+  - tmux                     # Tmux terminal multiplexer with plugins
+  - nvim-config              # Neovim config from remote repo
+  - ssh                      # Secure SSH server with key-based auth
+  - tailscale                # Tailscale VPN with Tailscale SSH
+
+# Module processing mode
+module_processing: parallel
+
+# Host-specific packages (beyond what's in modules)
+packages:
+  - docker
+  - docker-compose
+  - lazydocker               # TUI for Docker
+  - lynis                    # Security auditing
+  - curl                     # HTTP client
+
+# Exclude desktop/GUI packages from base
+exclude:
+  - ghostty
+  - ghostty-shell-integration
+  - ghostty-terminfo
+  - alacritty
+
+# Configuration backup settings
+config_backups:
+  enabled: true
+  max_backups: 5
+
+# No system backups (VPS, no snapper/btrfs)
+system_backups:
+  enabled: false
+
+# Settings
+flatpak_scope: user
+auto_prune: false
+aur_helper: paru
+
+# Services to enable
+services:
+  enabled:
+    - docker                  # Docker for container stack
+  disabled: []

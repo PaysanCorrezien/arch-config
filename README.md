@@ -30,6 +30,7 @@ This will:
 
 - `hosts/workstation.yaml`: Full workstation setup.
 - `hosts/homebot.yaml`: Minimal desktop software with Niri + SDDM autologin.
+- `hosts/auth.yaml`: Headless VPS for auth/networking services (Docker, Tailscale). See [docs/auth-setup.md](docs/auth-setup.md).
 
 Switch hosts by editing `config.yaml`:
 
