@@ -58,17 +58,30 @@ fi
 
 echo ""
 echo "[2/6] Configuring snapper policies..."
+
+# Root config - More aggressive retention for server use
 set_snapper_value /etc/snapper/configs/root TIMELINE_CREATE yes
 set_snapper_value /etc/snapper/configs/root TIMELINE_CLEANUP yes
 set_snapper_value /etc/snapper/configs/root NUMBER_CLEANUP yes
+set_snapper_value /etc/snapper/configs/root TIMELINE_LIMIT_HOURLY 24
+set_snapper_value /etc/snapper/configs/root TIMELINE_LIMIT_DAILY 14
+set_snapper_value /etc/snapper/configs/root TIMELINE_LIMIT_WEEKLY 8
+set_snapper_value /etc/snapper/configs/root TIMELINE_LIMIT_MONTHLY 12
+set_snapper_value /etc/snapper/configs/root TIMELINE_LIMIT_YEARLY 3
 
+# Home config - Less aggressive retention (files change less frequently)
 if [ "${home_fstype}" = "btrfs" ] && [ -f /etc/snapper/configs/home ]; then
   set_snapper_value /etc/snapper/configs/home TIMELINE_CREATE yes
   set_snapper_value /etc/snapper/configs/home TIMELINE_CLEANUP yes
   set_snapper_value /etc/snapper/configs/home NUMBER_CLEANUP yes
+  set_snapper_value /etc/snapper/configs/home TIMELINE_LIMIT_HOURLY 12
+  set_snapper_value /etc/snapper/configs/home TIMELINE_LIMIT_DAILY 7
+  set_snapper_value /etc/snapper/configs/home TIMELINE_LIMIT_WEEKLY 4
+  set_snapper_value /etc/snapper/configs/home TIMELINE_LIMIT_MONTHLY 6
+  set_snapper_value /etc/snapper/configs/home TIMELINE_LIMIT_YEARLY 2
 fi
 
-echo "  ✓ Snapper policies updated"
+echo "  ✓ Snapper policies updated with retention limits"
 
 echo ""
 echo "[3/6] Enabling snapper timers..."
