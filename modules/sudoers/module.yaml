@@ -1,0 +1,7 @@
+# Sudoers configuration
+# Enables passwordless sudo for the current user
+
+description: Configure passwordless sudo for user
+
+post_install_hook: scripts/setup-sudoers.sh
+hook_behavior: ask

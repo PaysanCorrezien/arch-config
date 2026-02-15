@@ -12,6 +12,7 @@ description: Arch Linux workstation matching NixOS flake configuration
 # Enabled modules - comprehensive setup matching your Nix flake
 enabled_modules:
   - git                      # Git configuration and identity setup
+  - sudoers                  # Passwordless sudo for current user
   - terminal-extras          # Additional terminal tools and utilities
   - development              # Language servers, formatters, dev tools
   - rust                     # Rust toolchain via rustup

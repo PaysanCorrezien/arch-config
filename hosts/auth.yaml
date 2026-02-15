@@ -7,6 +7,7 @@ description: Headless Arch Linux VPS for authentication and networking services
 # Enabled modules — minimal server profile, no GUI/desktop
 enabled_modules:
   - git                      # Git configuration and identity setup
+  - sudoers                  # Passwordless sudo for current user
   - shell-config             # ZSH configuration and dotfiles
   - tmux                     # Tmux terminal multiplexer with plugins
   - nvim-config              # Neovim config from remote repo
