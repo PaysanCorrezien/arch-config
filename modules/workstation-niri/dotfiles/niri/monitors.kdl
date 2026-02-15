@@ -1,37 +1,37 @@
 // Workstation monitor configuration
-// Ultrawide (left/primary), Dell vertical (right)
+// Ultrawide GF340C (primary) + Dell P2724DEB (secondary)
 
 output "Microtek International Inc. GF340C 0000000000000" {
-    mode "3440x1440@165.001" // Set resolution and refresh rate
+    mode "3440x1440@59.999" // Conservative refresh for multi-display stability
     scale 1 // No scaling (use 2 for HiDPI)
     transform "normal"
     position x=0 y=0
 }
 
-output "Dell Inc. DELL G2722HS G3N92H3" {
-    mode "1920x1080@60.000" // Set resolution and refresh rate
+output "Dell Inc. DELL P2724DEB 4LXTF84" {
+    mode "2560x1440@59.951" // Set resolution and refresh rate
     scale 1 // No scaling (use 2 for HiDPI)
-    transform "270"
+    transform "normal"
     position x=3440 y=0
 }
 
 // ────────────── Workspaces ──────────────
-// Pre-create all workspaces with monitor assignments
-// Ultrawide (left/primary) for most workspaces, Dell (right) for remote, teams, work
+// Pre-create all workspaces with monitor assignments.
+// With two monitors, keep workspace defaults on the ultrawide primary.
 
 workspace "term" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
-workspace "remote" { open-on-output "Dell Inc. DELL G2722HS G3N92H3"; }
+workspace "remote" { open-on-output "Dell Inc. DELL P2724DEB 4LXTF84"; }
 workspace "chatgpt" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
 workspace "code" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
 workspace "browser" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
 workspace "vesktop" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
 workspace "keepass" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
-workspace "teams" { open-on-output "Dell Inc. DELL G2722HS G3N92H3"; }
+workspace "teams" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
 workspace "mail" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
 workspace "extra2" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
 workspace "obsidian" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
 workspace "youtube" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
 workspace "claude" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
-workspace "work" { open-on-output "Dell Inc. DELL G2722HS G3N92H3"; }
+workspace "work" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
 workspace "personal" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
 workspace "scratchpad" { open-on-output "Microtek International Inc. GF340C 0000000000000"; }
