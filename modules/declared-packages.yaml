@@ -95,6 +95,7 @@ packages:
 - xdg-desktop-portal-termfilechooser-hunkyburrito-git
 - 7zip
 - tigervnc
+- localsend
 exclude: []
 conflicts: []
 pre_install_hook: null

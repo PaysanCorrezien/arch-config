@@ -15,10 +15,11 @@ enabled_modules:
   - terminal-extras          # Additional terminal tools and utilities
   - development              # Language servers, formatters, dev tools
   - rust                     # Rust toolchain via rustup
-  - sddm                     # SDDM display manager + Noctalia theme
-  - homebot-sddm             # SDDM autologin for homebot
-  - niri                     # Niri window manager (Wayland)
+  - sddm                     # SDDM display manager + Noctalia theme (for debug GUI access)
+  # - homebot-sddm           # DISABLED: SDDM autologin (headless server)
+  - niri                     # Niri window manager (Wayland) (for debug GUI access)
   - homebot-niri             # Host-specific Niri monitor/workspace config
+  - noctalia                 # Noctalia config dotfiles
   - kanata                   # Keyboard remapping (Kanata)
   - onedrive                 # OneDrive client + config + user service
   - shell-config             # ZSH configuration and dotfiles
@@ -27,6 +28,7 @@ enabled_modules:
   - ssh                      # Secure SSH server with key-based auth
   - snapper                  # Snapper root/home snapshots + GRUB entries
   - tailscale                # Tailscale VPN with Tailscale SSH
+  - localsend                # LocalSend file sharing with firewall
 
 # Module processing mode
 # parallel: Collect and install all modules at once (faster, default)
@@ -37,12 +39,11 @@ module_processing: parallel
 packages:
   - bemenu
   - totem-pl-parser
+  - v4l-utils            # HDMI-CEC control via cec-ctl
 # Add any homebot-specific packages here
 
 # Exclude packages from base or modules
-exclude:
-  - cachyos-niri-noctalia
-  - noctalia-shell
+exclude: []
 
 # Configuration backup settings
 config_backups:
