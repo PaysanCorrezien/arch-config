@@ -22,14 +22,16 @@ packages:
   - docker-compose
   - lazydocker               # TUI for Docker
   - lynis                    # Security auditing
+  - fail2ban                 # SSH brute-force protection
+  - arch-audit               # Vulnerable package detection
   - curl                     # HTTP client
+  - rsync                    # File sync
 
 # Exclude desktop/GUI/hardware packages from base and declared-packages
 exclude:
   # Terminal emulators (base.yaml — headless, not needed)
   - ghostty
   - ghostty-shell-integration
-  - ghostty-terminfo
   - alacritty
   # CachyOS desktop/hardware (base.yaml)
   - cachyos-kernel-manager
@@ -160,4 +162,9 @@ aur_helper: paru
 services:
   enabled:
     - docker                  # Docker for container stack
+    - fail2ban                # SSH brute-force protection
   disabled: []
+
+# Sudoers — passwordless sudo for wheel group (convenience on personal VPS)
+sudoers:
+  wheel_nopasswd: true

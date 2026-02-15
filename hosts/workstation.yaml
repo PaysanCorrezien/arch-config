@@ -19,6 +19,7 @@ enabled_modules:
   - sddm                     # SDDM display manager + Noctalia theme
   - niri                     # Niri window manager (Wayland)
   - workstation-niri         # Host-specific Niri monitor/workspace config
+  - workstation-usb-hid-stability # Keep Dell receiver + USB hub chain stable
   - noctalia                 # Noctalia config dotfiles
   - kanata                   # Keyboard remapping (Kanata)
   - onedrive                 # OneDrive client + config + user service
@@ -46,6 +47,8 @@ module_processing: parallel
 packages:
   # Add any workstation-specific packages here
   - code # VS Code
+  - bemenu
+  - totem-pl-parser
 
 # Exclude packages from base or modules
 exclude: []

@@ -7,8 +7,8 @@
 input {
     keyboard {
         xkb {
-            layout "us"
-            variant "altgr-intl"
+            layout "us,fr"
+            variant "altgr-intl,"
         }
         numlock // Enable numlock on startup
     }
@@ -47,6 +47,7 @@ binds {
     Super+N                             hotkey-overlay-title="Noctalia Notification History" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "notifications" "toggleHistory"; }
     Super+K                             hotkey-overlay-title="Noctalia Keybinds Helper" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "plugin:keybind-cheatsheet" "toggle"; }
     Super+I                             hotkey-overlay-title="Noctalia AI-Usage Panel" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "plugin:ai-usage" "openPanel"; }
+    CTRL+ALT+P                          hotkey-overlay-title="KVM Input: USB-C" { spawn-sh "ddcutil -d 1 setvcp 60 27"; }
     MOD+SHIFT+T                         hotkey-overlay-title="Noctalia Todo Panel" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "plugin:todo" "togglePanel"; }
     Super+V                             hotkey-overlay-title="Noctalia Clipper Panel" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "plugin:clipper" "togglePanel"; }
     Super+L                             hotkey-overlay-title="Lock Screen" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "lockScreen" "lock"; }
@@ -144,6 +145,17 @@ binds {
     MOD+W                               hotkey-overlay-title="Workspace: work" { focus-workspace "work"; }
     // MOD+P conflicts with resize, using MOD+0 for workspace personal
     MOD+0                               { focus-workspace "personal"; }
+    // AZERTY aliases for number row (FR): & eacute quotedbl apostrophe parenleft minus egrave underscore ccedilla agrave
+    MOD+ampersand                       { focus-workspace "term"; }
+    MOD+eacute                          { focus-workspace "remote"; }
+    MOD+quotedbl                        { focus-workspace "chatgpt"; }
+    MOD+apostrophe                      { focus-workspace "code"; }
+    MOD+parenleft                       { focus-workspace "browser"; }
+    MOD+minus                           { focus-workspace "vesktop"; }
+    MOD+egrave                          { focus-workspace "keepass"; }
+    MOD+underscore                      { focus-workspace "teams"; }
+    MOD+ccedilla                        { focus-workspace "mail"; }
+    MOD+agrave                          { focus-workspace "personal"; }
 
     MOD+D                               hotkey-overlay-title="Previous Workspace" { focus-workspace-previous; } // Recent workspace
     MOD+TAB                             hotkey-overlay-title="Previous Workspace" { focus-workspace-previous; }
@@ -167,13 +179,25 @@ binds {
     MOD+SHIFT+C                         hotkey-overlay-title="Move Column: claude" { move-column-to-workspace "claude"; }
     MOD+SHIFT+W                         hotkey-overlay-title="Move Column: work" { move-column-to-workspace "work"; }
     MOD+SHIFT+0                         { move-column-to-workspace "personal"; }
+    // AZERTY aliases for shifted number row actions.
+    MOD+SHIFT+ampersand                 { move-column-to-workspace "term"; }
+    MOD+SHIFT+eacute                    { move-column-to-workspace "remote"; }
+    MOD+SHIFT+quotedbl                  { move-column-to-workspace "chatgpt"; }
+    MOD+SHIFT+apostrophe                { move-column-to-workspace "code"; }
+    MOD+SHIFT+parenleft                 { move-column-to-workspace "browser"; }
+    MOD+SHIFT+minus                     { move-column-to-workspace "vesktop"; }
+    MOD+SHIFT+egrave                    { move-column-to-workspace "keepass"; }
+    MOD+SHIFT+underscore                { move-column-to-workspace "teams"; }
+    MOD+SHIFT+ccedilla                  { move-column-to-workspace "mail"; }
+    MOD+SHIFT+agrave                    { move-column-to-workspace "personal"; }
 
     // ─── Layout Controls ───
     MOD+CTRL+F                          hotkey-overlay-title="Expand Column To Available" { expand-column-to-available-width; }
-    MOD+MINUS                           hotkey-overlay-title="Shrink Column 10%" { set-column-width "-10%"; }
-    MOD+EQUAL                           hotkey-overlay-title="Expand Column 10%" { set-column-width "+10%"; }
-    MOD+SHIFT+MINUS                     hotkey-overlay-title="Shrink Window 10%" { set-window-height "-10%"; }
-    MOD+SHIFT+EQUAL                     hotkey-overlay-title="Expand Window 10%" { set-window-height "+10%"; }
+    MOD+CTRL+Z                          hotkey-overlay-title="Fit Columns In Workspace" { spawn-sh "~/.config/niri/scripts/niri-fit-columns"; }
+    MOD+CTRL+MINUS                      hotkey-overlay-title="Shrink Column 10%" { set-column-width "-10%"; }
+    MOD+CTRL+EQUAL                      hotkey-overlay-title="Expand Column 10%" { set-column-width "+10%"; }
+    MOD+CTRL+SHIFT+MINUS                hotkey-overlay-title="Shrink Window 10%" { set-window-height "-10%"; }
+    MOD+CTRL+SHIFT+EQUAL                hotkey-overlay-title="Expand Window 10%" { set-window-height "+10%"; }
 
     // ─── Modes ───
     MOD+SHIFT+SPACE                     hotkey-overlay-title="Toggle Floating" { toggle-window-floating; }

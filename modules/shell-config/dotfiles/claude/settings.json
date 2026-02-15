@@ -9,5 +9,7 @@
     "commit-commands@claude-plugins-official": true,
     "ralph-loop@claude-plugins-official": true
   },
-  "autoUpdatesChannel": "latest"
+  "autoUpdatesChannel": "latest",
+  "skipDangerousModePermissionPrompt": true,
+  "effortLevel": "medium"
 }

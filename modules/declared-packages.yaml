@@ -76,7 +76,6 @@ packages:
 - unrar
 - usb_modeswitch
 - usbutils
-- vi
 - vulkan-radeon
 - wireless-regdb
 - wireplumber
@@ -95,6 +94,7 @@ packages:
 - gnome-terminal
 - xdg-desktop-portal-termfilechooser-hunkyburrito-git
 - 7zip
+- tigervnc
 exclude: []
 conflicts: []
 pre_install_hook: null

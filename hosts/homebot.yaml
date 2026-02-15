@@ -34,7 +34,9 @@ enabled_modules:
 module_processing: parallel
 
 # Host-specific packages (beyond what's in modules)
-packages: []
+packages:
+  - bemenu
+  - totem-pl-parser
 # Add any homebot-specific packages here
 
 # Exclude packages from base or modules

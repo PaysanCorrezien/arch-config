@@ -1,0 +1,7 @@
+# Workstation USB HID stability tuning
+# Keeps Dell Universal Receiver and upstream Realtek USB2 hubs in full-power mode.
+
+description: Persist USB power settings for stable Dell receiver input on hub
+
+post_install_hook: scripts/setup-usb-hid-stability.sh
+hook_behavior: ask

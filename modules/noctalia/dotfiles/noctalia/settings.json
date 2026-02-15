@@ -46,9 +46,13 @@
         "frameThickness": 8,
         "hideOnOverview": false,
         "marginHorizontal": 4,
-        "marginVertical": 6,
+        "marginVertical": 0,
         "monitors": [
-            "DP-1"
+            "DP-1",
+            "DP-4",
+            "DP-3",
+            "DP-5",
+            "DP-6"
         ],
         "outerCorners": true,
         "position": "top",
@@ -168,6 +172,11 @@
                 },
                 {
                     "id": "NightLight"
+                },
+                {
+                    "displayMode": "onhover",
+                    "id": "KeyboardLayout",
+                    "showIcon": true
                 }
             ],
             "right": [
@@ -282,7 +291,7 @@
         "generationMethod": "tonal-spot",
         "manualSunrise": "06:30",
         "manualSunset": "18:30",
-        "monitorForColors": "",
+        "monitorForColors": "DP-6",
         "predefinedScheme": "Noctalia (default)",
         "schedulingMode": "off",
         "useWallpaperColors": true
@@ -432,17 +441,17 @@
         "bluetoothHideUnnamedDevices": false,
         "bluetoothRssiPollIntervalMs": 10000,
         "bluetoothRssiPollingEnabled": false,
-        "wifiDetailsViewMode": "list",
+        "wifiDetailsViewMode": "grid",
         "wifiEnabled": true
     },
     "nightLight": {
         "autoSchedule": true,
         "dayTemp": "6500",
-        "enabled": false,
+        "enabled": true,
         "forced": false,
         "manualSunrise": "06:30",
         "manualSunset": "18:30",
-        "nightTemp": "2963"
+        "nightTemp": "4246"
     },
     "notifications": {
         "backgroundOpacity": 1,
@@ -662,7 +671,7 @@
         "transitionType": "random",
         "useSolidColor": false,
         "useWallhaven": false,
-        "viewMode": "recursive",
+        "viewMode": "browse",
         "wallhavenApiKey": "",
         "wallhavenCategories": "111",
         "wallhavenOrder": "desc",

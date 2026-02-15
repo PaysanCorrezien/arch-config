@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Equalize column widths on a workspace so visible columns fit nicely.
+# Usage:
+#   niri-fit-columns                 # focused workspace
+#   niri-fit-columns <name|idx|id>   # specific workspace
+
+set -euo pipefail
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo "jq is required" >&2
+    exit 1
+fi
+
+workspaces_json="$(niri msg -j workspaces)"
+if [[ "$(jq 'length' <<<"$workspaces_json")" -eq 0 ]]; then
+    echo "Could not read workspaces" >&2
+    exit 1
+fi
+
+focused_ws_id="$(jq -r '[.[] | select(.is_focused)][0].id // empty' <<<"$workspaces_json")"
+if [[ -z "$focused_ws_id" ]]; then
+    echo "Could not determine focused workspace" >&2
+    exit 1
+fi
+
+target="${1:-}"
+workspace_id=""
+workspace_ref=""
+
+if [[ -z "$target" ]]; then
+    workspace_id="$focused_ws_id"
+    workspace_ref="$(jq -r --argjson id "$workspace_id" '[.[] | select(.id == $id)][0] | (.name // (.idx | tostring)) // empty' <<<"$workspaces_json")"
+elif [[ "$target" =~ ^[0-9]+$ ]] && jq -e --argjson id "$target" 'any(.[]; .id == $id)' >/dev/null <<<"$workspaces_json"; then
+    workspace_id="$target"
+    workspace_ref="$(jq -r --argjson id "$workspace_id" '[.[] | select(.id == $id)][0] | (.name // (.idx | tostring)) // empty' <<<"$workspaces_json")"
+elif [[ "$target" =~ ^[0-9]+$ ]] && jq -e --argjson idx "$target" 'any(.[]; .idx == $idx)' >/dev/null <<<"$workspaces_json"; then
+    workspace_id="$(jq -r --argjson idx "$target" '[.[] | select(.idx == $idx)][0].id // empty' <<<"$workspaces_json")"
+    workspace_ref="$(jq -r --argjson idx "$target" '[.[] | select(.idx == $idx)][0] | (.name // (.idx | tostring)) // empty' <<<"$workspaces_json")"
+elif jq -e --arg name "$target" 'any(.[]; .name == $name)' >/dev/null <<<"$workspaces_json"; then
+    workspace_id="$(jq -r --arg name "$target" '[.[] | select(.name == $name)][0].id // empty' <<<"$workspaces_json")"
+    workspace_ref="$target"
+else
+    echo "Workspace '$target' not found" >&2
+    exit 1
+fi
+
+if [[ -z "$workspace_id" || -z "$workspace_ref" ]]; then
+    echo "Could not resolve workspace '$target'" >&2
+    exit 1
+fi
+
+cols_json="$(niri msg -j windows | jq --argjson ws "$workspace_id" '[.[] | select(.workspace_id == $ws and (.is_floating | not)) | .layout.pos_in_scrolling_layout[0]] | unique')"
+cols_count="$(jq 'length' <<<"$cols_json")"
+
+if [[ "$cols_count" -le 0 ]]; then
+    echo "No tiling columns found on workspace $workspace_id"
+    exit 0
+fi
+
+width_pct=$((100 / cols_count))
+first_col="$(jq '.[0]' <<<"$cols_json")"
+
+if [[ "$workspace_id" != "$focused_ws_id" ]]; then
+    niri msg action focus-workspace "$workspace_ref" >/dev/null
+fi
+
+# Set each column to an equal percentage. Some apps may enforce a minimum width.
+for col in $(jq -r '.[]' <<<"$cols_json"); do
+    niri msg action focus-column "$col" >/dev/null
+    niri msg action set-column-width -- "${width_pct}%" >/dev/null
+done
+
+niri msg action focus-column "$first_col" >/dev/null
+niri msg action center-visible-columns >/dev/null
+
+echo "Workspace $workspace_ref (id $workspace_id): set $cols_count columns to ~${width_pct}% each"
