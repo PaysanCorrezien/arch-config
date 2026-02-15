@@ -1,0 +1,7 @@
+# Homebot 4TB data disk setup
+# Partitions, formats, and mounts /dev/sda as /data with btrfs + snapshots
+
+description: Format and mount 4TB data disk with btrfs and snapper
+
+post_install_hook: scripts/setup-data-disk.sh
+hook_behavior: ask

@@ -28,6 +28,7 @@ enabled_modules:
   - tmux                     # Tmux terminal multiplexer with plugins
   - ssh                      # Secure SSH server with key-based auth
   - snapper                  # Snapper root/home snapshots + GRUB entries
+  - homebot-data-disk        # 4TB data disk with btrfs + snapshots
   - tailscale                # Tailscale VPN with Tailscale SSH
   - localsend                # LocalSend file sharing with firewall
 
