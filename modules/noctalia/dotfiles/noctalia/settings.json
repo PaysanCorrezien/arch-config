@@ -28,7 +28,7 @@
         "mprisBlacklist": [
         ],
         "preferredPlayer": "",
-        "visualizerType": "mirrored",
+        "visualizerType": "wave",
         "volumeFeedback": false,
         "volumeOverdrive": false,
         "volumeStep": 5
@@ -661,7 +661,7 @@
         ],
         "overviewEnabled": false,
         "panelPosition": "follow_bar",
-        "randomIntervalSec": 1800,
+        "randomIntervalSec": 900,
         "setWallpaperOnAllMonitors": true,
         "showHiddenFiles": false,
         "solidColor": "#1a1a2e",
