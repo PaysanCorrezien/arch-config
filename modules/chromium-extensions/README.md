@@ -7,6 +7,8 @@ Manages automatic installation and configuration of Chromium extensions via poli
 - **Surfingkeys** - Vim-like keyboard navigation for the web
 - **KeePassXC Browser** - Password manager integration
 - **Refined GitHub** - GitHub UI enhancements
+- **Claude** - Claude browser integration
+- **Dark Reader** - Dark mode for websites
 - **KaraKeep** - Google Keep integration
 
 ## How It Works
