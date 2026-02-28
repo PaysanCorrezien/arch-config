@@ -23,6 +23,7 @@ enabled_modules:
   - snapper                  # Snapper root/home snapshots + GRUB entries
   - tailscale                # Tailscale VPN with Tailscale SSH
   - localsend                # LocalSend file sharing with firewall
+  - docker                   # Docker engine + nvidia-container-runtime for GPU containers
 
 # Module processing mode
 module_processing: parallel
@@ -60,6 +61,5 @@ aur_helper: paru
 # Services to enable
 services:
   enabled:
-    - docker                  # Docker (with nvidia-container-toolkit for GPU containers)
     - bluetooth
   disabled: []
