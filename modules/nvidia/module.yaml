@@ -21,5 +21,8 @@ packages:
   - cuda                    # CUDA toolkit
   - cudnn                   # cuDNN (deep learning primitives)
 
+  # Container GPU support
+  - nvidia-container-toolkit  # Exposes GPU to Docker/Podman containers
+
 post_install_hook: scripts/setup-nvidia.sh
 hook_behavior: ask

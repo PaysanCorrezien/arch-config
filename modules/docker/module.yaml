@@ -1,0 +1,10 @@
+# Docker module
+# Installs Docker and enables the service with nvidia-container-runtime support.
+
+description: Docker engine with nvidia-container-runtime for GPU containers
+
+packages:
+  - docker
+
+post_install_hook: scripts/setup-docker.sh
+hook_behavior: ask

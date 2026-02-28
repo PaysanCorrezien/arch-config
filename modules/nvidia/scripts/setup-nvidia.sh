@@ -12,7 +12,11 @@ echo "==> Configuring Nvidia for Wayland (DRM modesetting)..."
 GRUB_CFG="/etc/default/grub"
 
 if ! grep -q "nvidia_drm.modeset=1" "$GRUB_CFG"; then
-    sudo sed -i 's/\(GRUB_CMDLINE_LINUX_DEFAULT="[^"]*\)"/\1 nvidia_drm.modeset=1 nvidia_drm.fbdev=1"/' "$GRUB_CFG"
+    # Handle both single-quoted and double-quoted GRUB_CMDLINE_LINUX_DEFAULT
+    sudo sed -i \
+        -e 's/\(GRUB_CMDLINE_LINUX_DEFAULT="\([^"]*\)"\)/GRUB_CMDLINE_LINUX_DEFAULT="\2 nvidia_drm.modeset=1 nvidia_drm.fbdev=1"/' \
+        -e "s/\\(GRUB_CMDLINE_LINUX_DEFAULT='\\([^']*\\)'\\)/GRUB_CMDLINE_LINUX_DEFAULT='\\2 nvidia_drm.modeset=1 nvidia_drm.fbdev=1'/" \
+        "$GRUB_CFG"
     echo "  -> Added nvidia_drm.modeset=1 nvidia_drm.fbdev=1 to GRUB_CMDLINE_LINUX_DEFAULT"
 else
     echo "  -> nvidia_drm.modeset already set, skipping"
