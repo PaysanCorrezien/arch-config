@@ -52,23 +52,17 @@ cd "${TARGET_DIR}"
 
 # Pick host if not provided
 if [ -z "${ARCH_CONFIG_HOST:-}" ]; then
-  mapfile -t hosts < <(find hosts -maxdepth 1 -type f -name '*.yaml' -printf '%f\n' 2>/dev/null | sed 's/\\.yaml$//')
+  mapfile -t hosts < <(find hosts -maxdepth 1 -type f -name '*.yaml' -printf '%f\n' 2>/dev/null | sed 's/\.yaml$//')
   if [ "${#hosts[@]}" -eq 0 ]; then
     echo "No hosts found in ${TARGET_DIR}/hosts."
     exit 1
   fi
 
   if command -v fzf >/dev/null 2>&1; then
-    if [ -t 0 ]; then
-      host_choice="$(printf '%s\n' "${hosts[@]}" | fzf --prompt='Select host: ' --height=40% --layout=reverse --border)"
-    else
-      # When piped (curl | bash), feed list via default command and read input from tty
-      tmp_hosts="$(mktemp)"
-      printf '%s\n' "${hosts[@]}" > "${tmp_hosts}"
-      FZF_DEFAULT_COMMAND="cat ${tmp_hosts}" \
-        host_choice="$(fzf --prompt='Select host: ' --height=40% --layout=reverse --border < /dev/tty)"
-      rm -f "${tmp_hosts}"
-    fi
+    # Pipe hosts list explicitly so fzf uses it as input regardless of how
+    # the script was invoked (interactive or curl | bash). fzf opens /dev/tty
+    # directly for its UI when stdin is a pipe, so this works in both cases.
+    host_choice="$(printf '%s\n' "${hosts[@]}" | fzf --prompt='Select host: ' --height=40% --layout=reverse --border)"
     if [ -n "${host_choice}" ]; then
       HOST_NAME="${host_choice}"
     else
