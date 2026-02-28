@@ -1,0 +1,65 @@
+# Host configuration for gpu
+# GPU workstation / compute server — Nvidia drivers + conditional GUI (same pattern as homebot)
+
+host: gpu
+description: Arch Linux GPU machine with Nvidia drivers, Niri on-demand desktop, and Docker
+
+enabled_modules:
+  - git                      # Git configuration and identity setup
+  - sudoers                  # Passwordless sudo for current user
+  - terminal-extras          # Additional terminal tools and utilities
+  - development              # Language servers, formatters, dev tools
+  - rust                     # Rust toolchain via rustup
+  - nvidia                   # Nvidia open drivers + CUDA + Wayland support
+  - sddm                     # SDDM display manager + Noctalia theme (for debug GUI access)
+  - niri                     # Niri window manager (Wayland) (for debug GUI access)
+  - gpu-niri                 # Host-specific Niri monitor/workspace config
+  - noctalia                 # Noctalia config dotfiles
+  - kanata                   # Keyboard remapping (Kanata)
+  - shell-config             # ZSH configuration and dotfiles
+  - nvim-config              # Neovim config from remote repo
+  - tmux                     # Tmux terminal multiplexer with plugins
+  - ssh                      # Secure SSH server with key-based auth
+  - snapper                  # Snapper root/home snapshots + GRUB entries
+  - tailscale                # Tailscale VPN with Tailscale SSH
+  - localsend                # LocalSend file sharing with firewall
+
+# Module processing mode
+module_processing: parallel
+
+# Host-specific packages (beyond what's in modules)
+packages:
+  - bemenu
+  # GPU / compute extras
+  - nvtop                   # GPU process monitor (like htop for GPUs)
+  - python-pytorch-cuda     # PyTorch with CUDA support (AUR)
+
+# Exclude AMD GPU stack (this machine uses Nvidia)
+exclude:
+  - vulkan-radeon
+  - mesa                    # Replaced by nvidia's GL implementation
+
+# Configuration backup settings
+config_backups:
+  enabled: true
+  max_backups: 5
+
+# System backup settings
+system_backups:
+  enabled: true
+  backup_on_sync: true
+  backup_on_update: true
+  tool: snapper
+  snapper_config: root
+
+# Settings
+flatpak_scope: user
+auto_prune: false
+aur_helper: paru
+
+# Services to enable
+services:
+  enabled:
+    - docker                  # Docker (with nvidia-container-toolkit for GPU containers)
+    - bluetooth
+  disabled: []

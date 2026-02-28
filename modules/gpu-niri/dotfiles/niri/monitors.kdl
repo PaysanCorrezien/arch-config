@@ -1,0 +1,13 @@
+// GPU host monitor configuration
+// Run `niri msg outputs` on the gpu device to get the correct output name.
+// Then define output blocks here. Example:
+//
+// output "DP-1" {
+//     mode "2560x1440@144.000"
+//     scale 1
+//     transform "normal"
+//     position x=0 y=0
+// }
+//
+// You can also add workspace-to-output assignments here, for example:
+// workspace "term" { open-on-output "DP-1"; }

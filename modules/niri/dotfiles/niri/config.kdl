@@ -452,6 +452,12 @@ binds {
         open-on-workspace "claude"
     }
 
+    // ─── Workspace work: Michel ───
+    window-rule {
+        match app-id=r#"michel-frontend"#
+        open-on-workspace "work"
+    }
+
     // ─── Floating Windows ───
 
     // Dropdown terminal - matched by title, floats centered at 70%

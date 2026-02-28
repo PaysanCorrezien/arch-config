@@ -262,6 +262,20 @@ sudo ufw delete allow 22/tcp
    sudo journalctl -u tailscaled -n 50
    ```
 
+### MagicDNS Not Working
+
+If hostnames like `homebot` fail to resolve:
+
+1. Check for DNS configuration errors:
+   ```bash
+   sudo tailscale status
+   # Look for health check warnings about DNS
+   ```
+
+2. See the detailed troubleshooting guide:
+   - **Full guide**: [docs/tailscale-magicdns.md](../../docs/tailscale-magicdns.md)
+   - Common issue on Arch: NetworkManager/systemd-resolved conflicts
+
 ### Network Issues
 
 1. Check network conditions:
@@ -321,6 +335,8 @@ Tailscale automatically provides DNS for your network:
 - Access machines by name: `ssh machine-name`
 - No need to remember IP addresses
 - Automatically configured
+
+**Note**: MagicDNS may require additional configuration on Arch Linux due to conflicts with NetworkManager and systemd-resolved. See [docs/tailscale-magicdns.md](../../docs/tailscale-magicdns.md) for troubleshooting.
 
 ### HTTPS Certificates
 Get free HTTPS certificates for your Tailscale machines:

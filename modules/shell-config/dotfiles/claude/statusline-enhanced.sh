@@ -22,13 +22,13 @@ fi
 # Extract context window info - use pre-calculated used_percentage for accuracy
 pct=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
 size=$(echo "$input" | jq -r '.context_window.context_window_size // 200000')
-total_input=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
-total_output=$(echo "$input" | jq -r '.context_window.total_output_tokens // 0')
 
 # Calculate display values
-current=$((total_input + total_output))
-current_k=$((current / 1000))
+# Derive current context fill from used_percentage × context_window_size so the
+# number stays correct after /compact (cumulative total_input_tokens would exceed
+# the window size after compaction and is not the right value to show here).
 size_k=$((size / 1000))
+current_k=$(LC_NUMERIC=C awk -v p="$pct" -v s="$size" 'BEGIN { printf "%d", (p / 100) * s / 1000 }')
 
 # Build context usage bar from percentage
 filled=$((pct / 10))
@@ -77,13 +77,17 @@ calculate_cost() {
     local cache_write_price="${pricing[2]}"
     local cache_read_price="${pricing[3]}"
 
-    # Use LC_NUMERIC=C to force period decimal separator
+    # Use LC_NUMERIC=C to force period decimal separator.
+    # input_tokens from the API already includes cache_creation and cache_read tokens.
+    # Subtract them before applying the base input rate, then bill each tier separately.
     LC_NUMERIC=C awk -v it="$input_tokens" -v ot="$output_tokens" \
         -v cw="$cache_write" -v cr="$cache_read" \
         -v ip="$input_price" -v op="$output_price" \
         -v cwp="$cache_write_price" -v crp="$cache_read_price" \
         'BEGIN {
-            cost = (it * ip + ot * op + cw * cwp + cr * crp) / 1000000
+            base_input = it - cw - cr
+            if (base_input < 0) base_input = 0
+            cost = (base_input * ip + ot * op + cw * cwp + cr * crp) / 1000000
             printf "%.4f", cost
         }'
 }
@@ -107,50 +111,45 @@ get_cost_info() {
         session_id=""
     fi
 
-    # Calculate session cost (current 5-hour window)
+    # Calculate session cost
     local session_cost="0.0000"
-    local session_input=0 session_output=0 session_cache_write=0 session_cache_read=0
-    local window_start_time="" window_end_time=""
 
     # Find session JSONL file (search recursively, exclude subagents)
     local session_file=$(find "$projects_dir" -name "${session_id}.jsonl" -type f ! -path "*/subagents/*" 2>/dev/null | head -1)
 
     if [ -f "$session_file" ]; then
-        # Read all entries and sum token usage (FIXED: correct field paths)
-        while IFS= read -r line; do
-            # Skip lines without usage data
-            echo "$line" | jq -e '.message.usage // .usage' >/dev/null 2>&1 || continue
-
-            # Try both .message.usage and .usage paths
-            local msg_model=$(echo "$line" | jq -r '.message.model // .model // empty' 2>/dev/null)
-            local msg_input=$(echo "$line" | jq -r '.message.usage.input_tokens // .usage.input_tokens // 0' 2>/dev/null)
-            local msg_output=$(echo "$line" | jq -r '.message.usage.output_tokens // .usage.output_tokens // 0' 2>/dev/null)
-            local msg_cache_write=$(echo "$line" | jq -r '.message.usage.cache_creation_input_tokens // .usage.cache_creation_input_tokens // 0' 2>/dev/null)
-            local msg_cache_read=$(echo "$line" | jq -r '.message.usage.cache_read_input_tokens // .usage.cache_read_input_tokens // 0' 2>/dev/null)
-            local msg_time=$(echo "$line" | jq -r '.timestamp // empty' 2>/dev/null)
-
-            # Track time window
-            if [ -z "$window_start_time" ] && [ -n "$msg_time" ]; then
-                window_start_time="$msg_time"
-            fi
-            if [ -n "$msg_time" ]; then
-                window_end_time="$msg_time"
-            fi
-
-            # Use message model or fall back to session model
-            local current_model="${msg_model:-$model_id}"
-
-            # Calculate cost for this message
-            if [ "$msg_input" != "0" ] || [ "$msg_output" != "0" ]; then
-                local msg_cost=$(calculate_cost "$current_model" "$msg_input" "$msg_output" "$msg_cache_write" "$msg_cache_read")
-                session_cost=$(LC_NUMERIC=C awk -v a="$session_cost" -v b="$msg_cost" 'BEGIN {printf "%.4f", a + b}')
-
-                session_input=$((session_input + msg_input))
-                session_output=$((session_output + msg_output))
-                session_cache_write=$((session_cache_write + msg_cache_write))
-                session_cache_read=$((session_cache_read + msg_cache_read))
-            fi
-        done < "$session_file"
+        # Use a single jq+awk pass (same pattern as the daily/monthly scan) rather
+        # than spawning a jq process per line, which is O(n) subprocess cost.
+        session_cost=$(jq -r \
+            'select(.message.usage or .usage) |
+             [(.message.model // .model // ""),
+              (.message.usage.input_tokens // .usage.input_tokens // 0),
+              (.message.usage.output_tokens // .usage.output_tokens // 0),
+              (.message.usage.cache_creation_input_tokens // .usage.cache_creation_input_tokens // 0),
+              (.message.usage.cache_read_input_tokens // .usage.cache_read_input_tokens // 0)] | @tsv' \
+            "$session_file" 2>/dev/null | \
+            LC_NUMERIC=C awk -v default_model="$model_id" '
+            function prices(model, p,    ip, op, cwp, crp) {
+                if (model == "claude-opus-4-5-20251101") {
+                    ip=15.00; op=75.00; cwp=18.75; crp=1.50
+                } else if (model == "claude-sonnet-4-5-20251101" || model == "claude-sonnet-4-5-20250929") {
+                    ip=3.00; op=15.00; cwp=3.75; crp=0.30
+                } else if (model == "claude-haiku-4-5-20251101" || model == "claude-haiku-4-5-20250110") {
+                    ip=0.80; op=4.00; cwp=1.00; crp=0.08
+                } else {
+                    ip=3.00; op=15.00; cwp=3.75; crp=0.30
+                }
+                p["ip"]=ip; p["op"]=op; p["cwp"]=cwp; p["crp"]=crp
+            }
+            {
+                model=$1; it=$2; ot=$3; cw=$4; cr=$5
+                if (model == "") model = default_model
+                prices(model, p)
+                base_input = it - cw - cr
+                if (base_input < 0) base_input = 0
+                cost += (base_input * p["ip"] + ot * p["op"] + cw * p["cwp"] + cr * p["crp"]) / 1000000
+            }
+            END { printf "%.4f", cost + 0 }')
     fi
 
     # Calculate daily and monthly totals (cached to avoid heavy scans)
@@ -216,7 +215,9 @@ get_cost_info() {
                         msg_day = substr(ts,1,10)
                         msg_month = substr(ts,1,7)
                         prices(model, p)
-                        cost = (it * p["ip"] + ot * p["op"] + cw * p["cwp"] + cr * p["crp"]) / 1000000
+                        base_input = it - cw - cr
+                        if (base_input < 0) base_input = 0
+                        cost = (base_input * p["ip"] + ot * p["op"] + cw * p["cwp"] + cr * p["crp"]) / 1000000
                         if (msg_month == month) monthly += cost
                         if (msg_day == day) daily += cost
                     }

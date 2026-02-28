@@ -96,6 +96,7 @@ packages:
 - 7zip
 - tigervnc
 - localsend
+- bun
 exclude: []
 conflicts: []
 pre_install_hook: null

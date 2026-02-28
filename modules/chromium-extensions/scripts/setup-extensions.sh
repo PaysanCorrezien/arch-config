@@ -25,6 +25,8 @@ sudo tee /etc/chromium/policies/managed/extensions.json >/dev/null <<EOF
     "gfbliohnnapiefjpjlpjnehglfpaknnc;https://clients2.google.com/service/update2/crx",
     "oboonakemofpalcgghocfoadofidjkkk;https://clients2.google.com/service/update2/crx",
     "hlepfoohegkhhmjieoechaddaejaokhf;https://clients2.google.com/service/update2/crx",
+    "fcoeoabgfenejglbffodgkkbkcdhcgfn;https://clients2.google.com/service/update2/crx",
+    "eimadpbcbfnmbkopoojfekhnkhdbieeh;https://clients2.google.com/service/update2/crx",
     "kgcjekpmcjjogibpjebkhaanilehneje;https://clients2.google.com/service/update2/crx"
   ],
   "ExtensionSettings": {
@@ -49,6 +51,8 @@ echo "The following extensions will auto-install on next Chromium launch:"
 echo "  • Surfingkeys (gfbliohnnapiefjpjlpjnehglfpaknnc)"
 echo "  • KeePassXC Browser (oboonakemofpalcgghocfoadofidjkkk)"
 echo "  • Refined GitHub (hlepfoohegkhhmjieoechaddaejaokhf)"
+echo "  • Claude (fcoeoabgfenejglbffodgkkbkcdhcgfn)"
+echo "  • Dark Reader (eimadpbcbfnmbkopoojfekhnkhdbieeh)"
 echo "  • KaraKeep (kgcjekpmcjjogibpjebkhaanilehneje)"
 echo
 echo "=== Surfingkeys Configuration ==="
