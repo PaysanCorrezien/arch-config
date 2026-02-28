@@ -96,4 +96,7 @@ host: ${HOST_NAME}
 EOF_CFG
 
 # Sync configuration
-exec dcli sync
+# Redirect stdin from /dev/tty so dcli's interactive prompts (e.g. "apply
+# these changes? [y/n]") read from the real terminal, not from the curl pipe
+# (which is exhausted/EOF after the script has been read by bash).
+exec dcli sync </dev/tty
