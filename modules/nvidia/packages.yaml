@@ -3,8 +3,11 @@
 description: Nvidia open drivers, utils, and Wayland/CUDA support
 
 packages:
-  # Kernel module (open source, Turing+)
-  - nvidia-open-dkms        # Open kernel module (AUR/CachyOS)
+  # Kernel modules — CachyOS ships kernel-integrated nvidia packages
+  # (these conflict with generic nvidia-open-dkms, do not use that)
+  - linux-cachyos-nvidia-open      # Nvidia open module for cachyos kernel
+  - linux-cachyos-lts-nvidia-open  # Nvidia open module for cachyos-lts kernel
+  - linux-firmware-nvidia          # Nvidia firmware blobs
   - nvidia-utils            # Userspace tools (nvidia-smi, etc.)
   - nvidia-settings         # GUI configuration panel
 
