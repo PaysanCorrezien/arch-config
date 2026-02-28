@@ -1,0 +1,23 @@
+# Nvidia drivers, compute stack, and container GPU support
+
+description: Nvidia open drivers, utils, and Wayland/CUDA support
+
+packages:
+  # Kernel module (open source, Turing+)
+  - nvidia-open-dkms        # Open kernel module (AUR/CachyOS)
+  - nvidia-utils            # Userspace tools (nvidia-smi, etc.)
+  - nvidia-settings         # GUI configuration panel
+
+  # Wayland support
+  - egl-wayland             # EGLStream → Wayland bridge for Niri/wlroots
+
+  # VA-API (hardware video decode/encode via NVDEC)
+  - libva-nvidia-driver     # VA-API backend for Nvidia (AUR)
+
+  # Compute
+  - opencl-nvidia           # OpenCL ICD for Nvidia
+  - cuda                    # CUDA toolkit
+  - cudnn                   # cuDNN (deep learning primitives)
+
+  # Container GPU support
+  - nvidia-container-toolkit  # Exposes GPU to Docker/Podman containers

@@ -1,0 +1,6 @@
+# Docker engine
+
+description: Docker container engine
+
+packages:
+  - docker

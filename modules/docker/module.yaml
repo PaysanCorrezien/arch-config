@@ -3,8 +3,5 @@
 
 description: Docker engine with nvidia-container-runtime for GPU containers
 
-packages:
-  - docker
-
 post_install_hook: scripts/setup-docker.sh
 hook_behavior: ask
