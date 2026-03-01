@@ -30,6 +30,7 @@ packages:
   - carapace-bin             # Multi-shell completions
   - nodejs-lts-jod           # Node.js LTS runtime
   - npm                      # Node package manager
+  - github-cli               # GitHub CLI (gh)
   - claude-code              # Anthropic's Claude Code CLI
   - openai-codex             # OpenAI Codex CLI
 
