@@ -8,6 +8,9 @@ export PATH="$HOME/.cargo/bin:$PATH"
 export NPM_CONFIG_PREFIX="$HOME/.npm-global"
 export PATH="$HOME/.npm-global/bin:$PATH"
 
+# Truecolor support
+export COLORTERM=truecolor
+
 # GTK/Qt Dark Theme
 export GTK_THEME=adw-gtk3-dark
 export QT_QPA_PLATFORMTHEME=qt5ct
