@@ -1,0 +1,18 @@
+[Unit]
+Description=RustDesk Remote Desktop
+After=graphical-session.target pipewire.service xdg-desktop-portal.service
+Requires=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/rustdesk --service
+ExecStop=pkill -f "rustdesk --"
+KillMode=mixed
+TimeoutStopSec=30
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=100000
+Environment="PULSE_LATENCY_MSEC=60" "PIPEWIRE_LATENCY=1024/48000"
+
+[Install]
+WantedBy=graphical-session.target
