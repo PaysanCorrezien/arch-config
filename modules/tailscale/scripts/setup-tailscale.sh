@@ -1,9 +1,10 @@
 #!/bin/bash
 # Setup Tailscale VPN with Tailscale SSH
-# Configures Tailscale daemon and enables secure mesh networking
+# Configures DNS (openresolv), Tailscale daemon, and enables secure mesh networking
 
 set -e
 
+STEPS=7
 echo "=== Tailscale VPN Setup ==="
 echo ""
 
@@ -14,14 +15,72 @@ if ! command -v tailscale &> /dev/null; then
     exit 1
 fi
 
-# 1. Enable Tailscale service
-echo "[1/5] Enabling Tailscale service..."
-sudo systemctl enable tailscaled
-echo "  ✓ Tailscale service enabled at boot"
+# 1. DNS backend: ensure openresolv is used instead of systemd-resolvconf
+echo "[1/$STEPS] Configuring DNS backend (openresolv)..."
+if pacman -Qi systemd-resolvconf &> /dev/null; then
+    echo "  ⚠ systemd-resolvconf detected — replacing with openresolv"
+    echo "  (systemd-resolvconf requires systemd-resolved which conflicts with Tailscale MagicDNS)"
+    sudo pacman -Rdd --noconfirm systemd-resolvconf
+    sudo pacman -S --noconfirm openresolv
+    echo "  ✓ Replaced systemd-resolvconf with openresolv"
+elif pacman -Qi openresolv &> /dev/null; then
+    echo "  ✓ openresolv already installed"
+else
+    echo "  Installing openresolv..."
+    sudo pacman -S --noconfirm openresolv
+    echo "  ✓ openresolv installed"
+fi
 
-# 2. Start Tailscale service
+# 2. Disable systemd-resolved (conflicts with Tailscale MagicDNS and Pi-hole)
 echo ""
-echo "[2/5] Starting Tailscale service..."
+echo "[2/$STEPS] Disabling systemd-resolved..."
+if systemctl is-active --quiet systemd-resolved 2>/dev/null; then
+    sudo systemctl disable --now systemd-resolved.service
+    sudo systemctl disable --now systemd-resolved.socket 2>/dev/null || true
+    sudo systemctl mask systemd-resolved.service
+    echo "  ✓ systemd-resolved stopped and masked"
+elif systemctl is-enabled --quiet systemd-resolved 2>/dev/null; then
+    sudo systemctl disable systemd-resolved.service
+    sudo systemctl mask systemd-resolved.service
+    echo "  ✓ systemd-resolved disabled and masked"
+else
+    echo "  ✓ systemd-resolved already disabled/masked"
+fi
+
+# 3. Configure NetworkManager to not interfere with DNS
+echo ""
+echo "[3/$STEPS] Configuring NetworkManager..."
+if command -v nmcli &> /dev/null; then
+    # Tell NetworkManager to ignore tailscale0 interface
+    TAILSCALE_CONF="/etc/NetworkManager/conf.d/tailscale.conf"
+    if [ ! -f "$TAILSCALE_CONF" ]; then
+        echo '[keyfile]
+unmanaged-devices=interface-name:tailscale0' | sudo tee "$TAILSCALE_CONF" > /dev/null
+        echo "  ✓ NetworkManager configured to ignore tailscale0"
+    else
+        echo "  ✓ tailscale0 already unmanaged"
+    fi
+
+    # Tell NetworkManager not to manage resolv.conf
+    DNS_CONF="/etc/NetworkManager/conf.d/dns.conf"
+    if [ ! -f "$DNS_CONF" ] || ! grep -q "rc-manager=unmanaged" "$DNS_CONF" 2>/dev/null; then
+        echo '[main]
+dns=default
+rc-manager=unmanaged' | sudo tee "$DNS_CONF" > /dev/null
+        echo "  ✓ NetworkManager configured: rc-manager=unmanaged"
+        sudo systemctl restart NetworkManager
+        echo "  ✓ NetworkManager restarted"
+    else
+        echo "  ✓ NetworkManager DNS config already correct"
+    fi
+else
+    echo "  ℹ NetworkManager not installed, skipping"
+fi
+
+# 4. Enable and start Tailscale service
+echo ""
+echo "[4/$STEPS] Enabling Tailscale service..."
+sudo systemctl enable tailscaled
 if systemctl is-active --quiet tailscaled; then
     echo "  ✓ Tailscale service already running"
 else
@@ -29,37 +88,23 @@ else
     echo "  ✓ Tailscale service started"
 fi
 
-# 3. Check authentication status
+# 5. Check authentication status
 echo ""
-echo "[3/6] Checking Tailscale authentication status..."
+echo "[5/$STEPS] Checking Tailscale authentication status..."
 if sudo tailscale status &> /dev/null; then
     echo "  ✓ Tailscale is authenticated"
     AUTHENTICATED=true
+
+    # Update resolvconf now that tailscale is up
+    sudo resolvconf -u 2>/dev/null || true
 else
     echo "  ℹ Tailscale is not yet authenticated"
     AUTHENTICATED=false
 fi
 
-# 4. Configure UFW for Tailscale-only ports (optional)
+# 6. Configure Tailscale SSH (optional, user prompt)
 echo ""
-echo "[4/6] Configuring UFW for Tailscale-only ports..."
-if command -v ufw &> /dev/null; then
-    if sudo ufw status | grep -q "3000:3010/tcp.*tailscale0"; then
-        echo "  ✓ UFW rule already present for tailscale0 (3000-3010/tcp)"
-    else
-        if sudo ufw allow in on tailscale0 to any port 3000:3010 proto tcp comment 'Tailscale ports 3000-3010'; then
-            echo "  ✓ UFW rule added for tailscale0 (3000-3010/tcp)"
-        else
-            echo "  ⚠ Unable to add UFW rule for tailscale0. Add it manually after 'tailscale up'."
-        fi
-    fi
-else
-    echo "  ✗ Warning: UFW is not installed. Skipping firewall configuration."
-fi
-
-# 5. Configure Tailscale SSH (optional, user prompt)
-echo ""
-echo "[5/6] Tailscale SSH Configuration..."
+echo "[6/$STEPS] Tailscale SSH Configuration..."
 echo ""
 echo "Tailscale SSH allows secure SSH access over your Tailscale network without"
 echo "exposing ports publicly. It uses Tailscale authentication and ACLs."
@@ -84,9 +129,9 @@ else
     ENABLE_SSH_AFTER_AUTH=false
 fi
 
-# 6. Authentication flow
+# 7. Authentication flow
 echo ""
-echo "[6/6] Authentication..."
+echo "[7/$STEPS] Authentication..."
 if [ "$AUTHENTICATED" = false ]; then
     echo ""
     echo "You need to authenticate this machine with your Tailscale account."
@@ -119,6 +164,11 @@ if [ "$AUTHENTICATED" = false ]; then
             echo "  Invalid choice. Skipping authentication."
             ;;
     esac
+
+    # After auth, update resolvconf so Tailscale MagicDNS takes effect
+    if [ "$AUTH_CHOICE" != "3" ]; then
+        sudo resolvconf -u 2>/dev/null || true
+    fi
 fi
 
 # Verification
@@ -133,7 +183,18 @@ echo "Tailscale Status:"
 sudo tailscale status 2>/dev/null || echo "  Not authenticated yet"
 
 echo ""
+echo "DNS Configuration:"
+echo "  resolv.conf: $(head -n1 /etc/resolv.conf 2>/dev/null || echo 'not found')"
+if grep -q "100.100.100.100" /etc/resolv.conf 2>/dev/null; then
+    echo "  ✓ MagicDNS active (100.100.100.100)"
+else
+    echo "  ⚠ MagicDNS not yet configured (authenticate first)"
+fi
+
+echo ""
 echo "Configuration Summary:"
+echo "  • DNS backend: openresolv"
+echo "  • systemd-resolved: MASKED"
 echo "  • Tailscale daemon: ENABLED"
 echo "  • Auto-start at boot: YES"
 if [ "$SSH_ENABLED" = true ]; then
@@ -142,15 +203,7 @@ else
     echo "  • Tailscale SSH: DISABLED"
 fi
 
-echo ""
-echo "Security Features:"
-echo "  ✓ End-to-end encrypted mesh VPN"
-echo "  ✓ No ports exposed to public internet"
-echo "  ✓ Identity-based access control"
-echo "  ✓ WireGuard protocol for performance"
-
 if [ "$SSH_ENABLED" = true ]; then
-    echo "  ✓ Tailscale SSH for secure remote access"
     echo ""
     echo "SSH Access:"
     echo "  • Access this machine via: ssh <machine-name>"
@@ -169,21 +222,4 @@ fi
 echo "  • Check status:      sudo tailscale status"
 echo "  • View IP address:   sudo tailscale ip"
 echo "  • Admin console:     https://login.tailscale.com/admin/machines"
-echo "  • Configure ACLs:    https://login.tailscale.com/admin/acls"
-
-echo ""
-echo "Useful Commands:"
-echo "  • sudo tailscale up --ssh          # Enable SSH access"
-echo "  • sudo tailscale down               # Disconnect from Tailscale"
-echo "  • sudo tailscale status             # Show connection status"
-echo "  • sudo tailscale ping <machine>     # Test connectivity"
-echo "  • sudo tailscale netcheck           # Check network conditions"
-
-echo ""
-echo "Security Recommendations:"
-echo "  1. Configure ACLs to restrict access between devices"
-echo "  2. Enable MFA on your Tailscale account"
-echo "  3. Regularly review connected devices in admin console"
-echo "  4. Use Tailscale SSH instead of exposing port 22 publicly"
-echo "  5. Consider enabling key expiry for additional security"
 echo ""

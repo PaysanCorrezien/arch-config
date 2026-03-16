@@ -25,9 +25,6 @@ setopt NO_CASE_GLOB
 autoload -Uz compinit
 compinit
 
-# Initialize zoxide
-eval "$(zoxide init zsh)"
-
 # Carapace completions
 export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
 zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
@@ -86,3 +83,8 @@ function y() {
 
 # Initialize Starship prompt
 eval "$(starship init zsh)"
+
+export PATH="$HOME/.local/bin:$PATH"
+
+# Initialize zoxide (must be last)
+eval "$(zoxide init zsh)"

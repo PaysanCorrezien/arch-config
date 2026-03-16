@@ -113,29 +113,6 @@
                     "hideWhenIdle": true,
                     "id": "AudioVisualizer",
                     "width": 200
-                },
-                {
-                    "defaultSettings": {
-                        "autoResetEnabled": true,
-                        "claudeEnabled": true,
-                        "claudeResetEnabled": true,
-                        "claudeResetMessage": "hi",
-                        "codexCredentialsPath": "$HOME/.codex/auth.json",
-                        "codexEnabled": true,
-                        "codexResetEnabled": false,
-                        "codexResetMessage": "hi",
-                        "openaiCredentialsPath": "$HOME/.codex/auth.json",
-                        "openaiEnabled": true,
-                        "refreshIntervalSeconds": 60,
-                        "showBar": true,
-                        "showClaudeInBar": true,
-                        "showCodexInBar": true,
-                        "showInBar": true,
-                        "showOpenaiInBar": true,
-                        "watcherEnabled": true,
-                        "watcherMessage": "hi"
-                    },
-                    "id": "plugin:ai-usage"
                 }
             ],
             "left": [

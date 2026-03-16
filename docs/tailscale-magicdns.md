@@ -5,35 +5,47 @@
 On Arch Linux, Tailscale MagicDNS fails to work properly due to conflicts between:
 - **NetworkManager** (manages network connections and DNS)
 - **systemd-resolved** (systemd's DNS resolver)
+- **systemd-resolvconf** (wrapper around resolvectl, broken without systemd-resolved)
 - **Tailscale** (needs to inject its MagicDNS server at 100.100.100.100)
 
 ### Symptoms
 
 - Health check warning: "systemd-resolved and NetworkManager are wired together incorrectly"
 - Health check error: "Tailscale failed to set the DNS configuration"
+- Error: "Failed to resolve interface 'tailscale': Aucun périphérique de ce type"
 - Error: "setLinkDNS: Could not activate remote peer 'org.freedesktop.resolve1'"
+- Error: "resolvconf: signature mismatch: /etc/resolv.conf"
 - MagicDNS hostnames (e.g., `homebot`) fail to resolve
 - `/etc/resolv.conf` contains router DNS instead of Tailscale MagicDNS (100.100.100.100)
 
 ## Root Cause
 
-1. NetworkManager creates a symlink: `/etc/resolv.conf` → `/run/NetworkManager/resolv.conf`
-2. NetworkManager tries to use systemd-resolved (127.0.0.53)
-3. Tailscale tries to configure DNS via systemd-resolved's D-Bus interface
-4. When systemd-resolved is disabled, Tailscale fails but NetworkManager keeps overwriting resolv.conf
+`systemd-resolvconf` (the default Arch package providing `/usr/bin/resolvconf`) is just a symlink to `resolvectl`. It requires `systemd-resolved` to be running. When systemd-resolved is masked/disabled (needed for Pi-hole, or to avoid DNS conflicts), Tailscale calls `resolvconf` which fails silently — DNS config is never updated.
 
-## Solution
+Tailscale's DNS backend priority: systemd-resolved > NetworkManager > **resolvconf** > direct.
 
-### Step 1: Disable systemd-resolved completely
+## Solution: Use openresolv
+
+Replace `systemd-resolvconf` with `openresolv`, which manages `/etc/resolv.conf` directly and supports an "exclusive" mode that Tailscale leverages.
+
+The Tailscale setup script (`modules/tailscale/scripts/setup-tailscale.sh`) handles this automatically. For manual setup:
+
+### Step 1: Replace systemd-resolvconf with openresolv
 
 ```bash
-# Stop and disable systemd-resolved AND its socket activation
+sudo pacman -Rdd --noconfirm systemd-resolvconf
+sudo pacman -S --noconfirm openresolv
+```
+
+### Step 2: Disable systemd-resolved
+
+```bash
 sudo systemctl disable --now systemd-resolved.service
 sudo systemctl disable --now systemd-resolved.socket
 sudo systemctl mask systemd-resolved.service
 ```
 
-### Step 2: Configure NetworkManager to not manage resolv.conf
+### Step 3: Configure NetworkManager to not manage resolv.conf
 
 ```bash
 # Tell NetworkManager to ignore Tailscale interface
@@ -44,83 +56,73 @@ unmanaged-devices=interface-name:tailscale0' | sudo tee /etc/NetworkManager/conf
 echo '[main]
 dns=default
 rc-manager=unmanaged' | sudo tee /etc/NetworkManager/conf.d/dns.conf
-```
 
-### Step 3: Remove the NetworkManager symlink
-
-```bash
-# Remove the NetworkManager-managed resolv.conf symlink
-sudo rm /etc/resolv.conf
-```
-
-### Step 4: Restart NetworkManager
-
-```bash
 sudo systemctl restart NetworkManager
 ```
 
-### Step 5: Restart Tailscale daemon and reconnect
+### Step 4: Restart Tailscale and update resolvconf
 
 ```bash
-# Restart the daemon so it re-detects DNS configuration
 sudo systemctl restart tailscaled
-
-# Reconnect with DNS and routes enabled
 sudo tailscale up --accept-dns --accept-routes --ssh
+sudo resolvconf -u
 ```
 
-### Step 6: Verify
+### Step 5: Verify
 
 ```bash
-# Should show: nameserver 100.100.100.100
+# Should show: nameserver 100.100.100.100 (managed by resolvconf)
 cat /etc/resolv.conf
 
 # Test MagicDNS resolution
 ping homebot
 
 # Check Tailscale status (should have no DNS errors)
-sudo tailscale status
+tailscale status
 ```
 
 ## How It Works
 
 After this configuration:
 
-1. Tailscale manages `/etc/resolv.conf` directly (no systemd-resolved, no NetworkManager)
-2. `/etc/resolv.conf` contains `nameserver 100.100.100.100` (Tailscale MagicDNS)
-3. MagicDNS (100.100.100.100) forwards queries to your custom DNS server (e.g., 100.65.207.73 on vmi3085488)
-4. Your custom DNS server logs queries and forwards to upstream resolvers
-5. MagicDNS hostnames (*.tail66a3d.ts.net) resolve correctly
+1. **openresolv** manages `/etc/resolv.conf` directly (no systemd-resolved dependency)
+2. Tailscale uses openresolv's exclusive mode to set `nameserver 100.100.100.100`
+3. MagicDNS (100.100.100.100) resolves Tailscale hostnames and forwards other queries upstream
+4. NetworkManager doesn't interfere (`rc-manager=unmanaged`, `tailscale0` unmanaged)
 
 ## Troubleshooting
 
 ### MagicDNS still not working after following steps
 
-Check if tailscaled detected the correct DNS manager:
+Check which DNS manager tailscaled detected:
 ```bash
 journalctl -u tailscaled --since "5 min ago" | grep -i "dns manager"
 ```
 
-If it still tries to use systemd-resolved, restart tailscaled daemon:
+If it still tries to use systemd-resolved, restart tailscaled:
 ```bash
 sudo systemctl restart tailscaled
-sudo tailscale up --accept-dns --accept-routes --ssh
+sudo resolvconf -u
+```
+
+### "signature mismatch" error
+
+This means `/etc/resolv.conf` was written by something other than openresolv. Fix with:
+```bash
+sudo resolvconf -u
 ```
 
 ### Custom DNS server (vmi3085488) offline
 
 If your custom DNS server is offline, Tailscale will show DNS timeouts:
 ```bash
-# Check if DNS server is online
 tailscale status | grep vmi3085488
-
-# Restart it if needed
 ssh vmi3085488 'sudo systemctl restart tailscaled'
 ```
 
 ### NetworkManager keeps recreating the symlink
 
-Make sure `rc-manager=unmanaged` is set in the NetworkManager config:
+Make sure `rc-manager=unmanaged` is set:
 ```bash
 cat /etc/NetworkManager/conf.d/dns.conf
 # Should show: rc-manager=unmanaged
@@ -128,10 +130,12 @@ cat /etc/NetworkManager/conf.d/dns.conf
 
 ## References
 
-- [Tailscale GitHub Issue #1376 - Magic DNS not working in Arch Linux](https://github.com/tailscale/tailscale/issues/1376)
+- [Tailscale Docs: Configuring Linux DNS](https://tailscale.com/kb/1188/linux-dns)
 - [Tailscale Blog: The Sisyphean Task Of DNS Client Config on Linux](https://tailscale.com/blog/sisyphean-dns-client-linux)
-- [Tailscale Docs: systemd-resolved and NetworkManager](https://tailscale.com/s/resolved-nm)
+- [Tailscale Docs: Why is resolv.conf being overwritten?](https://tailscale.com/kb/1235/resolv-conf)
+- [Tailscale GitHub Issue #1376 - Magic DNS not working in Arch Linux](https://github.com/tailscale/tailscale/issues/1376)
 
 ## Date
 
 Fixed: 2026-02-15
+Updated: 2026-03-16 — replaced systemd-resolvconf workaround with openresolv

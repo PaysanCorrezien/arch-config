@@ -3,4 +3,5 @@
 description: Tailscale VPN and secure mesh networking
 
 packages:
-  - tailscale  # Tailscale VPN client and daemon
+  - tailscale    # Tailscale VPN client and daemon
+  - openresolv   # resolvconf implementation for MagicDNS (replaces systemd-resolvconf)
