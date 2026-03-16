@@ -19,6 +19,8 @@ dotfiles:
     target: ~/.claude/statusline-enhanced.sh
   - source: dotfiles/claude/settings.json
     target: ~/.claude/settings.json
+  - source: dotfiles/environment.d/10-path.conf
+    target: ~/.config/environment.d/10-path.conf
   - source: dotfiles/environment.d/90-ssh-auth-sock.conf
     target: ~/.config/environment.d/90-ssh-auth-sock.conf
 
