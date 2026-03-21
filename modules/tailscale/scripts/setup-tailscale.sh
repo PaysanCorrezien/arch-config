@@ -115,7 +115,7 @@ read -r ENABLE_SSH
 if [[ "$ENABLE_SSH" =~ ^[Yy]$ ]]; then
     if [ "$AUTHENTICATED" = true ]; then
         echo "  Enabling Tailscale SSH..."
-        sudo tailscale up --ssh
+        sudo tailscale set --ssh
         echo "  ✓ Tailscale SSH enabled"
         SSH_ENABLED=true
     else
@@ -153,7 +153,8 @@ if [ "$AUTHENTICATED" = false ]; then
             ;;
         2)
             echo "  Starting Tailscale authentication with SSH..."
-            sudo tailscale up --ssh
+            sudo tailscale up
+            sudo tailscale set --ssh
             echo "  ✓ Authentication initiated with SSH enabled"
             SSH_ENABLED=true
             ;;
