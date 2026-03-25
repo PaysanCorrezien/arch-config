@@ -37,7 +37,7 @@ packages:
 
   # VPN and networking
   #- mullvad-vpn # VPN client (AUR)
-  - localsend-bin # File sharing (AUR)
+  # localsend is declared in host configs (not AUR — official repos)
 
   # Time tracking
   #- activitywatch-bin # Time tracking (AUR)

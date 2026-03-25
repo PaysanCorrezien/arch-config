@@ -1,0 +1,4 @@
+# ~/.zprofile - sourced by login shells (used by niri-session, SDDM, etc.)
+# PATH set here is imported into systemd user environment via niri-session
+
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.npm-global/bin:$PATH"

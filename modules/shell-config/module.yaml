@@ -13,6 +13,8 @@ dotfiles:
     target: ~/.config/zsh/bindings.zsh
   - source: dotfiles/zshrc
     target: ~/.zshrc
+  - source: dotfiles/zprofile
+    target: ~/.zprofile
   - source: dotfiles/yazi
     target: ~/.config/yazi
   - source: dotfiles/claude/statusline-enhanced.sh
