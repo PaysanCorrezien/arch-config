@@ -1,0 +1,8 @@
+# Fleet module packages
+description: Fleet status tracking dependencies
+
+packages:
+  - python           # CLI runtime
+  - python-yaml      # state file serialization
+  - python-rich      # dashboard rendering
+  - git              # repo operations

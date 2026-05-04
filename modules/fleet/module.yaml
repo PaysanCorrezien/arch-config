@@ -1,0 +1,10 @@
+# Fleet Module
+# Lightweight fleet tracking via reverse GitOps:
+# each host pushes its sync state (commit, drift, updates, backups, uptime)
+# to a central Git repo (paysancorrezien/fleet on GitHub) on a 4x/day timer.
+# `fleet show` renders a dashboard of the whole fleet from any host.
+
+description: Fleet status tracking via reverse GitOps to GitHub
+
+post_install_hook: scripts/install.sh
+hook_behavior: ask

@@ -1,0 +1,15 @@
+# Core profile — modules shared by every host (desktop + server)
+# Imported by all host YAMLs. Do not set this as an active host.
+
+host: _profile_core
+
+enabled_modules:
+  - git              # Git identity + config
+  - sudoers          # Passwordless sudo for wheel
+  - shell-config     # ZSH + dotfiles
+  - tmux             # tmux + plugins
+  # Neovim is selected per-host: desktops enable `nvim-config` (full LazyVim),
+  # servers/VPS enable `nvim-minimal` (plugin-free fallback with OSC 52 clipboard).
+  - ssh              # Hardened SSH server
+  - tailscale        # Tailscale VPN + SSH
+  - fleet            # Fleet status tracking (4x/day push to GitHub)

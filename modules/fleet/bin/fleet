@@ -1,0 +1,556 @@
+#!/usr/bin/python3
+"""fleet — lightweight fleet status tracking via reverse GitOps.
+
+Each host writes hosts/<hostname>.yaml in a central git repo with its current
+sync state (commit, drift, updates, backups). `fleet show` renders a dashboard
+from any host by pulling that repo.
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import os
+import re
+import socket
+import subprocess
+import sys
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
+
+import yaml
+from rich.console import Console
+from rich.table import Table
+from rich.text import Text
+
+DEFAULT_CONFIG = {
+    "fleet_repo": "git@github.com:paysancorrezien/fleet.git",
+    "fleet_repo_path": "~/.local/share/fleet-state",
+    "arch_config_path": "~/.config/arch-config",
+    "extra_backup_units": [],
+}
+
+CONFIG_PATH = Path("~/.config/fleet/config.yaml").expanduser()
+
+STALE_HOURS = 24  # heartbeat older than this -> STALE
+BACKUP_STALE_HOURS = 48  # backup older than this -> warn
+
+
+# ---------- shell helpers --------------------------------------------------
+
+
+def run(cmd: list[str], cwd: Path | None = None, check: bool = True) -> str:
+    """Run a command, return stdout. Raises on non-zero unless check=False."""
+    res = subprocess.run(
+        cmd, cwd=cwd, capture_output=True, text=True, check=False
+    )
+    if check and res.returncode != 0:
+        raise RuntimeError(
+            f"$ {' '.join(cmd)}\n[exit {res.returncode}]\n{res.stderr.strip()}"
+        )
+    return res.stdout.strip()
+
+
+def run_ok(cmd: list[str], cwd: Path | None = None) -> bool:
+    return subprocess.run(cmd, cwd=cwd, capture_output=True).returncode == 0
+
+
+# ---------- config ---------------------------------------------------------
+
+
+def load_config() -> dict[str, Any]:
+    cfg = dict(DEFAULT_CONFIG)
+    if CONFIG_PATH.exists():
+        with CONFIG_PATH.open() as f:
+            user = yaml.safe_load(f) or {}
+        cfg.update(user)
+    cfg["fleet_repo_path"] = Path(cfg["fleet_repo_path"]).expanduser()
+    cfg["arch_config_path"] = Path(cfg["arch_config_path"]).expanduser()
+    return cfg
+
+
+# ---------- state collection ----------------------------------------------
+
+
+def arch_config_state(repo: Path) -> dict[str, Any]:
+    if not (repo / ".git").exists():
+        return {"commit": None, "drift": None, "error": f"not a git repo: {repo}"}
+    # fetch quietly; ignore network errors so the state push still happens
+    run(["git", "fetch", "--quiet", "origin"], cwd=repo, check=False)
+    head = run(["git", "rev-parse", "--short", "HEAD"], cwd=repo)
+    branch = run(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=repo, check=False)
+    # commits behind origin/<default>; default = master here
+    drift_raw = run(
+        ["git", "rev-list", "--count", "HEAD..origin/master"],
+        cwd=repo,
+        check=False,
+    )
+    try:
+        drift = int(drift_raw)
+    except ValueError:
+        drift = None
+    dirty = bool(run(["git", "status", "--porcelain"], cwd=repo, check=False))
+    return {
+        "commit": head,
+        "branch": branch or "master",
+        "drift": drift,
+        "dirty": dirty,
+    }
+
+
+def kernel() -> str:
+    return run(["uname", "-r"], check=False) or "unknown"
+
+
+def uptime_seconds() -> int:
+    try:
+        with open("/proc/uptime") as f:
+            return int(float(f.read().split()[0]))
+    except OSError:
+        return 0
+
+
+def pending_updates() -> int | None:
+    """Count pending pacman updates. Prefer checkupdates (no sudo, no DB lock)."""
+    if run_ok(["which", "checkupdates"]):
+        out = subprocess.run(
+            ["checkupdates"], capture_output=True, text=True
+        )
+        # checkupdates exits 2 if no updates. stdout has one line per update.
+        if out.returncode in (0, 2):
+            lines = [l for l in out.stdout.splitlines() if l.strip()]
+            return len(lines)
+    # fallback: pacman -Qu (only works if DB is fresh)
+    res = subprocess.run(["pacman", "-Qu"], capture_output=True, text=True)
+    if res.returncode == 0:
+        return len([l for l in res.stdout.splitlines() if l.strip()])
+    return None
+
+
+# ---------- backup detection ----------------------------------------------
+
+
+def systemd_units_matching(patterns: list[str]) -> list[str]:
+    """Return unit names from system + user scope matching any glob pattern."""
+    found: set[str] = set()
+    for scope in (["systemctl"], ["systemctl", "--user"]):
+        try:
+            out = subprocess.run(
+                scope + ["list-unit-files", "--no-legend", "--no-pager"],
+                capture_output=True,
+                text=True,
+                check=False,
+            ).stdout
+        except FileNotFoundError:
+            continue
+        for line in out.splitlines():
+            unit = line.split()[0] if line.strip() else ""
+            if not unit:
+                continue
+            for pat in patterns:
+                if re.search(pat, unit):
+                    found.add(unit)
+                    break
+    return sorted(found)
+
+
+def unit_scope(unit: str) -> list[str]:
+    """Return systemctl prefix for whichever scope owns the unit."""
+    if run_ok(["systemctl", "cat", unit]):
+        return ["systemctl"]
+    if run_ok(["systemctl", "--user", "cat", unit]):
+        return ["systemctl", "--user"]
+    return ["systemctl"]
+
+
+def show_property(unit: str, prop: str) -> str:
+    sc = unit_scope(unit)
+    return run(sc + ["show", "-p", prop, "--value", unit], check=False)
+
+
+def parse_systemd_ts(value: str) -> str | None:
+    """Parse 'Mon 2026-05-04 22:13:00 CEST' into ISO8601 (UTC)."""
+    if not value or value in ("0", "n/a"):
+        return None
+    # systemd format: "Mon 2026-05-04 22:13:00 CEST"
+    m = re.match(r"\w+ (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", value)
+    if not m:
+        return None
+    try:
+        # treat as local time; we don't bother with TZ math
+        local = dt.datetime.strptime(m.group(1), "%Y-%m-%d %H:%M:%S")
+        return local.astimezone().isoformat()
+    except ValueError:
+        return None
+
+
+def backup_state_for_unit(unit: str) -> dict[str, Any]:
+    """Snapshot a single backup unit (timer or service)."""
+    info: dict[str, Any] = {"unit": unit}
+    if unit.endswith(".timer"):
+        last = parse_systemd_ts(show_property(unit, "LastTriggerUSec"))
+        next_ = parse_systemd_ts(show_property(unit, "NextElapseUSecRealtime"))
+        info["last_run"] = last
+        info["next_run"] = next_
+        # also peek at the underlying service for the last result
+        svc = unit.removesuffix(".timer") + ".service"
+        info["last_result"] = show_property(svc, "Result") or None
+        info["active"] = show_property(unit, "ActiveState") == "active"
+    else:
+        info["last_run"] = parse_systemd_ts(show_property(unit, "ExecMainStartTimestamp"))
+        info["last_result"] = show_property(unit, "Result") or None
+        info["active"] = show_property(unit, "ActiveState") == "active"
+    if info.get("last_run"):
+        try:
+            ts = dt.datetime.fromisoformat(info["last_run"])
+            info["age_seconds"] = int(
+                (dt.datetime.now(ts.tzinfo) - ts).total_seconds()
+            )
+        except ValueError:
+            pass
+    return info
+
+
+def snapper_configs() -> list[str]:
+    """List snapper configs without sudo (works on most setups)."""
+    if not run_ok(["which", "snapper"]):
+        return []
+    out = subprocess.run(
+        ["snapper", "list-configs"], capture_output=True, text=True
+    )
+    if out.returncode != 0:
+        return []
+    configs: list[str] = []
+    # split on either ASCII '|' or unicode '│'; skip header rows (no alpha cells)
+    sep = re.compile(r"[│|]")
+    for line in out.stdout.splitlines():
+        cells = [c.strip() for c in sep.split(line)]
+        if len(cells) < 2:
+            continue
+        name = cells[0]
+        # header is "Configuration"; drop it and any non-name rows
+        if not name or "─" in name or name.lower().startswith("configuration"):
+            continue
+        configs.append(name)
+    return configs
+
+
+def collect_backups(extra_units: list[str]) -> list[dict[str, Any]]:
+    # match restic/borg/backup-style units AND snapper timers (timeline/cleanup/backup)
+    patterns = [
+        r"^restic.*\.(service|timer)$",
+        r"^borg.*\.(service|timer)$",
+        r"^backup.*\.(service|timer)$",
+        r"^snapper-(timeline|cleanup|backup)\.(service|timer)$",
+    ]
+    units = systemd_units_matching(patterns)
+    units += [u for u in extra_units if u not in units]
+    # prefer timers when both timer and service exist
+    timers = {u for u in units if u.endswith(".timer")}
+    services_to_skip = {u.removesuffix(".timer") + ".service" for u in timers}
+    units = [u for u in units if u not in services_to_skip]
+
+    backups: list[dict[str, Any]] = []
+    for u in units:
+        backups.append(backup_state_for_unit(u))
+    cfgs = snapper_configs()
+    if cfgs:
+        backups.append({"name": "snapper", "configs": cfgs})
+    return backups
+
+
+def collect_state(cfg: dict[str, Any]) -> dict[str, Any]:
+    arch = arch_config_state(cfg["arch_config_path"])
+    return {
+        "hostname": socket.gethostname(),
+        "synced_at": dt.datetime.now().astimezone().isoformat(timespec="seconds"),
+        "arch_config": arch,
+        "kernel": kernel(),
+        "uptime_seconds": uptime_seconds(),
+        "pending_updates": pending_updates(),
+        "backups": collect_backups(cfg.get("extra_backup_units") or []),
+    }
+
+
+# ---------- fleet repo I/O ------------------------------------------------
+
+
+def ensure_fleet_repo(cfg: dict[str, Any]) -> Path:
+    repo = cfg["fleet_repo_path"]
+    if not repo.exists():
+        repo.parent.mkdir(parents=True, exist_ok=True)
+        run(["git", "clone", cfg["fleet_repo"], str(repo)])
+    return repo
+
+
+def fleet_branch(repo: Path) -> str:
+    """Pick the working branch for the fleet repo.
+
+    Prefer the remote HEAD, fall back to the current local branch, then 'main'.
+    """
+    remote_head = run(
+        ["git", "symbolic-ref", "--quiet", "--short", "refs/remotes/origin/HEAD"],
+        cwd=repo,
+        check=False,
+    )
+    if remote_head.startswith("origin/"):
+        return remote_head.removeprefix("origin/")
+    local = run(["git", "branch", "--show-current"], cwd=repo, check=False)
+    return local or "main"
+
+
+def push_state(cfg: dict[str, Any], state: dict[str, Any]) -> None:
+    repo = ensure_fleet_repo(cfg)
+    run(["git", "fetch", "--quiet", "origin"], cwd=repo, check=False)
+    branch = fleet_branch(repo)
+    # ensure we're on the working branch (handles empty-repo first push)
+    run(["git", "checkout", "-B", branch], cwd=repo, check=False)
+    # rebase on top of origin if the remote branch exists; ignore if empty repo
+    has_remote = run_ok(
+        ["git", "rev-parse", "--verify", f"refs/remotes/origin/{branch}"], cwd=repo
+    )
+    if has_remote:
+        run(["git", "pull", "--rebase", "--autostash", "origin", branch],
+            cwd=repo, check=False)
+
+    hosts_dir = repo / "hosts"
+    hosts_dir.mkdir(exist_ok=True)
+    target = hosts_dir / f"{state['hostname']}.yaml"
+    with target.open("w") as f:
+        yaml.safe_dump(state, f, sort_keys=False)
+
+    if not run(["git", "status", "--porcelain"], cwd=repo, check=False):
+        return  # nothing to commit (shouldn't happen — synced_at always changes)
+
+    run(["git", "add", str(target)], cwd=repo)
+    msg = f"sync: {state['hostname']} @ {state['arch_config'].get('commit') or '?'}"
+    run(["git", "commit", "-m", msg], cwd=repo)
+    # retry push up to 3x in case another host pushed between rebase and push
+    for attempt in range(3):
+        try:
+            run(["git", "push", "-u", "origin", branch], cwd=repo)
+            return
+        except RuntimeError:
+            if attempt == 2:
+                raise
+            run(["git", "pull", "--rebase", "--autostash", "origin", branch],
+                cwd=repo, check=False)
+
+
+def pull_fleet(cfg: dict[str, Any]) -> Path:
+    repo = ensure_fleet_repo(cfg)
+    branch = fleet_branch(repo)
+    run(["git", "pull", "--quiet", "--ff-only", "origin", branch],
+        cwd=repo, check=False)
+    return repo
+
+
+def load_all_states(repo: Path) -> list[dict[str, Any]]:
+    hosts_dir = repo / "hosts"
+    if not hosts_dir.exists():
+        return []
+    out: list[dict[str, Any]] = []
+    for p in sorted(hosts_dir.glob("*.yaml")):
+        try:
+            with p.open() as f:
+                out.append(yaml.safe_load(f))
+        except yaml.YAMLError:
+            continue
+    return out
+
+
+# ---------- rendering ------------------------------------------------------
+
+
+def humanize_age(seconds: int | None) -> str:
+    if seconds is None:
+        return "—"
+    if seconds < 60:
+        return f"{seconds}s"
+    if seconds < 3600:
+        return f"{seconds // 60}m"
+    if seconds < 86400:
+        return f"{seconds // 3600}h"
+    return f"{seconds // 86400}d"
+
+
+def age_seconds(iso: str | None) -> int | None:
+    if not iso:
+        return None
+    try:
+        ts = dt.datetime.fromisoformat(iso)
+        return int((dt.datetime.now(ts.tzinfo) - ts).total_seconds())
+    except ValueError:
+        return None
+
+
+def render_drift(drift: int | None, dirty: bool) -> Text:
+    if drift is None:
+        return Text("?", style="dim")
+    label = f"-{drift}" if drift > 0 else "✓"
+    style = "red" if drift > 0 else "green"
+    if dirty:
+        label += "*"
+        style = "yellow"
+    return Text(label, style=style)
+
+
+def render_seen(iso: str | None) -> Text:
+    age = age_seconds(iso)
+    if age is None:
+        return Text("never", style="red")
+    label = humanize_age(age) + " ago"
+    if age > STALE_HOURS * 3600:
+        return Text(label, style="red")
+    if age > 6 * 3600:
+        return Text(label, style="yellow")
+    return Text(label, style="green")
+
+
+def render_updates(n: int | None) -> Text:
+    if n is None:
+        return Text("?", style="dim")
+    if n == 0:
+        return Text("0", style="green")
+    if n < 20:
+        return Text(str(n), style="yellow")
+    return Text(str(n), style="red")
+
+
+def render_backups(backups: list[dict[str, Any]]) -> Text:
+    if not backups:
+        return Text("—", style="dim")
+    parts: list[Text] = []
+    for b in backups:
+        if b.get("name") == "snapper":
+            cfgs = b.get("configs") or []
+            if not cfgs:
+                continue
+            label = f"snapper[{','.join(cfgs)}]"
+            parts.append(Text(label, style="cyan"))
+            continue
+        unit = b.get("unit", "?")
+        short = unit.removesuffix(".timer").removesuffix(".service")
+        age = b.get("age_seconds")
+        result = b.get("last_result")
+        # result may be empty for timers we never resolved a service for; in
+        # that case fall back to active+age
+        result_ok = result in (None, "", "success")
+        age_ok = age is None or age < BACKUP_STALE_HOURS * 3600
+        ok = result_ok and age_ok and b.get("active", True)
+        icon = "✓" if ok else "✗"
+        style = "green" if ok else "red"
+        label = f"{icon} {short} {humanize_age(age)}"
+        parts.append(Text(label, style=style))
+    if not parts:
+        return Text("—", style="dim")
+    out = Text()
+    for i, p in enumerate(parts):
+        if i:
+            out.append(" │ ", style="dim")
+        out.append_text(p)
+    return out
+
+
+def render_dashboard(states: list[dict[str, Any]], console: Console) -> None:
+    table = Table(
+        title="Fleet status",
+        title_style="bold",
+        header_style="bold cyan",
+        expand=False,
+    )
+    table.add_column("HOST")
+    table.add_column("COMMIT")
+    table.add_column("DRIFT")
+    table.add_column("LAST SEEN")
+    table.add_column("UPD")
+    table.add_column("KERNEL")
+    table.add_column("UPTIME")
+    table.add_column("BACKUPS")
+
+    for s in states:
+        if not s:
+            continue
+        arch = s.get("arch_config") or {}
+        table.add_row(
+            s.get("hostname", "?"),
+            (arch.get("commit") or "?")[:7],
+            render_drift(arch.get("drift"), arch.get("dirty", False)),
+            render_seen(s.get("synced_at")),
+            render_updates(s.get("pending_updates")),
+            (s.get("kernel") or "")[:24],
+            humanize_age(s.get("uptime_seconds")),
+            render_backups(s.get("backups") or []),
+        )
+    console.print(table)
+
+
+# ---------- subcommands ----------------------------------------------------
+
+
+def cmd_sync(args: argparse.Namespace) -> int:
+    cfg = load_config()
+    state = collect_state(cfg)
+    if args.dry_run:
+        print(yaml.safe_dump(state, sort_keys=False))
+        return 0
+    push_state(cfg, state)
+    print(f"pushed state for {state['hostname']}")
+    return 0
+
+
+def cmd_show(args: argparse.Namespace) -> int:
+    cfg = load_config()
+    if not args.no_pull:
+        pull_fleet(cfg)
+    states = load_all_states(cfg["fleet_repo_path"])
+    console = Console()
+    if not states:
+        console.print("[yellow]no host state yet[/yellow]")
+        return 0
+    render_dashboard(states, console)
+    return 0
+
+
+def cmd_status(args: argparse.Namespace) -> int:
+    cfg = load_config()
+    state = collect_state(cfg)
+    if args.json:
+        print(json.dumps(state, indent=2, default=str))
+    else:
+        print(yaml.safe_dump(state, sort_keys=False))
+    return 0
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(prog="fleet")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+
+    s = sub.add_parser("sync", help="collect and push local state to fleet repo")
+    s.add_argument("--dry-run", action="store_true",
+                   help="print state without pushing")
+    s.set_defaults(func=cmd_sync)
+
+    s = sub.add_parser("show", help="render fleet dashboard")
+    s.add_argument("--no-pull", action="store_true",
+                   help="skip git pull of fleet repo")
+    s.set_defaults(func=cmd_show)
+
+    s = sub.add_parser("status", help="show this host's local state")
+    s.add_argument("--json", action="store_true")
+    s.set_defaults(func=cmd_status)
+
+    args = ap.parse_args()
+    try:
+        return args.func(args)
+    except RuntimeError as e:
+        print(f"fleet: {e}", file=sys.stderr)
+        return 1
+    except KeyboardInterrupt:
+        return 130
+
+
+if __name__ == "__main__":
+    sys.exit(main())
