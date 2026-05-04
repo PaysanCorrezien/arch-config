@@ -4,26 +4,18 @@
 host: gpu
 description: Arch Linux GPU machine with Nvidia drivers, Niri on-demand desktop, and Docker
 
+# Shared base — core + desktop stack (gpu runs a debug GUI + compute)
+import:
+  - hosts/profiles/core.yaml
+  - hosts/profiles/desktop.yaml
+
+# Host-specific modules only
 enabled_modules:
-  - git                      # Git configuration and identity setup
-  - sudoers                  # Passwordless sudo for current user
-  - terminal-extras          # Additional terminal tools and utilities
-  - development              # Language servers, formatters, dev tools
-  - rust                     # Rust toolchain via rustup
+  - nvim-config              # Full LazyVim Neovim config
   - nvidia                   # Nvidia open drivers + CUDA + Wayland support
-  - sddm                     # SDDM display manager + Noctalia theme (for debug GUI access)
-  - niri                     # Niri window manager (Wayland) (for debug GUI access)
   - gpu-niri                 # Host-specific Niri monitor/workspace config
-  - noctalia                 # Noctalia config dotfiles
-  - kanata                   # Keyboard remapping (Kanata)
-  - shell-config             # ZSH configuration and dotfiles
-  - nvim-config              # Neovim config from remote repo
-  - tmux                     # Tmux terminal multiplexer with plugins
-  - ssh                      # Secure SSH server with key-based auth
-  - snapper                  # Snapper root/home snapshots + GRUB entries
-  - tailscale                # Tailscale VPN with Tailscale SSH
-  - localsend                # LocalSend file sharing with firewall
-  - docker                   # Docker engine + nvidia-container-runtime for GPU containers
+  - docker                   # Docker engine + nvidia-container-runtime
+  - gpu-zfs                  # ZFS DKMS + import/create mirror pool (sda+sdb)
 
 # Module processing mode
 module_processing: parallel

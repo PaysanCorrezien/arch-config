@@ -1,0 +1,8 @@
+# GPU host ZFS pool
+# Imports existing 2-disk mirror pool "mediapool" (sda + sdb), or creates one if blank.
+# Uses zfs-dkms because the host runs the CachyOS kernel (no matching archzfs binary).
+
+description: ZFS DKMS + import/create mirror pool on gpu host
+
+post_install_hook: scripts/setup-zfs.sh
+hook_behavior: ask

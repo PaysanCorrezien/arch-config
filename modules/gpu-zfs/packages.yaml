@@ -1,0 +1,8 @@
+# ZFS via DKMS — required because CachyOS ships a custom kernel
+# that doesn't match archzfs binary modules. DKMS rebuilds on kernel upgrade.
+
+description: ZFS DKMS module + userspace tools
+
+packages:
+  - zfs-dkms       # AUR: builds zfs.ko against the running kernel
+  - zfs-utils      # AUR: zpool, zfs, zed, mount helpers
