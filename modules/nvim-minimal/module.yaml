@@ -1,0 +1,8 @@
+description: Minimal plugin-free Neovim config for servers and quick remote edits
+
+packages:
+  - neovim
+
+dotfiles:
+  - source: dotfiles/nvim/init.lua
+    target: ~/.config/nvim/init.lua
