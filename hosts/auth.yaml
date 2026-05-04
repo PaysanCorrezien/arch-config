@@ -4,15 +4,13 @@
 host: auth
 description: Headless Arch Linux VPS for authentication and networking services
 
-# Enabled modules — minimal server profile, no GUI/desktop
+# Shared base — server is just core, no desktop profile
+import:
+  - hosts/profiles/core.yaml
+
+# Host-specific modules
 enabled_modules:
-  - git                      # Git configuration and identity setup
-  - sudoers                  # Passwordless sudo for current user
-  - shell-config             # ZSH configuration and dotfiles
-  - tmux                     # Tmux terminal multiplexer with plugins
-  - nvim-config              # Neovim config from remote repo
-  - ssh                      # Secure SSH server with key-based auth
-  - tailscale                # Tailscale VPN with Tailscale SSH
+  - nvim-minimal             # Plugin-free Neovim (OSC 52 clipboard for SSH copy)
 
 # Module processing mode
 module_processing: parallel

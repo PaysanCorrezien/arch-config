@@ -1,0 +1,15 @@
+# Desktop profile — modules shared by every desktop-class host (workstation, homebot, gpu)
+# Import alongside profiles/core.yaml. Do not set this as an active host.
+
+host: _profile_desktop
+
+enabled_modules:
+  - terminal-extras  # Extra CLI tools
+  - development      # LSPs, formatters, dev tools
+  - rust             # rustup toolchain
+  - sddm             # Display manager + Noctalia theme
+  - niri             # Niri Wayland compositor
+  - noctalia         # Noctalia shell config
+  - kanata           # Keyboard remapping
+  - snapper          # Btrfs snapshots + GRUB entries
+  - localsend        # LocalSend + firewall rule

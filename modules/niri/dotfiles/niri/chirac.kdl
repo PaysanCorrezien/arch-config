@@ -1,0 +1,17 @@
+// chirac-provider
+// Managed by Chirac. Re-run Settings -> Display Manager -> Apply to refresh.
+
+binds {
+    Alt+J hotkey-overlay-title="Chirac: Toggle popup" {
+        spawn "/home/dylan/repo/chirac/apps/desktop/resources/sidecar/linux-x64/chirac-bridge" "toggle-capture";
+    }
+}
+
+window-rule {
+    match title="^Chirac Popup$"
+    open-floating true
+    open-focused false
+    focus-ring { off; }
+    border { off; }
+    shadow { off; }
+}

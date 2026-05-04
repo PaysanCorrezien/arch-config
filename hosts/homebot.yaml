@@ -4,33 +4,18 @@
 host: homebot
 description: Arch Linux homebot with Niri (Wayland) and minimal desktop software
 
-# Import shared configurations (optional)
-# Example:
-# import:
-#   - hosts/shared/laptop-common.yaml
+# Shared base — core + full desktop stack (homebot runs a debug GUI)
+import:
+  - hosts/profiles/core.yaml
+  - hosts/profiles/desktop.yaml
 
-# Enabled modules - comprehensive setup matching your Nix flake
+# Host-specific modules only
 enabled_modules:
-  - git                      # Git configuration and identity setup
-  - sudoers                  # Passwordless sudo for current user
-  - terminal-extras          # Additional terminal tools and utilities
-  - development              # Language servers, formatters, dev tools
-  - rust                     # Rust toolchain via rustup
-  - sddm                     # SDDM display manager + Noctalia theme (for debug GUI access)
+  - nvim-config              # Full LazyVim Neovim config
   # - homebot-sddm           # DISABLED: SDDM autologin (headless server)
-  - niri                     # Niri window manager (Wayland) (for debug GUI access)
   - homebot-niri             # Host-specific Niri monitor/workspace config
-  - noctalia                 # Noctalia config dotfiles
-  - kanata                   # Keyboard remapping (Kanata)
   - onedrive                 # OneDrive client + config + user service
-  - shell-config             # ZSH configuration and dotfiles
-  - nvim-config              # Neovim config from remote repo
-  - tmux                     # Tmux terminal multiplexer with plugins
-  - ssh                      # Secure SSH server with key-based auth
-  - snapper                  # Snapper root/home snapshots + GRUB entries
   - homebot-data-disk        # 4TB data disk with btrfs + snapshots
-  - tailscale                # Tailscale VPN with Tailscale SSH
-  - localsend                # LocalSend file sharing with firewall
 
 # Module processing mode
 # parallel: Collect and install all modules at once (faster, default)

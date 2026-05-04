@@ -88,3 +88,9 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # Initialize zoxide (must be last)
 eval "$(zoxide init zsh)"
+export PATH=$PATH:$HOME/.maestro/bin
+
+# Android SDK
+export ANDROID_HOME="$HOME/Android/Sdk"
+export JAVA_HOME="/usr/lib/jvm/default"
+export PATH="$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$HOME/.maestro/bin"

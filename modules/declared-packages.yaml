@@ -46,7 +46,7 @@ packages:
 - hwdetect
 - hwinfo
 - inetutils
-- iptables-nft
+- iptables
 - iwd
 - jfsutils
 - logrotate
@@ -97,6 +97,8 @@ packages:
 - tigervnc
 - localsend
 - bun
+- claude-desktop-bin
+- openai-codex-desktop
 exclude: []
 conflicts: []
 pre_install_hook: null
