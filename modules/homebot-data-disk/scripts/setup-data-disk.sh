@@ -84,7 +84,7 @@ sudo mount -o compress=zstd:3,subvol="${SUBVOL_NAME}" "${PARTITION}" "${MOUNT_PO
 echo "  ✓ Mounted with zstd:3 compression"
 
 # Add to fstab
-FSTAB_ENTRY="UUID=$(sudo blkid -s UUID -o value ${PARTITION}) ${MOUNT_POINT} btrfs compress=zstd:3,subvol=${SUBVOL_NAME} 0 0"
+FSTAB_ENTRY="UUID=$(sudo blkid -s UUID -o value ${PARTITION}) ${MOUNT_POINT} btrfs nofail,x-systemd.device-timeout=10s,compress=zstd:3,subvol=${SUBVOL_NAME} 0 0"
 
 if ! grep -q "${MOUNT_POINT}" /etc/fstab; then
   echo "# Homebot 4TB data disk" | sudo tee -a /etc/fstab >/dev/null
