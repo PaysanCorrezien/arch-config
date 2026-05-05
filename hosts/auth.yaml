@@ -25,6 +25,7 @@ packages:
   - lynis                    # Security auditing
   - fail2ban                 # SSH brute-force protection
   - arch-audit               # Vulnerable package detection
+  - sysstat                  # iostat/sar/pidstat — disk + CPU baselining
   - curl                     # HTTP client
   - rsync                    # File sync
   - carapace-bin             # Multi-shell completions
@@ -106,8 +107,7 @@ exclude:
   - usbutils
   - vulkan-radeon
   - mesa-utils
-  # Filesystem tools (VPS uses ext4, not btrfs/jfs/nilfs/f2fs)
-  - btrfs-assistant
+  # Filesystem tools (root is btrfs but desktop GUI tooling not needed)
   - dosfstools
   - exfatprogs
   - f2fs-tools
