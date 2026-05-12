@@ -198,6 +198,9 @@ binds {
     MOD+CTRL+SHIFT+MINUS                hotkey-overlay-title="Shrink Window 10%" { set-window-height "-10%"; }
     MOD+CTRL+SHIFT+EQUAL                hotkey-overlay-title="Expand Window 10%" { set-window-height "+10%"; }
 
+    // ─── Keyboard Layout ───
+    MOD+SHIFT+L                         hotkey-overlay-title="Cycle Keyboard Layout" { switch-layout "next"; }
+
     // ─── Modes ───
     MOD+SHIFT+SPACE                     hotkey-overlay-title="Toggle Floating" { toggle-window-floating; }
     MOD+SHIFT+F                         hotkey-overlay-title="Fullscreen Window" { fullscreen-window; }
@@ -231,6 +234,7 @@ binds {
     // spawn-sh-at-startup "swww-daemon" // Wallpaper daemon (managed by Noctalia)
     // spawn-sh-at-startup "swww img /usr/share/wallpapers/cachyos-wallpapers/Skyscraper.png" // Set wallpaper (managed by Noctalia)
     spawn-sh-at-startup "qs -c noctalia-shell" // Noctalia shell
+    spawn-sh-at-startup "udiskie --no-tray &" // Auto-mount removable drives via udisks2
     spawn-sh-at-startup "~/.config/niri/scripts/auto-split-windows &" // Auto-split windows
     // Workspace-to-monitor assignment is now handled via open-on-output in workspace definitions
 
