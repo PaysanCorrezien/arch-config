@@ -13,8 +13,6 @@
 
   alias t="tmux"
 
-  alias tr="tmux kill-server; tmux"
-
   alias mcd='f() { mkdir -p "$1" && cd "$1"; unset -f f; }; f'
 
   alias l='lsd -l --size default --classify --icon auto'
