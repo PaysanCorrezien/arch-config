@@ -1,0 +1,12 @@
+# KDE Built-in RDP Server (krdp) — bound to the Tailscale interface only.
+# Provides reliable Wayland remote desktop for the gpu host via any RDP client
+# (Remmina, FreeRDP, Microsoft Remote Desktop on macOS/iOS/Android, etc.).
+
+description: KDE krdp RDP server bound to Tailscale (no public exposure)
+
+requires:
+  - kde
+  - tailscale
+
+post_install_hook: scripts/setup-krdp.sh
+hook_behavior: ask
