@@ -1,0 +1,29 @@
+# KDE Plasma 6 compositor profile — imports the compositor-agnostic desktop
+# baseline and layers Plasma (Wayland) on top. Used by gpu host (reliable
+# Wayland remote desktop via built-in RDP).
+
+host: _profile_desktop_kde
+
+import:
+  - hosts/profiles/desktop.yaml
+
+enabled_modules:
+  - kde              # Plasma 6 desktop + Wayland portals
+
+# Niri/wlroots userland — declared-packages.yaml is global, so KDE hosts
+# must opt out of the niri stack to avoid conflicting daemons (mako vs.
+# Plasma notifications, wlroots portal vs. KDE portal, etc.).
+exclude:
+  - mako                     # Notification daemon — Plasma owns notifications
+  - swaybg                   # Wallpaper — KWin handles wallpapers
+  - fuzzel                   # Launcher — replaced by KRunner (Alt+Space)
+  - wofi                     # Launcher — replaced by KRunner
+  - wlogout                  # Logout menu — Plasma SDDM/leave action
+  - wlsunset                 # Night Light — built into Plasma
+  - wtype                    # Wayland typing tool — kdotool/kdialog alternatives
+  - bemenu-wayland           # dmenu-clone — replaced by KRunner
+  - noctalia-shell           # niri Quickshell — Plasma is the shell now
+  - cachyos-niri-noctalia    # niri+noctalia integration meta
+  - xdg-desktop-portal-wlr   # wlroots portal — conflicts with xdg-desktop-portal-kde
+  - xdg-desktop-portal-gnome # gnome portal — not needed alongside the KDE backend
+  - polkit-gnome             # Replaced by polkit-kde-agent

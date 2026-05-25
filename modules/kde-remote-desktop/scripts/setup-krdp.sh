@@ -48,7 +48,40 @@ CertificateKey=${KEY_FILE}
 EOF
 
 echo "[krdp] Wrote ${KRDP_CONF} (bound to ${TS_IP}:3389)"
-echo "[krdp] Next steps:"
-echo "       1. System Settings → Remote Desktop → toggle 'Enable RDP server' on (system-user login already preset for '$(whoami)')."
-echo "       2. systemctl --user enable --now app-org.kde.krdpserver.service"
-echo "       3. Connect from an RDP client to ${TS_IP}:3389."
+
+# --- Always-on session so RDP works after a cold boot ----------------------
+# krdp is a user service inside the Plasma session — if no session exists,
+# port 3389 is closed. To make "power on → RDP in" work without a human at
+# the console, we:
+#   1. SDDM autologin into Plasma (Wayland) at boot.
+#   2. enable-linger so the user bus + krdp survive without an active seat.
+#
+# NOTE: this is a remote-only headless box — we explicitly do NOT auto-lock
+# on login or on idle. RDP clients land directly on the desktop. Autolock
+# stays off via setup-kde.sh (kscreenlockerrc Autolock=false, LockOnResume=false).
+# Any stale ~/.config/autostart/krdp-autolock.desktop from earlier iterations
+# is removed below.
+
+USER_NAME="$(whoami)"
+
+echo "[krdp] Configuring SDDM autologin for ${USER_NAME} (Plasma Wayland)"
+sudo install -d /etc/sddm.conf.d
+sudo tee /etc/sddm.conf.d/30-autologin.conf >/dev/null <<EOF
+[Autologin]
+User=${USER_NAME}
+Session=plasma
+Relogin=true
+EOF
+
+echo "[krdp] Enabling user lingering so the session/krdp survives logout"
+sudo loginctl enable-linger "${USER_NAME}"
+
+# Clean up auto-lock autostart from earlier iterations of this script
+rm -f "$HOME/.config/autostart/krdp-autolock.desktop"
+
+echo "[krdp] Enabling krdp user service (works now; survives reboot via linger)"
+systemctl --user enable --now app-org.kde.krdpserver.service 2>/dev/null || \
+  echo "[krdp] NOTE: enable krdp from System Settings → Remote Desktop once, then re-run."
+
+echo "[krdp] Done. After reboot: ${TS_IP}:3389 will be reachable directly on the desktop."
+echo "[krdp] First-time UI step: System Settings → Remote Desktop → toggle 'Enable RDP server' on."

@@ -4,10 +4,10 @@
 host: homebot
 description: Arch Linux homebot with Niri (Wayland) and minimal desktop software
 
-# Shared base — core + full desktop stack (homebot runs a debug GUI)
+# Shared base — core + niri desktop stack (homebot runs a debug GUI)
 import:
   - hosts/profiles/core.yaml
-  - hosts/profiles/desktop.yaml
+  - hosts/profiles/desktop-niri.yaml
 
 # Host-specific modules only
 enabled_modules:

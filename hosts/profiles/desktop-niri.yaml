@@ -1,0 +1,12 @@
+# Niri compositor profile — imports the compositor-agnostic desktop baseline
+# and layers Niri + Noctalia on top. Used by workstation, homebot.
+
+host: _profile_desktop_niri
+
+import:
+  - hosts/profiles/desktop.yaml
+
+enabled_modules:
+  - sddm             # Display manager + Noctalia theme (niri hosts)
+  - niri             # Niri Wayland compositor
+  - noctalia         # Noctalia shell (dashboard + notifications)

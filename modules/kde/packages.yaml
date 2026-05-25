@@ -1,0 +1,47 @@
+# KDE Plasma 6 + Wayland portal stack
+# Built-in RDP server (krdp) is included so the host can be reached remotely.
+
+description: KDE Plasma 6 packages
+
+packages:
+  # Display manager (KDE host owns its SDDM wiring; Breeze theme set in setup-kde.sh)
+  - sddm
+
+  # Core Plasma 6 (Wayland session included)
+  - plasma-meta
+  - plasma-workspace
+  - kde-system-meta          # Dolphin, Konsole, KDE system utils
+  - kde-utilities-meta       # ark, kate, kcalc, kfind, kdialog, kwalletmanager, filelight…
+  - kde-graphics-meta        # gwenview, okular, spectacle, kdegraphics-thumbnailers…
+  - kdeconnect               # Phone integration (KDE Connect)
+  - phonon-qt6-vlc           # Phonon multimedia backend (video/audio in KDE apps)
+  - ffmpegthumbs             # Video thumbnails in Dolphin
+  - kwallet-pam              # Auto-unlock wallet at login
+  - power-profiles-daemon    # Plasma battery/perf integration
+
+  # Wayland portals — KDE backend
+  - xdg-desktop-portal
+  - xdg-desktop-portal-kde
+  - xdg-desktop-portal-gtk
+
+  # Remote desktop (Plasma 6 built-in RDP, FreeRDP-backed)
+  - krdp                     # System Settings → Remote Desktop integration
+  - freerdp                  # RDP client/library (also in declared-packages)
+
+  # Qt/GTK interop
+  - qt5-wayland
+  - qt6-wayland
+  - gtk3
+  - gtk4
+
+  # Parity with niri module's shared bits
+  - networkmanager
+  - blueman
+  - bluez
+  - bluez-utils
+  - polkit-kde-agent          # Polkit auth dialog (KDE flavor)
+  - kitty                     # Keep ghostty/kitty available even under KDE
+  - ttf-dejavu
+  - ttf-liberation
+  - noto-fonts
+  - noto-fonts-emoji

@@ -1,5 +1,8 @@
-# Desktop profile — modules shared by every desktop-class host (workstation, homebot, gpu)
-# Import alongside profiles/core.yaml. Do not set this as an active host.
+# Desktop profile — compositor-agnostic baseline for desktop-class hosts.
+# Import this together with a compositor profile:
+#   - hosts/profiles/desktop-niri.yaml  (default for niri hosts)
+#   - hosts/profiles/desktop-kde.yaml   (KDE Plasma 6 hosts)
+# Do not set this as an active host.
 
 host: _profile_desktop
 
@@ -7,9 +10,9 @@ enabled_modules:
   - terminal-extras  # Extra CLI tools
   - development      # LSPs, formatters, dev tools
   - rust             # rustup toolchain
-  - sddm             # Display manager + Noctalia theme
-  - niri             # Niri Wayland compositor
-  - noctalia         # Noctalia shell config
+  # NOTE: SDDM is configured per-compositor:
+  #   - desktop-niri.yaml uses the `sddm` module (Noctalia theme)
+  #   - desktop-kde.yaml uses KDE's own SDDM setup (Breeze theme, Wayland)
   - kanata           # Keyboard remapping
   - snapper          # Btrfs snapshots + GRUB entries
   - localsend        # LocalSend + firewall rule

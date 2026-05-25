@@ -1,0 +1,17 @@
+# KDE Plasma 6 Desktop Environment Module
+# Wayland session via KWin, with xdg-desktop-portal-kde for proper
+# screencast / remote-desktop / file-picker integration.
+
+description: KDE Plasma 6 (Wayland) desktop environment
+
+conflicts:
+  - niri
+  - hyprland
+  - gnome
+  - xfce
+
+# No dotfiles yet — Plasma stores config in ~/.config/*rc (kwriteconfig6 if needed)
+dotfiles_sync: false
+
+post_install_hook: scripts/setup-kde.sh
+hook_behavior: ask

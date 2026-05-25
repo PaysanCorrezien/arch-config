@@ -4,10 +4,10 @@
 host: workstation
 description: Arch Linux workstation matching NixOS flake configuration
 
-# Shared base — core + full desktop stack
+# Shared base — core + niri desktop stack
 import:
   - hosts/profiles/core.yaml
-  - hosts/profiles/desktop.yaml
+  - hosts/profiles/desktop-niri.yaml
 
 # Host-specific modules only (everything else comes from imports above)
 enabled_modules:

@@ -1,21 +1,25 @@
 # Host configuration for gpu
-# GPU workstation / compute server — Nvidia drivers + conditional GUI (same pattern as homebot)
+# GPU workstation / compute server — Nvidia drivers + KDE Plasma 6 (Wayland)
+# First host to move off niri → KDE so we get a reliable Wayland remote desktop
+# via KDE's built-in RDP server, reached over Tailscale.
 
 host: gpu
-description: Arch Linux GPU machine with Nvidia drivers, Niri on-demand desktop, and Docker
+description: Arch Linux GPU machine — Nvidia + KDE Plasma 6 (Wayland) + Docker + RDP-over-Tailscale
 
-# Shared base — core + desktop stack (gpu runs a debug GUI + compute)
+# Shared base — core + KDE desktop stack
 import:
   - hosts/profiles/core.yaml
-  - hosts/profiles/desktop.yaml
+  - hosts/profiles/desktop-kde.yaml
 
 # Host-specific modules only
 enabled_modules:
   - nvim-config              # Full LazyVim Neovim config
   - nvidia                   # Nvidia open drivers + CUDA + Wayland support
-  - gpu-niri                 # Host-specific Niri monitor/workspace config
   - docker                   # Docker engine + nvidia-container-runtime
   - gpu-zfs                  # ZFS DKMS + import/create mirror pool (sda+sdb)
+  - kde-remote-desktop       # krdp bound to Tailscale (reliable Wayland remote-in)
+  - expo-dev                 # Android Studio + SDK + Maestro + EAS for Expo mobile dev
+  # NOTE: gpu-niri intentionally removed — this host runs KDE Plasma now.
 
 # Module processing mode
 module_processing: parallel
@@ -26,9 +30,12 @@ packages:
   # GPU / compute extras
   - nvtop                   # GPU process monitor (like htop for GPUs)
   - python-pytorch-cuda     # PyTorch with CUDA support (AUR)
+  # Pin cron provider so pacman doesn't prompt (transitive dep from KDE/snapper stack)
+  - cronie
 
-# Exclude AMD GPU stack (this machine uses Nvidia)
+# Host-specific excludes (niri/wlroots stack is excluded by desktop-kde.yaml).
 exclude:
+  # AMD GPU stack — this machine uses Nvidia
   - vulkan-radeon
   - mesa                    # Replaced by nvidia's GL implementation
 
