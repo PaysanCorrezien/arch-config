@@ -3,7 +3,7 @@ Description=espanso
 
 [Service]
 Environment="WAYLAND_DISPLAY=wayland-1"
-Environment="XDG_CURRENT_DESKTOP=niri"
+Environment="XDG_CURRENT_DESKTOP=KDE"
 Environment="GTK_THEME="
 ExecStart=/usr/bin/espanso launcher 
 Restart=on-failure

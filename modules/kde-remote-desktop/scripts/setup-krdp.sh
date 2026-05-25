@@ -12,8 +12,24 @@
 
 set -euo pipefail
 
-CERT_DIR="$HOME/.local/share/krdpserver"
+TARGET_USER="${SUDO_USER:-$USER}"
+if [[ "$(id -u)" -eq 0 && "${TARGET_USER}" == "root" ]]; then
+  TARGET_USER="${LOGNAME:-dylan}"
+fi
+USER_HOME="$(getent passwd "${TARGET_USER}" | cut -d: -f6)"
+USER_UID="$(id -u "${TARGET_USER}")"
+
+run_user_cmd() {
+  if [[ "$(id -u)" -eq 0 ]]; then
+    sudo -u "${TARGET_USER}" XDG_RUNTIME_DIR="/run/user/${USER_UID}" "$@"
+  else
+    "$@"
+  fi
+}
+
+CERT_DIR="${USER_HOME}/.local/share/krdpserver"
 mkdir -p "$CERT_DIR"
+chown "${TARGET_USER}:${TARGET_USER}" "$CERT_DIR"
 
 # Generate a self-signed TLS cert if missing (clients will prompt to trust it once).
 CERT_FILE="$CERT_DIR/krdp.crt"
@@ -25,6 +41,7 @@ if [[ ! -f "$CERT_FILE" || ! -f "$KEY_FILE" ]]; then
     -out   "$CERT_FILE" \
     -subj  "/CN=$(hostname)"
   chmod 600 "$KEY_FILE"
+  chown "${TARGET_USER}:${TARGET_USER}" "$CERT_FILE" "$KEY_FILE"
 fi
 
 # Bind to the Tailscale IPv4 address so the RDP port is never exposed publicly.
@@ -35,17 +52,18 @@ if [[ -z "${TS_IP}" ]]; then
   TS_IP="127.0.0.1"
 fi
 
-mkdir -p "$HOME/.config"
-KRDP_CONF="$HOME/.config/krdpserverrc"
+mkdir -p "${USER_HOME}/.config"
+KRDP_CONF="${USER_HOME}/.config/krdpserverrc"
 cat > "$KRDP_CONF" <<EOF
 [General]
 Address=${TS_IP}
 Port=3389
-Users=$(whoami)
+Users=${TARGET_USER}
 SystemUserEnabled=true
 Certificate=${CERT_FILE}
 CertificateKey=${KEY_FILE}
 EOF
+chown "${TARGET_USER}:${TARGET_USER}" "$KRDP_CONF"
 
 echo "[krdp] Wrote ${KRDP_CONF} (bound to ${TS_IP}:3389)"
 
@@ -62,22 +80,20 @@ echo "[krdp] Wrote ${KRDP_CONF} (bound to ${TS_IP}:3389)"
 # Any stale ~/.config/autostart/krdp-autolock.desktop from earlier iterations
 # is removed below.
 
-USER_NAME="$(whoami)"
-
-echo "[krdp] Configuring SDDM autologin for ${USER_NAME} (Plasma Wayland)"
+echo "[krdp] Configuring SDDM autologin for ${TARGET_USER} (Plasma Wayland)"
 sudo install -d /etc/sddm.conf.d
 sudo tee /etc/sddm.conf.d/30-autologin.conf >/dev/null <<EOF
 [Autologin]
-User=${USER_NAME}
+User=${TARGET_USER}
 Session=plasma
 Relogin=true
 EOF
 
 echo "[krdp] Enabling user lingering so the session/krdp survives logout"
-sudo loginctl enable-linger "${USER_NAME}"
+sudo loginctl enable-linger "${TARGET_USER}"
 
 # Clean up auto-lock autostart from earlier iterations of this script
-rm -f "$HOME/.config/autostart/krdp-autolock.desktop"
+rm -f "${USER_HOME}/.config/autostart/krdp-autolock.desktop"
 
 echo "[krdp] Disabling auto-lock and system sleep for always-on remote access"
 sudo tee /etc/xdg/kscreenlockerrc >/dev/null <<'EOF'
@@ -88,7 +104,7 @@ EOF
 sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target >/dev/null
 
 echo "[krdp] Enabling krdp user service (works now; survives reboot via linger)"
-systemctl --user enable --now app-org.kde.krdpserver.service 2>/dev/null || \
+run_user_cmd systemctl --user enable --now app-org.kde.krdpserver.service 2>/dev/null || \
   echo "[krdp] NOTE: enable krdp from System Settings → Remote Desktop once, then re-run."
 
 echo "[krdp] Done. After reboot: ${TS_IP}:3389 will be reachable directly on the desktop."
