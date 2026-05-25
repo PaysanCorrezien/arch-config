@@ -1,0 +1,28 @@
+# Expo / React Native mobile dev module
+# Provides everything needed to develop Expo apps locally:
+#   - Android Studio + Android SDK (platform-tools, emulator, build-tools, platform 35)
+#   - JDK 21 (Android Gradle Plugin does not yet support JDK 26)
+#   - Maestro CLI (E2E mobile UI tests)
+#   - EAS CLI (Expo Application Services — builds, updates)
+# Shell env (ANDROID_HOME, JAVA_HOME, PATH) lives in the shell-config module's zshrc.
+# The post-install script installs SDK components headlessly via sdkmanager and
+# creates a default Pixel API 35 AVD.
+#
+# Known upstream issue (verified 2026-05-24 with Expo SDK 56 / RN 0.85):
+# the template ships Gradle 9.3.1, but a transitive Kotlin plugin still
+# references JvmVendorSpec.IBM_SEMERU which Gradle 9 removed — `expo run:android`
+# fails with: "Class JvmVendorSpec does not have member field IBM_SEMERU".
+# Workaround: pin the project's Gradle wrapper to 8.14 in
+# android/gradle/wrapper/gradle-wrapper.properties. Remove once Expo patches.
+
+description: Expo / React Native mobile development (Android Studio + SDK + Maestro + EAS)
+
+packages:
+  - jdk21-openjdk                       # Android Gradle Plugin requires JDK 17 or 21
+  - android-tools                       # adb, fastboot
+  - android-udev                        # udev rules for physical devices over USB
+  - android-studio                      # IDE (AUR)
+  - android-sdk-cmdline-tools-latest    # sdkmanager / avdmanager (AUR)
+
+scripts:
+  - scripts/setup-expo-dev.sh

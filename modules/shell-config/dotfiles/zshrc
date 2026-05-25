@@ -91,6 +91,7 @@ eval "$(zoxide init zsh)"
 export PATH=$PATH:$HOME/.maestro/bin
 
 # Android SDK
-export ANDROID_HOME="$HOME/Android/Sdk"
-export JAVA_HOME="/usr/lib/jvm/default"
-export PATH="$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$HOME/.maestro/bin"
+export ANDROID_HOME="/opt/android-sdk"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export JAVA_HOME="/usr/lib/jvm/java-21-openjdk"
+export PATH="$JAVA_HOME/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/35.0.0:$HOME/.maestro/bin:$PATH"
