@@ -1,0 +1,13 @@
+[Unit]
+Description=Hermes Agent Dashboard (Tailscale IP only)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/.hermes/hermes-agent
+ExecStart=%h/.local/bin/hermes dashboard --host @TAILSCALE_IP@ --port 8443 --no-open
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,15 @@
+[Unit]
+Description=Fleet status sync timer (4x/day)
+Documentation=https://github.com/PaysanCorrezien/arch-config
+
+[Timer]
+# 4x/day at 00:00, 06:00, 12:00, 18:00 local time
+OnCalendar=*-*-* 00,06,12,18:00:00
+# also run ~5min after boot if a firing was missed while the host was down
+OnBootSec=5min
+Persistent=true
+RandomizedDelaySec=2min
+Unit=fleet-sync.service
+
+[Install]
+WantedBy=timers.target

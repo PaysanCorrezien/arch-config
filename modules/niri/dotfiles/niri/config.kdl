@@ -199,7 +199,7 @@ binds {
     MOD+CTRL+SHIFT+EQUAL                hotkey-overlay-title="Expand Window 10%" { set-window-height "+10%"; }
 
     // ─── Keyboard Layout ───
-    MOD+SHIFT+L                         hotkey-overlay-title="Cycle Keyboard Layout" { switch-layout "next"; }
+    MOD+CTRL+SPACE                      hotkey-overlay-title="Cycle Keyboard Layout" { switch-layout "next"; }
 
     // ─── Modes ───
     MOD+SHIFT+SPACE                     hotkey-overlay-title="Toggle Floating" { toggle-window-floating; }

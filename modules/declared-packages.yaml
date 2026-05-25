@@ -72,6 +72,7 @@ packages:
 - ntp
 - octopi
 - ttf-opensans
+- udiskie
 - ufw
 - unrar
 - usb_modeswitch

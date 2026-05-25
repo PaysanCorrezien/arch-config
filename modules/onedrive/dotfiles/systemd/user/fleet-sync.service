@@ -1,0 +1,17 @@
+[Unit]
+Description=Fleet status sync (push local state to fleet repo)
+Documentation=https://github.com/PaysanCorrezien/arch-config
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/fleet sync
+# don't fail the unit if push briefly contests with another host
+SuccessExitStatus=0 1
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
+[Install]
+WantedBy=default.target

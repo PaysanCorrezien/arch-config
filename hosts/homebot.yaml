@@ -16,6 +16,7 @@ enabled_modules:
   - homebot-niri             # Host-specific Niri monitor/workspace config
   - onedrive                 # OneDrive client + config + user service
   - homebot-data-disk        # 4TB data disk with btrfs + snapshots
+  - hermes                   # Hermes Agent + gateway/dashboard user services
 
 # Module processing mode
 # parallel: Collect and install all modules at once (faster, default)

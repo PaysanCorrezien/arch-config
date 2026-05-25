@@ -1,0 +1,10 @@
+# Hermes Module
+# Installs the Hermes Agent (NousResearch/hermes-agent) under ~/.hermes via the
+# upstream installer, then drops in user systemd units for the gateway and the
+# tailscale-only dashboard. Existing ~/.hermes state (auth.json, .env, sessions,
+# state.db, memories, etc.) is preserved on reinstall.
+
+description: Hermes Agent + gateway/dashboard user services
+
+post_install_hook: scripts/install.sh
+hook_behavior: ask
