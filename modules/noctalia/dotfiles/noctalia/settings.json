@@ -759,7 +759,7 @@
     },
     "wallpaper": {
         "automationEnabled": true,
-        "directory": "/home/dylan/OneDrive/Configuration/wallpaper",
+        "directory": "/home/dylan/Pictures/Wallpapers",
         "enableMultiMonitorDirectories": false,
         "enabled": true,
         "favorites": [
