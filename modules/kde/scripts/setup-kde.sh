@@ -90,8 +90,21 @@ Autolock=false
 LockOnResume=false
 EOF
 
+# Belt-and-suspenders: mask sleep/suspend/hibernate targets at the systemd
+# level so even if Powerdevil (or any other service) requests sleep, systemd
+# refuses. We discovered on gpu-runner that Powerdevil ignored the xdg
+# defaults until the user-level config was also set, and the box S3-slept
+# anyway. Masking the targets makes the headless box physically incapable
+# of suspending. Manual `systemctl unmask <target>` if you ever change mind.
+echo "[kde] Masking sleep/suspend/hibernate systemd targets (headless box)"
+sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target >/dev/null
+
 echo "[kde] Reloading user systemd to pick up portal changes (if logged in)"
 systemctl --user daemon-reload 2>/dev/null || true
 sudo systemctl restart systemd-logind 2>/dev/null || true
+
+# Reload powerdevil live so changes apply without logout
+qdbus6 org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement \
+  reparseConfiguration 2>/dev/null || true
 
 echo "[kde] Done. Reboot — SDDM will show Breeze + Plasma (Wayland) session."
