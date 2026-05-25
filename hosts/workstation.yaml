@@ -21,6 +21,7 @@ enabled_modules:
   - webapps                  # PWA launchers for web services
   - winapps                  # Windows apps via WinApps + dockurr/windows
   - clovis                   # Clovis config dotfiles
+  - kde-remote-desktop       # KRDP over Tailscale + Plasma autologin
 
 # Module processing mode
 # parallel: Collect and install all modules at once (faster, default)
