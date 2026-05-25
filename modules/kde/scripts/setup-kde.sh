@@ -46,7 +46,7 @@ if pacman -Qq mako &>/dev/null; then
   echo "[kde]          rely on the gpu.yaml exclude + auto_prune to remove it)."
 fi
 
-echo "[kde] Disabling automatic sleep and auto-lock (manual suspend/lock still work)"
+echo "[kde] Writing conservative default power settings"
 # systemd-logind: ignore idle, lid, power/suspend keys — nothing triggers sleep
 # implicitly. Manual `systemctl suspend` / `loginctl lock-session` still work.
 sudo install -d /etc/systemd/logind.conf.d
@@ -81,23 +81,6 @@ idleTime=-1
 suspendType=0
 idleTime=-1
 EOF
-
-# KDE screen locker: headless remote box — never auto-lock, and don't relock
-# after an RDP resume either. Manual lock (Meta+L) still works.
-sudo tee /etc/xdg/kscreenlockerrc >/dev/null <<'EOF'
-[Daemon]
-Autolock=false
-LockOnResume=false
-EOF
-
-# Belt-and-suspenders: mask sleep/suspend/hibernate targets at the systemd
-# level so even if Powerdevil (or any other service) requests sleep, systemd
-# refuses. We discovered on gpu-runner that Powerdevil ignored the xdg
-# defaults until the user-level config was also set, and the box S3-slept
-# anyway. Masking the targets makes the headless box physically incapable
-# of suspending. Manual `systemctl unmask <target>` if you ever change mind.
-echo "[kde] Masking sleep/suspend/hibernate systemd targets (headless box)"
-sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target >/dev/null
 
 echo "[kde] Reloading user systemd to pick up portal changes (if logged in)"
 systemctl --user daemon-reload 2>/dev/null || true

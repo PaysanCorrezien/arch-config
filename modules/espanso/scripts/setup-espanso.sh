@@ -38,14 +38,22 @@ fi
 if command -v systemctl >/dev/null 2>&1; then
   run_user_cmd espanso service register
 
-  # Patch systemd service for Wayland/niri compatibility
+  # Patch systemd service for Wayland compositors.
   service_file="${user_home}/.config/systemd/user/espanso.service"
   if [ -f "${service_file}" ]; then
-    # Add environment variables if not already present
-    if ! grep -q "WAYLAND_DISPLAY" "${service_file}"; then
-      sed -i '/^\[Service\]/a Environment="WAYLAND_DISPLAY=wayland-1"\nEnvironment="XDG_CURRENT_DESKTOP=niri"\nEnvironment="GTK_THEME="' "${service_file}"
-      echo "✓ Patched espanso.service for Wayland/niri"
+    desktop="${XDG_CURRENT_DESKTOP:-}"
+    if [ -z "${desktop}" ]; then
+      if command -v pgrep >/dev/null 2>&1 && pgrep -x plasmashell >/dev/null 2>&1; then
+        desktop="KDE"
+      elif command -v pgrep >/dev/null 2>&1 && pgrep -x niri >/dev/null 2>&1; then
+        desktop="niri"
+      else
+        desktop="KDE"
+      fi
     fi
+    sed -i '/^Environment="WAYLAND_DISPLAY=/d;/^Environment="XDG_CURRENT_DESKTOP=/d;/^Environment="GTK_THEME=/d' "${service_file}"
+    sed -i "/^\\[Service\\]/a Environment=\"WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-1}\"\nEnvironment=\"XDG_CURRENT_DESKTOP=${desktop}\"\nEnvironment=\"GTK_THEME=\"" "${service_file}"
+    echo "✓ Patched espanso.service for Wayland (${desktop})"
   fi
 
   run_user_cmd systemctl --user daemon-reload

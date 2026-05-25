@@ -4,16 +4,15 @@
 host: workstation
 description: Arch Linux workstation matching NixOS flake configuration
 
-# Shared base — core + niri desktop stack
+# Shared base — core + KDE desktop stack
 import:
   - hosts/profiles/core.yaml
-  - hosts/profiles/desktop-niri.yaml
+  - hosts/profiles/desktop-kde.yaml
 
 # Host-specific modules only (everything else comes from imports above)
 enabled_modules:
   - nvim-config              # Full LazyVim Neovim config
   - gui                      # Desktop applications
-  - workstation-niri         # Host-specific Niri monitor/workspace config
   - onedrive                 # OneDrive client + config + user service
   - user-profile             # User profile picture (.face)
   - work                     # Work tools (chromium, VPN)

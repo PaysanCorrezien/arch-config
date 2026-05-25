@@ -79,6 +79,14 @@ sudo loginctl enable-linger "${USER_NAME}"
 # Clean up auto-lock autostart from earlier iterations of this script
 rm -f "$HOME/.config/autostart/krdp-autolock.desktop"
 
+echo "[krdp] Disabling auto-lock and system sleep for always-on remote access"
+sudo tee /etc/xdg/kscreenlockerrc >/dev/null <<'EOF'
+[Daemon]
+Autolock=false
+LockOnResume=false
+EOF
+sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target >/dev/null
+
 echo "[krdp] Enabling krdp user service (works now; survives reboot via linger)"
 systemctl --user enable --now app-org.kde.krdpserver.service 2>/dev/null || \
   echo "[krdp] NOTE: enable krdp from System Settings → Remote Desktop once, then re-run."
