@@ -82,6 +82,33 @@ suspendType=0
 idleTime=-1
 EOF
 
+# KDE screen locker: headless remote box — never auto-lock, and don't relock
+# after an RDP resume either. Manual lock (Meta+L) still works.
+sudo tee /etc/xdg/kscreenlockerrc >/dev/null <<'EOF'
+[Daemon]
+Autolock=false
+LockOnResume=false
+EOF
+
+# Disable kwallet entirely. With SDDM autologin no password is passed to
+# PAM, so pam_kwallet5 can't auto-unlock the wallet — kwallet then prompts
+# on first use, defeating "RDP straight to desktop". This is a headless
+# remote box: no secrets need to be encrypted locally.
+sudo tee /etc/xdg/kwalletrc >/dev/null <<'EOF'
+[Wallet]
+Enabled=false
+First Use=false
+EOF
+
+# Belt-and-suspenders: mask sleep/suspend/hibernate targets at the systemd
+# level so even if Powerdevil (or any other service) requests sleep, systemd
+# refuses. We discovered on gpu-runner that Powerdevil ignored the xdg
+# defaults until the user-level config was also set, and the box S3-slept
+# anyway. Masking the targets makes the headless box physically incapable
+# of suspending. Manual `systemctl unmask <target>` if you ever change mind.
+echo "[kde] Masking sleep/suspend/hibernate systemd targets (headless box)"
+sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target >/dev/null
+
 echo "[kde] Reloading user systemd to pick up portal changes (if logged in)"
 systemctl --user daemon-reload 2>/dev/null || true
 sudo systemctl restart systemd-logind 2>/dev/null || true
