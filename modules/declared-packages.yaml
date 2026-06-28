@@ -99,7 +99,7 @@ packages:
 - localsend
 - bun
 - claude-desktop-bin
-- openai-codex-desktop
+- codex-desktop
 exclude: []
 conflicts: []
 pre_install_hook: null
