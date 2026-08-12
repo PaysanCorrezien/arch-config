@@ -11,6 +11,7 @@ import:
 
 # Host-specific modules only
 enabled_modules:
+  - tailscale-client-dns       # Public DNS survives Tailscale/exit-node outages
   - nvim-config              # Full LazyVim Neovim config
   # - homebot-sddm           # DISABLED: SDDM autologin (headless server)
   - homebot-niri             # Host-specific Niri monitor/workspace config

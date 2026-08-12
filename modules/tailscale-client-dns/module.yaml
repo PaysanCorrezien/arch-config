@@ -1,0 +1,10 @@
+description: Resilient client DNS with conditional Tailscale MagicDNS
+
+requires:
+  - tailscale
+
+packages:
+  - dnsmasq
+
+post_install_hook: scripts/setup-client-dns.sh
+hook_behavior: always
