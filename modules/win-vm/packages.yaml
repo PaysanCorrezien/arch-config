@@ -1,0 +1,29 @@
+# Windows-in-KVM dependencies for Arch Linux
+
+description: libvirt/QEMU stack, UEFI+TPM for Windows 11, virtiofs, and the FreeRDP client
+
+packages:
+  # --- Hypervisor -----------------------------------------------------------
+  - qemu-full             # Pulls qemu-audio-pipewire, qemu-hw-usb-*, qemu-ui-* splits
+  - libvirt
+  - virt-manager          # GUI for the guest console (install + recovery only)
+  - virt-viewer
+  - dnsmasq               # Required by libvirt's default NAT network
+  - iptables-nft          # libvirt network filtering
+  - bridge-utils
+
+  # --- Windows 11 requirements ---------------------------------------------
+  - edk2-ovmf             # UEFI firmware — Win11 will not install on SeaBIOS
+  - swtpm                 # Emulated TPM 2.0 — Win11 hard requirement
+
+  # --- Shared filesystem ----------------------------------------------------
+  - virtiofsd             # Host daemon backing the Z: share in the guest
+
+  # --- Client ---------------------------------------------------------------
+  - freerdp               # v3 — binaries are xfreerdp3 / sdl-freerdp3
+  - libfido2              # FreeRDP smartcard/fido redirection support
+
+  # --- Utilities ------------------------------------------------------------
+  - usbutils              # lsusb, for finding hostdev vendor:product IDs
+  - libguestfs            # Offline guest disk inspection/repair
+  - dosfstools            # mkfs.vfat for the OVMF varstore edge cases

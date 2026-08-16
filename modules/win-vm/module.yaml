@@ -1,0 +1,27 @@
+# Windows 11 KVM guest — full desktop over RDP, no GPU passthrough.
+#
+# Delivers a Windows 11 desktop as a fullscreen multi-monitor FreeRDP session
+# on the KDE host, with:
+#   - virtiofs shared drive between host and guest (Z: in Windows)
+#   - USB hostdev passthrough for real audio (Bluetooth radio / USB headset)
+#   - PipeWire audio backend as the fallback path when no USB audio is attached
+#   - a KWin rule so global shortcuts stop stealing keys from the guest
+#
+# No VFIO. No PCIe passthrough. No IOMMU requirement. BIOS needs SVM only.
+
+description: Windows 11 KVM guest (libvirt) + virtiofs share + USB audio passthrough + FreeRDP desktop
+
+requires:
+  - kde
+
+conflicts:
+  - winapps          # winapps runs its own dockurr/windows on :3389 — mutually exclusive
+
+dotfiles:
+  - source: dotfiles/bin/winbox
+    target: ~/.local/bin/winbox
+  - source: dotfiles/bin/win-usb
+    target: ~/.local/bin/win-usb
+
+post_install_hook: scripts/setup-win-vm.sh
+hook_behavior: ask

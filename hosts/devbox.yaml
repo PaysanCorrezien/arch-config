@@ -1,0 +1,82 @@
+# Host configuration for devbox
+# Primary daily driver: Arch/KDE underneath, Windows 11 in KVM on top.
+#
+# Rationale: Hermes and the agent fleet were running on bare Windows and that
+# layer proved unreliable. Hermes now runs on the Arch host (native systemd
+# user units, real POSIX paths); Windows becomes a guest that owns the desktop
+# most of the time via a fullscreen multi-monitor RDP session.
+#
+# Hardware this host targets (ASRock A520M-ITX/ac):
+#   Ryzen 5 5600G  6c/12t   — 4c/8t pinned to the guest, 2c/4t kept for host
+#   64 GB RAM               — 32 GB to the guest (memfd, shared for virtiofs)
+#   Radeon iGPU (1002:1638) — stays with the host, drives both monitors
+#   NO discrete GPU         — the guest has no GPU; RDP carries the desktop
+#
+# There is deliberately no VFIO/PCIe passthrough here. IOMMU is not required.
+# Only SVM (AMD-V) needs to be on in the BIOS.
+
+host: devbox
+description: Arch Linux daily driver — KDE Plasma 6 (Wayland) host + Windows 11 KVM guest over RDP
+
+# Shared base — core + KDE desktop stack
+import:
+  - hosts/profiles/core.yaml
+  - hosts/profiles/desktop-kde.yaml
+
+# Host-specific modules only
+enabled_modules:
+  - tailscale-client-dns     # Public DNS survives Tailscale/exit-node outages
+  - nvim-config              # Full LazyVim Neovim config
+  - hermes                   # THE reason for this host — agent off Windows, onto systemd
+  - win-vm                   # Windows 11 guest + virtiofs share + USB audio + winbox launcher
+  - docker                   # Container runtime (host-side, not the guest)
+  - gui                      # Desktop applications
+  - user-profile             # User profile picture (.face)
+  - espanso                  # Text expander (Wayland)
+  - webapps                  # PWA launchers for web services
+  - kde-remote-desktop       # KRDP over Tailscale — reach the HOST remotely
+  - localsend                # Cross-platform file transfer
+  - onedrive                 # OneDrive client + config + user service
+
+# NOTE: `winapps` is intentionally NOT enabled. It stands up its own
+# dockurr/windows container bound to 3389 and would collide head-on with the
+# win-vm guest. Pick one; on this host it is win-vm.
+
+# Module processing mode
+module_processing: parallel
+
+# Host-specific packages (beyond what's in modules)
+packages:
+  - code                    # VS Code (host-side; the Windows guest has its own)
+  - bemenu
+  - ddcutil                 # Monitor DDC/CI control (input switching, brightness)
+  - pipewire-pulse          # Explicit — the guest's audio backend depends on it
+
+exclude: []
+
+# Configuration backup settings
+config_backups:
+  enabled: true
+  max_backups: 5
+
+# System backup settings
+system_backups:
+  enabled: true
+  backup_on_sync: true
+  backup_on_update: true
+  tool: snapper
+  snapper_config: root
+
+# Settings
+flatpak_scope: user
+auto_prune: false
+aur_helper: paru
+
+# Services to enable
+services:
+  enabled:
+    - bluetooth             # Host BT. See win-vm README: if the guest takes the
+                            # radio via USB hostdev, the host loses BT while the
+                            # VM runs. A second USB BT dongle avoids the fight.
+    - docker
+  disabled: []
