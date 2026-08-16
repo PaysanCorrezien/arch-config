@@ -64,12 +64,15 @@ WIN_SHARE_DIR="/srv/winshare"
 # Leave empty on first run, then fill it in — you need the guest booted once to
 # know what you actually want over there.
 #
-#   413c:c034   Dell P2724DEB hub (monitor speakerphone + USB ports)
-#   <btvendor>  onboard Bluetooth radio — gives Windows the Jabra natively
+# Typical members: a USB audio interface or headset, a monitor's built-in USB
+# hub, or the onboard Bluetooth radio (which enumerates as USB, so a Bluetooth
+# headset can be given to the guest by handing over the radio itself).
 #
-# Find the Bluetooth radio with:  lsusb | grep -i blue
-# CAUTION: passing the BT radio means the HOST loses Bluetooth while the guest
-# runs. A second USB BT dongle is the cheap fix. See README.
+#   lsusb                    list candidates
+#   lsusb | grep -i blue     find the Bluetooth radio
+#
+# CAUTION: a radio has one owner. While the guest holds it, the HOST has no
+# Bluetooth. A second USB BT dongle is the cheap fix. See README.
 WIN_VM_USB=""
 EOF
   chown "${TARGET_USER}:${TARGET_USER}" "${ENV_FILE}"

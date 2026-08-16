@@ -2,13 +2,13 @@
 # win-usb — hot-plug USB devices between the Arch host and the Windows guest.
 #
 # This is the real audio path. RDP's /sound and /microphone redirection is
-# resampled and buffered; handing Windows the actual device is not. For a
-# Bluetooth headset (Jabra Evolve2), the device you pass is the HOST'S
-# BLUETOOTH RADIO — Windows then pairs the headset itself and owns HFP/A2DP.
+# resampled and buffered; handing Windows the actual device is not. A Bluetooth
+# headset cannot be passed directly — it is not a USB device. Pass the HOST'S
+# BLUETOOTH RADIO instead, and Windows pairs the headset itself, owning HFP/A2DP.
 #
 #   win-usb list                    devices on the host, marked if attached
-#   win-usb attach 413c:c034        hand a device to the guest
-#   win-usb detach 413c:c034        take it back
+#   win-usb attach 1234:abcd        hand a device to the guest
+#   win-usb detach 1234:abcd        take it back
 #   win-usb audio                   attach everything in WIN_VM_USB at once
 #
 # NOTE: while the Bluetooth radio is attached to the guest, the HOST has no

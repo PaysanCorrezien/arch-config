@@ -21,7 +21,7 @@ Arch host — KDE Plasma 6 (Wayland), iGPU drives both monitors
 └── libvirt / KVM
     └── windows                4c/8t pinned, 32 GB, no GPU
         ├── virtiofs           /srv/winshare  ->  Z:
-        ├── USB hostdev        Bluetooth radio, Dell hub  -> real audio
+        ├── USB hostdev        audio devices, BT radio  -> real audio
         └── RDP :3389          <- winbox, fullscreen, /multimon
 ```
 
@@ -61,13 +61,12 @@ Roughly 20–40 ms, resampled on the way in. Fine for system sounds, calls, and
 playback.
 
 **USB hostdev passthrough.** Windows gets the real device. This is the only
-honest path for anything where capture fidelity or latency matters — which,
-given the Brassens dictation work, is most of the reason this host exists.
+honest path for anything where capture fidelity or latency matters.
 
-The Jabra Evolve2 55 is **Bluetooth**, so it cannot be passed directly. Pass the
-**host's Bluetooth radio** instead (it enumerates as a USB device, so a plain
-`<hostdev type='usb'>` handles it — no IOMMU needed) and Windows pairs the
-headset itself with native drivers.
+A **Bluetooth** headset cannot be passed directly — it is not a USB device, it
+is a profile negotiated by the host's radio. Pass the **radio** instead (it
+enumerates as USB, so a plain `<hostdev type='usb'>` handles it — no IOMMU
+needed) and Windows pairs the headset itself with native drivers.
 
 ```bash
 lsusb | grep -i blue      # find the radio
@@ -78,7 +77,7 @@ While the radio belongs to the guest, **the host has no Bluetooth**. That is
 inherent to radio ownership, not a bug. A second USB Bluetooth dongle (~€10)
 gives each side its own and ends the argument.
 
-Do **not** validate dictation behaviour through RDP's `/sound` and
+Do **not** validate latency-sensitive capture behaviour through RDP's `/sound` and
 `/microphone` redirection. You will be measuring the transport.
 
 ## Shared drive
@@ -129,14 +128,14 @@ actually the host compositor starving.
 
 - **No GPU in the guest.** Windows renders through WARP, then the host encodes
   to RDP. IDE and terminal work is fine — that is what RDP is good at. Electron
-  apps are usable but not crisp; expect `--disable-gpu` on the Brassens dev
-  loop. Anything GPU-accelerated you are testing will not reflect real users.
+  apps are usable but not crisp; Electron dev loops may need `--disable-gpu`.
+  Anything GPU-accelerated you are testing will not reflect real users.
 - **4 cores, not 6.** Builds are measurably slower than on bare metal. The
   alternative (more cores) means a non-G Ryzen, which has no iGPU, which means a
   second GPU, which means a new board — a different project.
-- **RDP session ≠ console session.** UIA automation and the sidecar's window
-  and focus tracking work, but session lifetime, DPI, and lock-screen behaviour
-  differ from bare metal. Validate this early; it is core to the product.
+- **RDP session ≠ console session.** UI-automation and window/focus tracking
+  still work, but session lifetime, DPI, and lock-screen behaviour
+  differ from bare metal. Validate this early if you rely on either.
 
 ## Troubleshooting
 
