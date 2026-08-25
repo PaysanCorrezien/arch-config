@@ -1,24 +1,28 @@
 #!/usr/bin/env bash
 # Post-install for KDE Plasma 6 module.
-# - Installs/enables SDDM with the stock Breeze theme and a Wayland session.
-# - Removes the niri-flavored Noctalia SDDM drop-in if present, so the KDE
-#   host doesn't end up with the wrong theme / DisplayServer=x11.
+# - Enables the installed Plasma display manager (Plasma Login Manager on
+#   CachyOS, SDDM on older installations).
+# - Removes the niri-flavored Noctalia SDDM drop-in if present.
 # - Does NOT touch user dotfiles; Plasma writes its own config on first login.
 
 set -euo pipefail
 
-echo "[kde] Ensuring SDDM is enabled"
-sudo systemctl enable sddm.service >/dev/null
+if [[ "$(readlink -f /etc/systemd/system/display-manager.service 2>/dev/null || true)" == "/usr/lib/systemd/system/plasmalogin.service" ]]; then
+  echo "[kde] Keeping CachyOS Plasma Login Manager enabled"
+  sudo systemctl enable plasmalogin.service >/dev/null
+else
+  echo "[kde] Ensuring SDDM is enabled"
+  sudo systemctl enable sddm.service >/dev/null
 
-echo "[kde] Removing niri Noctalia SDDM drop-in (if present)"
-sudo rm -f /etc/sddm.conf.d/10-noctalia-theme.conf
-# Old name from earlier iterations of this script
-sudo rm -f /etc/sddm.conf.d/10-plasma-wayland.conf
+  echo "[kde] Removing niri Noctalia SDDM drop-in (if present)"
+  sudo rm -f /etc/sddm.conf.d/10-noctalia-theme.conf
+  # Old name from earlier iterations of this script
+  sudo rm -f /etc/sddm.conf.d/10-plasma-wayland.conf
 
-echo "[kde] Writing SDDM config → Breeze theme + Plasma (Wayland)"
-sudo install -d /etc/sddm.conf.d
-SDDM_CONF="/etc/sddm.conf.d/20-plasma-wayland.conf"
-sudo tee "$SDDM_CONF" >/dev/null <<'EOF'
+  echo "[kde] Writing SDDM config → Breeze theme + Plasma (Wayland)"
+  sudo install -d /etc/sddm.conf.d
+  SDDM_CONF="/etc/sddm.conf.d/20-plasma-wayland.conf"
+  sudo tee "$SDDM_CONF" >/dev/null <<'EOF'
 [Theme]
 Current=breeze
 
@@ -29,6 +33,7 @@ InputMethod=
 [Wayland]
 EnableHiDPI=true
 EOF
+fi
 
 echo "[kde] Disabling niri-only user services that fight Plasma"
 # mako owns org.freedesktop.Notifications via D-Bus activation

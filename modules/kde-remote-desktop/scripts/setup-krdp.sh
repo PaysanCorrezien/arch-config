@@ -71,7 +71,8 @@ echo "[krdp] Wrote ${KRDP_CONF} (bound to ${TS_IP}:3389)"
 # krdp is a user service inside the Plasma session — if no session exists,
 # port 3389 is closed. To make "power on → RDP in" work without a human at
 # the console, we:
-#   1. SDDM autologin into Plasma (Wayland) at boot.
+#   1. The installed Plasma display manager autologins into Plasma (Wayland)
+#      at boot (Plasma Login Manager on current CachyOS; SDDM otherwise).
 #   2. enable-linger so the user bus + krdp survive without an active seat.
 #
 # NOTE: this is a remote-only headless box — we explicitly do NOT auto-lock
@@ -80,14 +81,21 @@ echo "[krdp] Wrote ${KRDP_CONF} (bound to ${TS_IP}:3389)"
 # Any stale ~/.config/autostart/krdp-autolock.desktop from earlier iterations
 # is removed below.
 
-echo "[krdp] Configuring SDDM autologin for ${TARGET_USER} (Plasma Wayland)"
-sudo install -d /etc/sddm.conf.d
-sudo tee /etc/sddm.conf.d/30-autologin.conf >/dev/null <<EOF
+if [[ "$(readlink -f /etc/systemd/system/display-manager.service 2>/dev/null || true)" == "/usr/lib/systemd/system/plasmalogin.service" ]]; then
+  echo "[krdp] Configuring Plasma Login autologin for ${TARGET_USER} (Plasma Wayland)"
+  sudo kwriteconfig6 --file /etc/plasmalogin.conf --group Autologin --key User "${TARGET_USER}"
+  sudo kwriteconfig6 --file /etc/plasmalogin.conf --group Autologin --key Session plasma.desktop
+  sudo kwriteconfig6 --file /etc/plasmalogin.conf --group Autologin --key Relogin true
+else
+  echo "[krdp] Configuring SDDM autologin for ${TARGET_USER} (Plasma Wayland)"
+  sudo install -d /etc/sddm.conf.d
+  sudo tee /etc/sddm.conf.d/30-autologin.conf >/dev/null <<EOF
 [Autologin]
 User=${TARGET_USER}
 Session=plasma
 Relogin=true
 EOF
+fi
 
 echo "[krdp] Enabling user lingering so the session/krdp survives logout"
 sudo loginctl enable-linger "${TARGET_USER}"
