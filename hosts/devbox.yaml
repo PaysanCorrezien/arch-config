@@ -80,6 +80,7 @@ aur_helper: paru
 # Services to enable
 services:
   enabled:
+    - tailscaled             # Tailnet access, KRDP binding, and MagicDNS
     - bluetooth             # Host BT. See win-vm README: if the guest takes the
                             # radio via USB hostdev, the host loses BT while the
                             # VM runs. A second USB BT dongle avoids the fight.
