@@ -126,7 +126,7 @@ EOF
 echo "[kde] Masking sleep/suspend/hibernate systemd targets (headless box)"
 sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target >/dev/null
 
-# Keyboard layouts: US (altgr-intl) + FR (azerty default), Meta+Space toggle.
+# Keyboard layouts: FR (azerty default) + US (altgr-intl), Meta+Space toggle.
 # Written via kwriteconfig6 so we preserve any existing per-user keys but
 # overwrite just what we need. Layout indicator shown in systray.
 echo "[kde] Configuring keyboard layouts US(altgr-intl) + FR(azerty), Meta+Space toggle"
@@ -135,9 +135,9 @@ for u in "${TARGET_USER:-$USER}"; do
   [[ -z "$uhome" ]] && continue
   run_as_user() { if [[ "$(id -u)" -eq 0 ]]; then sudo -u "$u" "$@"; else "$@"; fi; }
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key Use true
-  run_as_user kwriteconfig6 --file kxkbrc --group Layout --key LayoutList "us,fr"
-  run_as_user kwriteconfig6 --file kxkbrc --group Layout --key VariantList "altgr-intl,"
-  run_as_user kwriteconfig6 --file kxkbrc --group Layout --key DisplayNames "US,FR"
+  run_as_user kwriteconfig6 --file kxkbrc --group Layout --key LayoutList "fr,us"
+  run_as_user kwriteconfig6 --file kxkbrc --group Layout --key VariantList ",altgr-intl"
+  run_as_user kwriteconfig6 --file kxkbrc --group Layout --key DisplayNames "FR,US"
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key Model "pc105"
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key Options "grp:win_space_toggle"
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key ResetOldOptions true

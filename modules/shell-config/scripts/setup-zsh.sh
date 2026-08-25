@@ -94,7 +94,7 @@ fi
 if [ "$current_shell" != "$zsh_path" ]; then
   echo "Current shell: $current_shell"
   echo "Changing to: $zsh_path"
-  chsh -s "$zsh_path" "${target_user}"
+  sudo chsh -s "$zsh_path" "${target_user}"
   echo "✓ Default shell changed to ZSH"
   echo "  (You'll need to log out and back in for this to take effect)"
 else
