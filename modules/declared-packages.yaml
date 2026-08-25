@@ -98,7 +98,7 @@ packages:
 - tigervnc
 - localsend
 - bun
-- claude-desktop-bin
+- claude-desktop
 - codex-desktop
 exclude: []
 conflicts: []
