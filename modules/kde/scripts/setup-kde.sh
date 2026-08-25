@@ -129,8 +129,16 @@ sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.ta
 # Keyboard layouts: FR (azerty default) + US (altgr-intl), Meta+Space toggle.
 # Written via kwriteconfig6 so we preserve any existing per-user keys but
 # overwrite just what we need. Layout indicator shown in systray.
-echo "[kde] Configuring keyboard layouts US(altgr-intl) + FR(azerty), Meta+Space toggle"
-for u in "${TARGET_USER:-$USER}"; do
+echo "[kde] Configuring keyboard layouts FR (azerty) + US (altgr-intl), Meta+Space toggle"
+# dcli runs hooks through sudo and does not preserve SUDO_USER.  Resolve the
+# logged-in desktop user in that case so these settings do not accidentally
+# get written to root's configuration.
+desktop_user="${TARGET_USER:-${SUDO_USER:-}}"
+if [[ -z "$desktop_user" || "$desktop_user" == "root" ]]; then
+  desktop_user="$(loginctl list-users --no-legend 2>/dev/null | awk '$1 >= 1000 { print $2; exit }')"
+fi
+desktop_user="${desktop_user:-$USER}"
+for u in "$desktop_user"; do
   uhome="$(getent passwd "$u" | cut -d: -f6)"
   [[ -z "$uhome" ]] && continue
   run_as_user() { if [[ "$(id -u)" -eq 0 ]]; then sudo -u "$u" "$@"; else "$@"; fi; }
