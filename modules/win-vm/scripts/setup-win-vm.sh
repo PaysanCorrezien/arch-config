@@ -270,7 +270,7 @@ if [[ -n "${WIN_VM_USB}" ]]; then
   done
   say "  passing USB devices: ${WIN_VM_USB}"
 else
-  HOSTDEV="    <!-- No USB devices configured. Set WIN_VM_USB in ${ENV_FILE}. -->"
+  HOSTDEV=""
   warn "WIN_VM_USB is empty — the guest will fall back to emulated HDA over PipeWire."
   warn "That is fine for playback, but NOT a faithful capture path for dictation work."
 fi
