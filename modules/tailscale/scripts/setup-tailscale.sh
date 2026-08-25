@@ -88,6 +88,17 @@ else
     echo "  ✓ Tailscale service started"
 fi
 
+# Permit the logged-in desktop user to run `tailscale` without sudo. dcli
+# invokes hooks through sudo, so SUDO_USER is not always available.
+OPERATOR_USER="${SUDO_USER:-$USER}"
+if [[ "$OPERATOR_USER" == "root" ]]; then
+    OPERATOR_USER="$(loginctl list-users --no-legend 2>/dev/null | awk '$1 >= 1000 { print $2; exit }')"
+fi
+if [[ -n "$OPERATOR_USER" && "$OPERATOR_USER" != "root" ]]; then
+    sudo tailscale set --operator="$OPERATOR_USER"
+    echo "  ✓ Tailscale CLI operator set to $OPERATOR_USER"
+fi
+
 # 5. Check authentication status
 echo ""
 echo "[5/$STEPS] Checking Tailscale authentication status..."
