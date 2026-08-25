@@ -141,6 +141,8 @@ for u in "${TARGET_USER:-$USER}"; do
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key Model "pc105"
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key Options "grp:win_space_toggle"
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key ResetOldOptions true
+  # Keep KRunner in the centre of the active screen, matching the Plasma UI setting.
+  run_as_user kwriteconfig6 --file krunnerrc --group General --key FreeFloating true
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key SwitchMode "Global"
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key ShowFlag true
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key ShowLayoutIndicator true
