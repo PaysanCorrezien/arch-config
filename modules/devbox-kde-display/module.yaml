@@ -1,0 +1,9 @@
+# Devbox-specific KDE output profile.
+#
+# The P2724DEB is the DisplayPort upstream/MST hub.  The Microtek GF340C is
+# downstream of it and must be enabled with the Dell positioned to its right.
+description: KDE Wayland layout for Microtek left + Dell P2724DEB right
+
+dotfiles:
+  - source: dotfiles/kwinoutputconfig.json
+    target: ~/.config/kwinoutputconfig.json
