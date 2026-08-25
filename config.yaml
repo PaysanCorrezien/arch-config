@@ -1,6 +1,9 @@
 # dcli configuration pointer
 # This file points to the active host configuration
-# The full configuration lives in hosts/workstation.yaml
+# The full configuration lives in hosts/devbox.yaml
 
 # Active host
-host: workstation
+host: devbox
+
+# Package manager used by dcli on this CachyOS/Arch host.
+package_manager: pacman

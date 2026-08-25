@@ -22,7 +22,7 @@ curl -fsSL https://raw.githubusercontent.com/PaysanCorrezien/arch-config/refs/he
 This will:
 - Install `git`, `base-devel`, `fzf`, and `paru`.
 - Install `dcli` from AUR (`dcli-arch-git`).
-- Clone the repo into `~/.config/arch-config`.
+- Clone the repo into `~/.config/dcli`.
 - Ask you to pick a host (unless `ARCH_CONFIG_HOST` is set).
 - Set `config.yaml` and run `dcli sync`.
 

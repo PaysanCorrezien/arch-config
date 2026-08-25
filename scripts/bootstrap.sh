@@ -11,7 +11,7 @@ set -euo pipefail
 # Installs git, base-devel, fzf, paru, and dcli.
 
 REPO_URL="${ARCH_CONFIG_REPO_URL:-https://github.com/PaysanCorrezien/arch-config}"
-TARGET_DIR="${ARCH_CONFIG_DIR:-$HOME/.config/arch-config}"
+TARGET_DIR="${ARCH_CONFIG_DIR:-$HOME/.config/dcli}"
 HOST_NAME="${ARCH_CONFIG_HOST:-homebot}"
 
 echo "==> Installing prerequisites (git, base-devel, fzf)..."
