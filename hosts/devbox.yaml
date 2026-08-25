@@ -35,6 +35,7 @@ enabled_modules:
   - espanso                  # Text expander (Wayland)
   - webapps                  # PWA launchers for web services
   - kde-remote-desktop       # KRDP over Tailscale — reach the HOST remotely
+  - devbox-kde-display       # Stable 60 Hz DP/MST layout for the two displays
   - localsend                # Cross-platform file transfer
   - onedrive                 # OneDrive client + config + user service
 

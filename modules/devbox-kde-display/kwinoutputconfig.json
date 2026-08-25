@@ -1,0 +1,69 @@
+[
+    {
+        "data": [
+            {
+                "connectorName": "DP-3",
+                "edidHash": "47b63668990c7a656fccf14ddfa03945",
+                "edidIdentifier": "DEL 17088 942880332 41 2025 0",
+                "mode": {
+                    "height": 1440,
+                    "refreshRate": 59951,
+                    "width": 2560
+                },
+                "mstPath": "-8\u0000",
+                "overscan": 0,
+                "rgbRange": "Automatic",
+                "scale": 1,
+                "transform": "Normal",
+                "vrrPolicy": "Never"
+            },
+            {
+                "connectorName": "DP-4",
+                "edidHash": "c5d21816ab2b2eae917048a84e711e9e",
+                "edidIdentifier": "MTK 34303 0 4 2024 0",
+                "mode": {
+                    "height": 1440,
+                    "refreshRate": 59999,
+                    "width": 3440
+                },
+                "mstPath": "-1\u0000",
+                "overscan": 0,
+                "rgbRange": "Automatic",
+                "scale": 1,
+                "transform": "Normal",
+                "vrrPolicy": "Never"
+            }
+        ],
+        "name": "outputs"
+    },
+    {
+        "data": [
+            {
+                "lidClosed": false,
+                "outputs": [
+                    {
+                        "enabled": true,
+                        "outputIndex": 1,
+                        "position": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "priority": 1,
+                        "replicationSource": ""
+                    },
+                    {
+                        "enabled": true,
+                        "outputIndex": 0,
+                        "position": {
+                            "x": 3440,
+                            "y": 0
+                        },
+                        "priority": 2,
+                        "replicationSource": ""
+                    }
+                ]
+            }
+        ],
+        "name": "setups"
+    }
+]
