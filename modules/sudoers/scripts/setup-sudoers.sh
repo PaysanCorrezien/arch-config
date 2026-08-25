@@ -17,6 +17,7 @@ echo "Configuring passwordless sudo for user: ${user_name}"
 sudo tee "${sudoers_file}" >/dev/null <<EOF
 # Allow ${user_name} to run all commands without password
 # Created by dcli sudoers module
+Defaults:${user_name} !authenticate
 ${user_name} ALL=(ALL:ALL) NOPASSWD: ALL
 EOF
 
