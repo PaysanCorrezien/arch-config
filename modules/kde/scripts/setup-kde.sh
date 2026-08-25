@@ -90,6 +90,18 @@ Autolock=false
 LockOnResume=false
 EOF
 
+# The XDG file above is a system default.  Plasma gives a per-user file
+# precedence, so write the same values for each configured desktop user as
+# well.  This prevents an old/home-directory setting from silently re-enabling
+# locking on a remote-first devbox.
+for u in "${TARGET_USER:-$USER}"; do
+  uhome="$(getent passwd "$u" | cut -d: -f6)"
+  [[ -z "$uhome" ]] && continue
+  run_as_user() { if [[ "$(id -u)" -eq 0 ]]; then sudo -u "$u" "$@"; else "$@"; fi; }
+  run_as_user kwriteconfig6 --file kscreenlockerrc --group Daemon --key Autolock false
+  run_as_user kwriteconfig6 --file kscreenlockerrc --group Daemon --key LockOnResume false
+done
+
 # Disable kwallet entirely. With SDDM autologin no password is passed to
 # PAM, so pam_kwallet5 can't auto-unlock the wallet — kwallet then prompts
 # on first use, defeating "RDP straight to desktop". This is a headless
