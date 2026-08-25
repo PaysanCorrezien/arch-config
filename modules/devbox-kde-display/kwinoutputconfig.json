@@ -23,8 +23,8 @@
                 "edidIdentifier": "MTK 34303 0 4 2024 0",
                 "mode": {
                     "height": 1440,
-                    "refreshRate": 59999,
-                    "width": 3440
+                    "refreshRate": 60000,
+                    "width": 2560
                 },
                 "mstPath": "-1\u0000",
                 "overscan": 0,
@@ -55,7 +55,7 @@
                         "enabled": true,
                         "outputIndex": 0,
                         "position": {
-                            "x": 3440,
+                            "x": 2560,
                             "y": 0
                         },
                         "priority": 2,

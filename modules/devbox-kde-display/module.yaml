@@ -1,9 +1,10 @@
 # KWin's own persistent output profile for the devbox MST chain.
 #
 # No KWin UUIDs are stored here: the stable EDID/connector fields identify the
-# physical outputs.  The profile uses 60 Hz on both displays so the 3440x1440
-# ultrawide plus Dell 2560x1440 fit reliably on the shared DP-MST link.
-description: Stable KDE 60 Hz layout for Microtek-left and Dell-right MST displays
+# physical outputs.  The profile uses 2560x1440 at 60 Hz on both displays:
+# the native 3440x1440 ultrawide plus Dell 2560x1440 configuration exceeds
+# the shared DP-MST link's usable atomic-modeset budget.
+description: Bandwidth-safe KDE layout for Microtek-left and Dell-right MST displays
 
 post_install_hook: scripts/apply-profile.sh
 hook_behavior: always

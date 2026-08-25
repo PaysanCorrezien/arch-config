@@ -2,16 +2,15 @@
 # Configure KDE's built-in RDP server (krdp) so the host can be reached over
 # Tailscale at <tailscale-ip>:3389. Idempotent — safe to re-run.
 #
-# After this script:
-#   1. Open System Settings → Remote Desktop and flip "Enable RDP server" on
-#      (system-user login is already preset, so no separate password needed —
-#      authenticate with your normal system password).
-#   2. Enable the user service:
-#        systemctl --user enable --now app-org.kde.krdpserver.service
-#   3. Connect from any RDP client to <tailscale-ip>:3389.
+# KRDP reads port, certificate, quality, and authentication from
+# krdpserverrc. It does *not* read a listen address from that file, so a
+# systemd drop-in starts it through a wrapper that binds only to the live
+# Tailscale IPv4 address. Until Tailscale is authenticated, KRDP stays down
+# rather than falling back to a LAN-wide listener.
 
 set -euo pipefail
 
+module_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TARGET_USER="${SUDO_USER:-$USER}"
 if [[ "$(id -u)" -eq 0 && "${TARGET_USER}" == "root" ]]; then
   TARGET_USER="${LOGNAME:-dylan}"
@@ -44,28 +43,25 @@ if [[ ! -f "$CERT_FILE" || ! -f "$KEY_FILE" ]]; then
   chown "${TARGET_USER}:${TARGET_USER}" "$CERT_FILE" "$KEY_FILE"
 fi
 
-# Bind to the Tailscale IPv4 address so the RDP port is never exposed publicly.
-TS_IP=$(tailscale ip -4 2>/dev/null | head -n1 || true)
-if [[ -z "${TS_IP}" ]]; then
-  echo "[krdp] WARNING: tailscale ip -4 returned nothing. Is tailscaled up?"
-  echo "[krdp] Falling back to 127.0.0.1 — fix Tailscale and re-run to expose on tailnet."
-  TS_IP="127.0.0.1"
-fi
-
 mkdir -p "${USER_HOME}/.config"
 KRDP_CONF="${USER_HOME}/.config/krdpserverrc"
 cat > "$KRDP_CONF" <<EOF
 [General]
-Address=${TS_IP}
-Port=3389
-Users=${TARGET_USER}
+ListenPort=3389
+AutogenerateCertificates=false
 SystemUserEnabled=true
+Autostart=true
 Certificate=${CERT_FILE}
 CertificateKey=${KEY_FILE}
 EOF
 chown "${TARGET_USER}:${TARGET_USER}" "$KRDP_CONF"
 
-echo "[krdp] Wrote ${KRDP_CONF} (bound to ${TS_IP}:3389)"
+echo "[krdp] Wrote ${KRDP_CONF}"
+
+echo "[krdp] Installing the tailnet-only service wrapper"
+sudo install -Dm0755 "${module_dir}/scripts/krdp-tailnet-wrapper.sh" /usr/local/libexec/dcli-krdp-tailnet
+sudo install -Dm0644 "${module_dir}/systemd/app-org.kde.krdpserver.service.d/10-tailnet.conf" \
+  /etc/systemd/user/app-org.kde.krdpserver.service.d/10-tailnet.conf
 
 # --- Always-on session so RDP works after a cold boot ----------------------
 # krdp is a user service inside the Plasma session — if no session exists,
@@ -113,9 +109,15 @@ run_user_cmd kwriteconfig6 --file "${USER_HOME}/.config/kscreenlockerrc" --group
 run_user_cmd kwriteconfig6 --file "${USER_HOME}/.config/kscreenlockerrc" --group Daemon --key LockOnResume false
 sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target >/dev/null
 
-echo "[krdp] Enabling krdp user service (works now; survives reboot via linger)"
-run_user_cmd systemctl --user enable --now app-org.kde.krdpserver.service 2>/dev/null || \
+echo "[krdp] Enabling KRDP user service (tailnet-only; survives reboot via linger)"
+run_user_cmd systemctl --user daemon-reload
+run_user_cmd systemctl --user enable app-org.kde.krdpserver.service 2>/dev/null || \
   echo "[krdp] NOTE: enable krdp from System Settings → Remote Desktop once, then re-run."
+run_user_cmd systemctl --user restart app-org.kde.krdpserver.service 2>/dev/null || true
 
-echo "[krdp] Done. After reboot: ${TS_IP}:3389 will be reachable directly on the desktop."
-echo "[krdp] First-time UI step: System Settings → Remote Desktop → toggle 'Enable RDP server' on."
+TS_IP=$(tailscale ip -4 2>/dev/null | head -n1 || true)
+if [[ -n "${TS_IP}" ]]; then
+  echo "[krdp] Done. Connect to ${TS_IP}:3389 from the tailnet."
+else
+  echo "[krdp] Tailscale is not authenticated. Complete 'tailscale up'; KRDP will retry automatically and bind once an IPv4 address exists."
+fi
