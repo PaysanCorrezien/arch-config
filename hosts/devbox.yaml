@@ -49,8 +49,12 @@ module_processing: parallel
 packages:
   - code                    # VS Code (host-side; the Windows guest has its own)
   - bemenu
+  - bemenu-wayland          # Explicit renderer for the KDE Wayland session
+  - cronie                  # Resolve the cron provider without an interactive choice
   - ddcutil                 # Monitor DDC/CI control (input switching, brightness)
   - pipewire-pulse          # Explicit — the guest's audio backend depends on it
+  - tree-sitter             # Resolve the parser provider without an interactive choice
+  - unibilium               # Resolve the terminal capability provider non-interactively
 
 exclude: []
 
