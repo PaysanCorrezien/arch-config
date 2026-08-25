@@ -109,6 +109,8 @@ sudo tee /etc/xdg/kscreenlockerrc >/dev/null <<'EOF'
 Autolock=false
 LockOnResume=false
 EOF
+run_user_cmd kwriteconfig6 --file "${USER_HOME}/.config/kscreenlockerrc" --group Daemon --key Autolock false
+run_user_cmd kwriteconfig6 --file "${USER_HOME}/.config/kscreenlockerrc" --group Daemon --key LockOnResume false
 sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target >/dev/null
 
 echo "[krdp] Enabling krdp user service (works now; survives reboot via linger)"

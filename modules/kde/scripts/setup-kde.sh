@@ -103,8 +103,8 @@ for u in "${TARGET_USER:-$USER}"; do
   uhome="$(getent passwd "$u" | cut -d: -f6)"
   [[ -z "$uhome" ]] && continue
   run_as_user() { if [[ "$(id -u)" -eq 0 ]]; then sudo -u "$u" "$@"; else "$@"; fi; }
-  run_as_user kwriteconfig6 --file kscreenlockerrc --group Daemon --key Autolock false
-  run_as_user kwriteconfig6 --file kscreenlockerrc --group Daemon --key LockOnResume false
+  run_as_user kwriteconfig6 --file "${uhome}/.config/kscreenlockerrc" --group Daemon --key Autolock false
+  run_as_user kwriteconfig6 --file "${uhome}/.config/kscreenlockerrc" --group Daemon --key LockOnResume false
 done
 
 # Disable kwallet entirely. With SDDM autologin no password is passed to
@@ -154,4 +154,4 @@ sudo systemctl restart systemd-logind 2>/dev/null || true
 qdbus6 org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement \
   reparseConfiguration 2>/dev/null || true
 
-echo "[kde] Done. Reboot — SDDM will show Breeze + Plasma (Wayland) session."
+echo "[kde] Done. Reboot — Plasma will start through the configured display manager."
