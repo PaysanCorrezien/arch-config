@@ -4,6 +4,11 @@
 
 description: Tailscale VPN with Tailscale SSH and secure networking
 
+# pacman cannot install openresolv until its conflicting resolvconf provider
+# has been removed. This must run before dcli's package transaction.
+pre_install_hook: scripts/prepare-resolvconf.sh
+pre_hook_behavior: always
+
 # Post-install hook for Tailscale setup
 post_install_hook: scripts/setup-tailscale.sh
 hook_behavior: ask
