@@ -109,7 +109,6 @@
               discard='unmap' iothread='1' queues='4'/>
       <source file='@DISK_PATH@'/>
       <target dev='vda' bus='virtio'/>
-      <boot order='1'/>
     </disk>
 
     <!-- Install media. Detach both CDROMs once Windows is installed. -->
@@ -118,7 +117,6 @@
       <source file='/var/lib/libvirt/images/iso/win11.iso'/>
       <target dev='sda' bus='sata'/>
       <readonly/>
-      <boot order='2'/>
     </disk>
     <disk type='file' device='cdrom'>
       <driver name='qemu' type='raw'/>
