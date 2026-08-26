@@ -17,6 +17,14 @@ dotfiles:
     target: ~/.local/share/applications/devbox-terminal.desktop
   - source: dotfiles/applications/devbox-terminal.desktop
     target: ~/.local/share/kglobalaccel/devbox-terminal.desktop
+  - source: dotfiles/applications/devbox-keepassxc.desktop
+    target: ~/.local/share/applications/devbox-keepassxc.desktop
+  - source: dotfiles/applications/devbox-keepassxc.desktop
+    target: ~/.local/share/kglobalaccel/devbox-keepassxc.desktop
+  - source: dotfiles/applications/devbox-helium.desktop
+    target: ~/.local/share/applications/devbox-helium.desktop
+  - source: dotfiles/applications/devbox-helium.desktop
+    target: ~/.local/share/kglobalaccel/devbox-helium.desktop
   - source: dotfiles/applications/devbox-remmina.desktop
     target: ~/.local/share/applications/devbox-remmina.desktop
   - source: dotfiles/applications/devbox-remmina.desktop

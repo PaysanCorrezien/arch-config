@@ -5,7 +5,7 @@ PartOf=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/setxkbmap -layout fr,us -variant ,altgr-intl -option grp:win_space_toggle
+ExecStart=/usr/bin/setxkbmap -layout fr,us -variant ,altgr-intl -option grp:win_space_toggle -option caps:super
 
 [Install]
 WantedBy=graphical-session.target

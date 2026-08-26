@@ -25,7 +25,7 @@ run_as_desktop_user() {
 shortcut_file="$desktop_home/.config/kglobalshortcutsrc"
 
 # These are default positional bindings.  Clear only the ones claimed below.
-for number in 1 2 3 6 9; do
+for number in 1 2 3 6 7 9; do
   run_as_desktop_user kwriteconfig6 --file "$shortcut_file" --group plasmashell \
     --key "activate task manager entry $number" "none,none,Activate task manager entry $number"
 done
@@ -40,30 +40,33 @@ run_as_desktop_user kwriteconfig6 --file "$shortcut_file" --group kwin \
 declare -A shortcuts=(
   [devbox-discord.desktop]=Meta+6
   [devbox-terminal.desktop]=Meta+1
+  [devbox-keepassxc.desktop]=Meta+7
+  [devbox-helium.desktop]=Meta+0
   [devbox-remmina.desktop]=Meta+2
   [devbox-claude.desktop]=Meta+3
   [devbox-chatgpt.desktop]=Meta+X
-  [devbox-gmail.desktop]=Meta+0
   [devbox-email.desktop]=Meta+9
   [devbox-x.desktop]=Meta+P
 )
 declare -A key_codes=(
   [devbox-discord.desktop]=268435510  # Meta+6
   [devbox-terminal.desktop]=268435505 # Meta+1
+  [devbox-keepassxc.desktop]=268435511 # Meta+7
+  [devbox-helium.desktop]=268435504    # Meta+0
   [devbox-remmina.desktop]=268435506  # Meta+2
   [devbox-claude.desktop]=268435507   # Meta+3
   [devbox-chatgpt.desktop]=268435544  # Meta+X
-  [devbox-gmail.desktop]=268435504    # Meta+0
   [devbox-email.desktop]=268435513    # Meta+9
   [devbox-x.desktop]=268435536        # Meta+P
 )
 declare -A labels=(
   [devbox-discord.desktop]=Discord
   [devbox-terminal.desktop]=Terminal
+  [devbox-keepassxc.desktop]=KeePassXC
+  [devbox-helium.desktop]='Helium Browser'
   [devbox-remmina.desktop]=Remmina
   [devbox-claude.desktop]='Claude Desktop'
   [devbox-chatgpt.desktop]=ChatGPT
-  [devbox-gmail.desktop]=Gmail
   [devbox-email.desktop]=Email
   [devbox-x.desktop]=X
 )
@@ -71,6 +74,11 @@ for desktop_file in "${!shortcuts[@]}"; do
   run_as_desktop_user kwriteconfig6 --file "$shortcut_file" \
     --group services --group "$desktop_file" --key _launch "${shortcuts[$desktop_file]}"
 done
+
+# Meta+0 now focuses Helium rather than the Gmail web app.  Remove Gmail's
+# previous claim before registering the new owner of that shortcut.
+run_as_desktop_user kwriteconfig6 --file "$shortcut_file" \
+  --group services --group devbox-gmail.desktop --key _launch none
 
 # Rebuild the desktop-entry cache, then make KGlobalAccel register the
 # managed command-shortcut launchers immediately.  This intentionally does not
@@ -91,4 +99,4 @@ for desktop_file in "${!shortcuts[@]}"; do
     "Focus or launch $label" 1 "${key_codes[$desktop_file]}" 0 >/dev/null
 done
 
-echo "[devbox-app-shortcuts] Installed Meta+0/1/2/3/6/9/X/P application bindings"
+echo "[devbox-app-shortcuts] Installed Meta+0/1/2/3/6/7/9/X/P application bindings"

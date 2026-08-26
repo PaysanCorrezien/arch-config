@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=KeePassXC
+Comment=Focus or launch KeePassXC
+Exec=/home/dylan/.local/bin/devbox-focus-or-launch --class keepassxc -- keepassxc
+Icon=keepassxc
+StartupWMClass=keepassxc
+Terminal=false
+Categories=Utility;Security;
+X-KDE-GlobalAccel-CommandShortcut=true

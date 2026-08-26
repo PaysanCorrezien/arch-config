@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Helium Browser
+Comment=Focus or launch Helium Browser
+Exec=/home/dylan/.local/bin/devbox-focus-or-launch --class helium --process-regex ^/opt/helium-browser-bin/helium -- helium-browser
+Icon=helium-browser
+StartupWMClass=helium
+Terminal=false
+Categories=Network;WebBrowser;
+X-KDE-GlobalAccel-CommandShortcut=true

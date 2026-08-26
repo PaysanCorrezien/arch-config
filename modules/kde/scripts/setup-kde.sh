@@ -126,10 +126,11 @@ EOF
 echo "[kde] Masking sleep/suspend/hibernate systemd targets (headless box)"
 sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target >/dev/null
 
-# Keyboard layouts: FR (azerty default) + US (altgr-intl), Meta+Space toggle.
+# Keyboard layouts: FR (azerty default) + US (altgr-intl), Meta+Space toggle,
+# and Caps Lock as an additional Meta/Super modifier.
 # Written via kwriteconfig6 so we preserve any existing per-user keys but
 # overwrite just what we need. Layout indicator shown in systray.
-echo "[kde] Configuring keyboard layouts FR (azerty) + US (altgr-intl), Meta+Space toggle"
+echo "[kde] Configuring keyboard layouts FR (azerty) + US (altgr-intl), Meta+Space toggle, Caps as Meta"
 # dcli runs hooks through sudo and does not preserve SUDO_USER.  Resolve the
 # logged-in desktop user in that case so these settings do not accidentally
 # get written to root's configuration.
@@ -147,7 +148,7 @@ for u in "$desktop_user"; do
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key VariantList ",altgr-intl"
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key DisplayNames "FR,US"
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key Model "pc105"
-  run_as_user kwriteconfig6 --file kxkbrc --group Layout --key Options "grp:win_space_toggle"
+  run_as_user kwriteconfig6 --file kxkbrc --group Layout --key Options "grp:win_space_toggle,caps:super"
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key ResetOldOptions true
   # Keep KRunner in the centre of the active screen, matching the Plasma UI setting.
   run_as_user kwriteconfig6 --file krunnerrc --group General --key FreeFloating true
