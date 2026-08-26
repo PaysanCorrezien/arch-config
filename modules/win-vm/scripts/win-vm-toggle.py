@@ -2,10 +2,10 @@
 """Reserve Ctrl+Alt+F12 as the one-key Linux <-> Windows desktop handoff."""
 
 import argparse
-import glob
 import os
 import subprocess
 import time
+from glob import glob as find_glob
 
 from evdev import InputDevice, UInput, ecodes
 
@@ -28,7 +28,7 @@ def send_key(ui: UInput, key: int) -> None:
 
 
 def start_winbox(user: str, home: str, runtime_dir: str) -> None:
-    xauthority = max(glob.glob.glob(f"{runtime_dir}/xauth_*"), key=os.path.getmtime, default="")
+    xauthority = max(find_glob(f"{runtime_dir}/xauth_*"), key=os.path.getmtime, default="")
     log_dir = os.path.join(home, ".local", "state", "win-vm")
     os.makedirs(log_dir, mode=0o700, exist_ok=True)
     log_path = os.path.join(log_dir, "winbox.log")

@@ -60,6 +60,13 @@ if ($answer) {
   icacls $auth /inheritance:r /grant '*S-1-5-32-544:F' /grant '*S-1-5-18:F' | Out-Null
 }
 New-NetFirewallRule -DisplayName 'win-vm SSH from KVM host' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22 -RemoteAddress '192.168.122.0/24' -Profile Any -ErrorAction SilentlyContinue | Out-Null
+# LocalSend uses TCP and UDP 53317. Permit it only from the libvirt host
+# subnet; the Windows VM remains undiscoverable from other LAN clients.
+foreach ($ruleName in 'win-vm-localsend-tcp','win-vm-localsend-udp') {
+  Get-NetFirewallRule -Name $ruleName -ErrorAction SilentlyContinue | Remove-NetFirewallRule -ErrorAction SilentlyContinue
+}
+New-NetFirewallRule -Name 'win-vm-localsend-tcp' -DisplayName 'win-vm LocalSend TCP from KVM host' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 53317 -RemoteAddress '192.168.122.0/24' -Profile Any | Out-Null
+New-NetFirewallRule -Name 'win-vm-localsend-udp' -DisplayName 'win-vm LocalSend UDP from KVM host' -Direction Inbound -Action Allow -Protocol UDP -LocalPort 53317 -RemoteAddress '192.168.122.0/24' -Profile Any | Out-Null
 # WinGet's source bundle is initialized per interactive user session.  Running
 # its first source refresh through Windows OpenSSH can leave the source cache
 # empty (0x8a15000f), so schedule that first refresh at the user's next desktop
