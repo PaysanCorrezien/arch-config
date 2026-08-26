@@ -7,7 +7,7 @@
 
   Placeholders substituted by the setup script:
     @NAME@ @UUID@ @MEM_KIB@ @VCPUS@ @CORES@ @THREADS@ @CPUTUNE@
-    @DISK_PATH@ @MAC@ @UID@ @SHARE_DIR@ @HOSTDEV@
+    @DISK_PATH@ @INSTALLER_USB_IMAGE@ @MAC@ @UID@ @SHARE_DIR@ @HOSTDEV@
 
   Design notes that are easy to break:
     * memoryBacking uses memfd + access mode='shared'. virtiofs REQUIRES shared
@@ -44,12 +44,15 @@
   <os firmware='efi'>
     <type arch='x86_64' machine='q35'>hvm</type>
     <firmware>
+      <!-- Arch's OVMF package on this host provides no Microsoft-keyed
+           variable store. Keep TPM 2.0, but disable Secure Boot rather than
+           presenting Setup with an unusable empty key database. -->
       <feature enabled='no' name='enrolled-keys'/>
-      <feature enabled='yes' name='secure-boot'/>
+      <feature enabled='no' name='secure-boot'/>
     </firmware>
-    <loader secure='yes'/>
-    <boot dev='hd'/>
-    <bootmenu enable='yes' timeout='3000'/>
+    <loader secure='no'/>
+    <!-- The installation DVD is first while the guest disk is empty. -->
+    <bootmenu enable='no'/>
   </os>
 
   <features>
@@ -71,7 +74,7 @@
       <ipi state='on'/>
     </hyperv>
     <vmport state='off'/>
-    <!-- smm is mandatory for Secure Boot -->
+    <!-- SMM is retained for OVMF/Windows compatibility. -->
     <smm state='on'/>
   </features>
 
@@ -104,24 +107,46 @@
     <emulator>/usr/bin/qemu-system-x86_64</emulator>
 
     <!-- ===================== Storage ===================== -->
+    <!-- A FAT32 virtual installer disk avoids the Windows DVD's unautomatable
+         UEFI key gate.  SATA keeps its .swm payload readable by Windows PE. -->
     <disk type='file' device='disk'>
-      <driver name='qemu' type='raw' cache='none' io='native'
-              discard='unmap' iothread='1' queues='4'/>
-      <source file='@DISK_PATH@'/>
-      <target dev='vda' bus='virtio'/>
+      <driver name='qemu' type='raw'/>
+      <source file='@INSTALLER_USB_IMAGE@'/>
+      <target dev='sda' bus='sata'/>
+      <boot order='1'/>
     </disk>
 
-    <!-- Install media. Detach both CDROMs once Windows is installed. -->
-    <disk type='file' device='cdrom'>
-      <driver name='qemu' type='raw'/>
-      <source file='/var/lib/libvirt/images/iso/win11.iso'/>
-      <target dev='sda' bus='sata'/>
-      <readonly/>
+    <disk type='file' device='disk'>
+      <!-- SATA is deliberately used for the boot disk: Windows PE has the
+           driver in-box, letting the unattended installer complete without a
+           manual storage-driver screen. -->
+      <driver name='qemu' type='raw' cache='none' io='native' discard='unmap'/>
+      <source file='@DISK_PATH@'/>
+      <target dev='sde' bus='sata'/>
+      <boot order='2'/>
     </disk>
+
+    <!-- Driver and answer media remain CDs; the Windows installer itself is
+         the virtual USB disk above. -->
     <disk type='file' device='cdrom'>
       <driver name='qemu' type='raw'/>
       <source file='/var/lib/libvirt/images/iso/virtio-win.iso'/>
       <target dev='sdb' bus='sata'/>
+      <readonly/>
+    </disk>
+    <disk type='file' device='cdrom'>
+      <driver name='qemu' type='raw'/>
+      <source file='/var/lib/libvirt/images/iso/windows-unattend.iso'/>
+      <target dev='sdc' bus='sata'/>
+      <readonly/>
+    </disk>
+    <!-- Setup is booted from the generated installer disk above, but its
+         native ISO is kept attached as the source for install.wim.  Boot order
+         ensures this CD never reaches the firmware's DVD key gate. -->
+    <disk type='file' device='cdrom'>
+      <driver name='qemu' type='raw'/>
+      <source file='/var/lib/libvirt/images/iso/win11.iso'/>
+      <target dev='sdd' bus='sata'/>
       <readonly/>
     </disk>
 
@@ -158,8 +183,9 @@
     <interface type='network'>
       <mac address='@MAC@'/>
       <source network='default'/>
-      <model type='virtio'/>
-      <driver name='vhost' queues='4'/>
+      <!-- e1000e has an in-box Windows driver, so networking works on the
+           first desktop before the guest bootstrap can install VirtIO tools. -->
+      <model type='e1000e'/>
     </interface>
 
     <!-- ===================== Audio ===================== -->
@@ -192,12 +218,13 @@
     <video>
       <model type='qxl' ram='65536' vram='65536' vgamem='16384' heads='1' primary='yes'/>
     </video>
-    <graphics type='spice' autoport='yes' listen='127.0.0.1'>
-      <image compression='off'/>
-      <gl enable='no'/>
+    <graphics type='vnc' autoport='yes' listen='127.0.0.1'>
+      <listen type='address' address='127.0.0.1'/>
     </graphics>
 
     <input type='tablet' bus='usb'/>
+    <!-- The Windows DVD boot wrapper reads the firmware USB keyboard path.
+         Daily input arrives through FreeRDP once the guest is installed. -->
     <input type='keyboard' bus='usb'/>
 
     <!-- ===================== TPM ===================== -->
@@ -213,4 +240,5 @@
          shared memfd backing. The guest gets its 32 GB and keeps it. -->
     <memballoon model='none'/>
   </devices>
+
 </domain>

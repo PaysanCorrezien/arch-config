@@ -1,0 +1,16 @@
+[Unit]
+Description=Ctrl+Alt+F12 Linux to Windows desktop handoff
+# Do not order this after graphical.target while also enabling it from
+# multi-user.target: graphical.target itself depends on multi-user.target,
+# which creates a boot cycle and prevents the key service from ever starting.
+After=systemd-user-sessions.service
+Wants=systemd-user-sessions.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/lib/win-vm/win-vm-toggle.py --user @USER@ --home @HOME@ --input @INPUT@
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

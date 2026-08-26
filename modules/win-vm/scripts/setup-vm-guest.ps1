@@ -1,0 +1,87 @@
+$ErrorActionPreference = 'Continue'
+$log = 'C:\ProgramData\win-vm-guest-setup.log'
+Start-Transcript -Path $log -Append -ErrorAction SilentlyContinue | Out-Null
+
+# FirstLogonCommands starts in the local administrator's unelevated session.
+# Re-launch once with a full token so RDP, OpenSSH, driver installation and the
+# network settings do not silently fail behind UAC.
+$principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+  $arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+  Start-Process -FilePath 'powershell.exe' -Verb RunAs -ArgumentList $arguments
+  Stop-Transcript -ErrorAction SilentlyContinue
+  exit
+}
+
+# The address is deliberately pinned to the libvirt reservation.  Windows may
+# take a while to renew after a host network restart; this makes SSH and RDP
+# deterministic even during that window.
+$vmNic = Get-NetAdapter | Where-Object {
+  $_.Status -ne 'Disabled' -and $_.InterfaceDescription -match 'E1000|82574|VirtIO|Red Hat'
+} | Select-Object -First 1
+if ($vmNic) {
+  Set-NetIPInterface -InterfaceIndex $vmNic.ifIndex -Dhcp Disabled -ErrorAction SilentlyContinue
+  Get-NetIPAddress -InterfaceIndex $vmNic.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+    Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue
+  New-NetIPAddress -InterfaceIndex $vmNic.ifIndex -IPAddress '192.168.122.50' -PrefixLength 24 -DefaultGateway '192.168.122.1' -ErrorAction SilentlyContinue | Out-Null
+  # Use a direct resolver first: the libvirt DNS proxy is retained as fallback,
+  # but Windows optional-feature downloads must not depend on host DNS startup.
+  Set-DnsClientServerAddress -InterfaceIndex $vmNic.ifIndex -ServerAddresses @('1.1.1.1', '192.168.122.1') -ErrorAction SilentlyContinue
+}
+$virtio = Get-Volume | Where-Object { $_.DriveLetter -and (Test-Path ("{0}:\guest-agent" -f $_.DriveLetter)) } | Select-Object -First 1
+if ($virtio) {
+  $root = "{0}:" -f $virtio.DriveLetter
+  Get-ChildItem "$root\" -Recurse -Filter '*.inf' | Where-Object { $_.FullName -match '\\w11\\amd64\\' } | ForEach-Object { pnputil.exe /add-driver $_.FullName /install | Out-Null }
+  $agent = Get-ChildItem "$root\guest-agent" -Filter 'qemu-ga-x86_64.msi' | Select-Object -First 1
+  if ($agent) { Start-Process msiexec.exe -ArgumentList @('/i', $agent.FullName, '/qn', '/norestart') -Wait }
+
+  # virtiofs-win is a service backed by WinFsp. Stage its executable now; the
+  # service is created after WinFsp is installed below and mounts winshare as Z:.
+  $viofs = Join-Path $root 'viofs\w11\amd64\virtiofs.exe'
+  if (Test-Path $viofs) {
+    $viofsDir = 'C:\Program Files\Virtio-Win\VioFS'
+    New-Item -ItemType Directory -Path $viofsDir -Force | Out-Null
+    Copy-Item $viofs (Join-Path $viofsDir 'virtiofs.exe') -Force
+  }
+}
+Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server' -Name fDenyTSConnections -Value 0
+New-NetFirewallRule -DisplayName 'win-vm RDP from KVM host' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 3389 -RemoteAddress '192.168.122.0/24' -Profile Any -ErrorAction SilentlyContinue | Out-Null
+Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+Start-Service sshd
+Set-Service -Name sshd -StartupType Automatic
+$answer = Get-Volume | Where-Object { $_.FileSystemLabel -eq 'WINSETUP' } | Select-Object -First 1
+if ($answer) {
+  $key = Get-Content ("{0}:\host-authorized-key.pub" -f $answer.DriveLetter)
+  $auth = 'C:\ProgramData\ssh\administrators_authorized_keys'
+  New-Item -ItemType File -Path $auth -Force | Out-Null
+  if (-not (Select-String -Path $auth -SimpleMatch $key -Quiet)) { Add-Content -Path $auth -Value $key }
+  # Use SIDs rather than localized group names: this image is French, while
+  # the OpenSSH documentation examples use English "Administrators".
+  icacls $auth /inheritance:r /grant '*S-1-5-32-544:F' /grant '*S-1-5-18:F' | Out-Null
+}
+New-NetFirewallRule -DisplayName 'win-vm SSH from KVM host' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22 -RemoteAddress '192.168.122.0/24' -Profile Any -ErrorAction SilentlyContinue | Out-Null
+powercfg /hibernate off; powercfg -change -standby-timeout-ac 0; powercfg -change -monitor-timeout-ac 0
+Start-Sleep -Seconds 5
+# WinFsp is optional for the first bootstrap: it needs internet access, whereas
+# RDP and SSH must become available even when the NAT bridge was just repaired.
+# Prefer winget, but fall back to the signed upstream stable MSI: fresh Windows
+# installations often have an empty or non-responsive winget source catalog.
+$winFspDll = Join-Path ${env:ProgramFiles(x86)} 'WinFsp\bin\winfsp-x64.dll'
+if (-not (Test-Path $winFspDll) -and (Get-Command winget -ErrorAction SilentlyContinue) -and (Test-NetConnection -ComputerName 1.1.1.1 -Port 443 -InformationLevel Quiet -WarningAction SilentlyContinue)) {
+  winget install --id WinFsp.WinFsp --silent --accept-package-agreements --accept-source-agreements
+}
+if (-not (Test-Path $winFspDll) -and (Test-NetConnection -ComputerName 1.1.1.1 -Port 443 -InformationLevel Quiet -WarningAction SilentlyContinue)) {
+  $winFspMsi = 'C:\Windows\Temp\winfsp-2.1.25156.msi'
+  Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/winfsp/winfsp/releases/download/v2.1/winfsp-2.1.25156.msi' -OutFile $winFspMsi
+  if ((Get-FileHash -Algorithm SHA256 $winFspMsi).Hash -ne '073A70E00F77423E34BED98B86E600DEF93393BA5822204FAC57A29324DB9F7A') { throw 'WinFsp checksum mismatch' }
+  $install = Start-Process msiexec.exe -ArgumentList @('/i', $winFspMsi, '/qn', '/norestart') -Wait -PassThru
+  if ($install.ExitCode -notin 0, 3010) { throw "WinFsp install failed: $($install.ExitCode)" }
+}
+$viofsService = 'C:\Program Files\Virtio-Win\VioFS\virtiofs.exe'
+if ((Test-Path $viofsService) -and -not (Get-Service -Name VirtioFsSvc -ErrorAction SilentlyContinue)) {
+  New-Service -Name VirtioFsSvc -BinaryPathName "`"$viofsService`" -t winshare -m Z:" -DisplayName 'VirtioFsSvc' -StartupType Automatic | Out-Null
+}
+Set-Service -Name VirtioFsSvc -StartupType Automatic -ErrorAction SilentlyContinue
+Start-Service -Name VirtioFsSvc -ErrorAction SilentlyContinue
+Stop-Transcript -ErrorAction SilentlyContinue
+Restart-Computer -Force

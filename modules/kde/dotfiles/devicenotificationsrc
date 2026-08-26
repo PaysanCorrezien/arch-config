@@ -1,0 +1,4 @@
+[Event/safelyRemovable]
+# This event is emitted when a monitor's USB hub changes state.  Popup-only
+# retains the useful notification while removing the audible connect/disconnect cue.
+Action=Popup

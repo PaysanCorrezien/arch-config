@@ -4,13 +4,17 @@
 # Idempotent — safe to re-run. Re-running regenerates and redefines the domain
 # XML from templates/windows.xml.in, so edit the template, never the live XML.
 #
-# What this does NOT do: install Windows. It defines the machine and leaves
-# you at "boot the ISO". See README.md for the guest-side steps.
+# It creates the answer media and defines the machine. Windows Setup and the
+# guest integration bootstrap then run unattended after the installer starts.
 
 set -euo pipefail
 
 MODULE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEMPLATE="${MODULE_DIR}/templates/windows.xml.in"
+UNATTEND_TEMPLATE="${MODULE_DIR}/templates/autounattend.xml.in"
+GUEST_SETUP_SCRIPT="${MODULE_DIR}/scripts/setup-vm-guest.ps1"
+TOGGLE_SCRIPT="${MODULE_DIR}/scripts/win-vm-toggle.py"
+TOGGLE_SERVICE_TEMPLATE="${MODULE_DIR}/templates/win-vm-toggle.service.in"
 
 TARGET_USER="${SUDO_USER:-$USER}"
 if [[ "$(id -u)" -eq 0 && "${TARGET_USER}" == "root" ]]; then
@@ -91,6 +95,16 @@ source "${ENV_FILE}"
 : "${VM_IP:=192.168.122.50}"
 : "${WIN_SHARE_DIR:=/srv/winshare}"
 : "${WIN_VM_USB:=}"
+: "${WIN_VM_USER:=dylan}"
+WIN_VM_PASSWORD_FILE="${ENV_DIR}/windows-password"
+UNATTEND_ISO="/var/lib/libvirt/images/iso/windows-unattend.iso"
+WINDOWS_SOURCE_ISO="/var/lib/libvirt/images/iso/win11.iso"
+VIRTIO_ISO="/var/lib/libvirt/images/iso/virtio-win.iso"
+INSTALLER_USB_IMAGE="/var/lib/libvirt/images/iso/windows-installer-usb.img"
+
+[[ -f "${WIN_VM_PASSWORD_FILE}" ]] || die "Create ${WIN_VM_PASSWORD_FILE} (mode 0600) with the Windows password, then re-run this hook."
+WIN_VM_PASSWORD="$(<"${WIN_VM_PASSWORD_FILE}")"
+[[ -n "${WIN_VM_PASSWORD}" ]] || die "${WIN_VM_PASSWORD_FILE} is empty."
 
 # --------------------------------------------------------------------------
 # 1. Hardware preflight. Fail loudly and early rather than at `virsh start`.
@@ -179,6 +193,53 @@ IMAGES_DIR="$(dirname "${VM_DISK_PATH}")"
 sudo install -d -m 0711 "${IMAGES_DIR}"
 sudo install -d -m 0755 "${IMAGES_DIR}/iso"
 
+# Windows' DVD UEFI wrapper accepts a key for only a few milliseconds, which
+# is unsuitable for a declarative VM setup.  Build a normal FAT32 USB installer
+# instead.  FAT32 cannot contain the 6+ GiB install.wim, so wimlib splits it
+# into install.swm parts — the format Windows Setup natively expects on USB.
+if [[ ! -f "${INSTALLER_USB_IMAGE}" ]]; then
+  [[ -f "${WINDOWS_SOURCE_ISO}" ]] || die "Windows source ISO missing: ${WINDOWS_SOURCE_ISO}"
+  [[ -f "${VIRTIO_ISO}" ]] || die "VirtIO driver ISO missing: ${VIRTIO_ISO}"
+  command -v wimlib-imagex >/dev/null || die "wimlib is required to build the virtual Windows installer USB"
+  command -v 7z >/dev/null || die "7zip is required to build the virtual Windows installer USB"
+  command -v parted >/dev/null || die "parted is required to build the virtual Windows installer USB"
+  say "Building one-time FAT32 Windows installer USB..."
+  INSTALLER_TREE="$(mktemp -d -p /var/tmp win-vm-installer.XXXXXX)"
+  sudo truncate -s 10G "${INSTALLER_USB_IMAGE}"
+  sudo parted -s "${INSTALLER_USB_IMAGE}" mklabel gpt \
+    mkpart primary fat32 1MiB 100% set 1 esp on
+  INSTALLER_LOOP="$(sudo losetup --find --show --partscan "${INSTALLER_USB_IMAGE}")"
+  INSTALLER_PARTITION="${INSTALLER_LOOP}p1"
+  sudo mkfs.fat -F 32 -n WIN11SETUP "${INSTALLER_PARTITION}" >/dev/null
+  7z x -y -o"${INSTALLER_TREE}" "${WINDOWS_SOURCE_ISO}" >/dev/null
+  # Setup automatically loads drivers from $WinPEDriver$ on installation media.
+  # The guest disk is virtio-blk, so viostor is required before Disk 0 exists.
+  mkdir -p "${INSTALLER_TREE}/\$WinPEDriver\$"
+  7z x -y -o"${INSTALLER_TREE}/\$WinPEDriver\$" "${VIRTIO_ISO}" \
+    'viostor/w11/amd64/*' >/dev/null
+  INSTALL_WIM="$(mktemp -p /var/tmp win-vm-install.XXXXXX.wim)"
+  mv "${INSTALLER_TREE}/sources/install.wim" "${INSTALL_WIM}"
+  sudo mcopy -i "${INSTALLER_PARTITION}" -s "${INSTALLER_TREE}"/* ::
+  sudo wimlib-imagex split "${INSTALL_WIM}" \
+    "${INSTALLER_TREE}/sources/install.swm" 3800
+  sudo mcopy -i "${INSTALLER_PARTITION}" "${INSTALLER_TREE}/sources/install"*.swm ::/sources/
+  sudo losetup --detach "${INSTALLER_LOOP}"
+  rm -f "${INSTALL_WIM}"
+  sudo chown "${TARGET_USER}:${TARGET_USER}" "${INSTALLER_USB_IMAGE}"
+  sudo chmod 0644 "${INSTALLER_USB_IMAGE}"
+fi
+
+# Windows Setup discovers Autounattend.xml on this CD; it also carries the
+# first-login script that installs VirtIO, RDP and the shared drive.
+UNATTEND_DIR="$(mktemp -d)"
+trap 'rm -rf "${UNATTEND_DIR}"' EXIT
+sed -e "s|@VM_USER@|${WIN_VM_USER}|g" -e "s|@VM_PASSWORD@|${WIN_VM_PASSWORD}|g" \
+  "${UNATTEND_TEMPLATE}" > "${UNATTEND_DIR}/Autounattend.xml"
+install -m 0644 "${GUEST_SETUP_SCRIPT}" "${UNATTEND_DIR}/setup-vm-guest.ps1"
+install -m 0644 "${USER_HOME}/.ssh/win-vm-control.pub" "${UNATTEND_DIR}/host-authorized-key.pub"
+sudo xorriso -as mkisofs -quiet -iso-level 3 -J -R -V WINSETUP -o "${UNATTEND_ISO}" "${UNATTEND_DIR}"
+sudo chown "${TARGET_USER}:${TARGET_USER}" "${UNATTEND_ISO}"
+
 # On btrfs, VM images MUST be nocow or fragmentation and snapshot cost explode.
 # chattr +C only takes effect on files created afterwards, so it goes on the
 # directory before the image exists. (Same reasoning as modules/docker's
@@ -259,16 +320,7 @@ say "  host keeps cpus ${HOST_CPUSET}; guest gets ${VCPUS} vCPU (${GUEST_CORES}c
 # --------------------------------------------------------------------------
 HOSTDEV=""
 if [[ -n "${WIN_VM_USB}" ]]; then
-  for id in ${WIN_VM_USB}; do
-    vend="0x${id%%:*}"; prod="0x${id##*:}"
-    if ! lsusb -d "${id}" >/dev/null 2>&1; then
-      warn "USB ${id} is not currently plugged in — including it anyway (startPolicy=optional, so the guest still boots without it)."
-    fi
-    HOSTDEV+="    <hostdev mode='subsystem' type='usb' managed='yes' startupPolicy='optional'>"$'\n'
-    HOSTDEV+="      <source><vendor id='${vend}'/><product id='${prod}'/></source>"$'\n'
-    HOSTDEV+="    </hostdev>"$'\n'
-  done
-  say "  passing USB devices: ${WIN_VM_USB}"
+  say "  USB devices will attach only while winbox is open: ${WIN_VM_USB}"
 else
   HOSTDEV=""
   warn "WIN_VM_USB is empty — the guest will fall back to emulated HDA over PipeWire."
@@ -300,6 +352,7 @@ rendered="${rendered//@CORES@/${GUEST_CORES}}"
 rendered="${rendered//@THREADS@/${THREADS_PER_CORE}}"
 rendered="${rendered//@CPUTUNE@/${CPUTUNE}}"
 rendered="${rendered//@DISK_PATH@/${VM_DISK_PATH}}"
+rendered="${rendered//@INSTALLER_USB_IMAGE@/${INSTALLER_USB_IMAGE}}"
 rendered="${rendered//@MAC@/${VM_MAC}}"
 rendered="${rendered//@UID@/${USER_UID}}"
 rendered="${rendered//@SHARE_DIR@/${WIN_SHARE_DIR}}"
@@ -314,6 +367,29 @@ say "Defining domain '${VM_NAME}'..."
 sudo virsh define "${WORK_XML}" >/dev/null
 sudo virsh autostart "${VM_NAME}" >/dev/null 2>&1 || true
 say "  defined (uuid ${UUID})"
+
+# NetworkManager must leave libvirt's bridge and ephemeral vnet taps alone.
+# Otherwise it may adopt a tap after boot and detach it from virbr0, leaving a
+# Windows guest with APIPA instead of the reserved DHCP address.
+NM_LIBVIRT_CONF='/etc/NetworkManager/conf.d/30-libvirt-unmanaged.conf'
+if command -v nmcli >/dev/null 2>&1; then
+  say "Keeping NetworkManager away from libvirt bridge/tap devices..."
+  printf '%s\n' '[keyfile]' 'unmanaged-devices=interface-name:virbr*;interface-name:vnet*' | \
+    sudo tee "${NM_LIBVIRT_CONF}" >/dev/null
+  sudo nmcli general reload || warn "Could not reload NetworkManager configuration; it will apply after restart."
+fi
+
+# UFW defaults to denying routed traffic.  Libvirt's NAT rule can only
+# masquerade packets that make it through FORWARD, so allow this guest bridge
+# to initiate outbound connections on the active uplink.  Return traffic is
+# still constrained by UFW's established/related rule.
+if command -v ufw >/dev/null 2>&1 && sudo ufw status | grep -q 'Status: active'; then
+  HOST_UPLINK="$(ip route show default | awk '/default/ {print $5; exit}')"
+  if [[ -n "${HOST_UPLINK}" ]] && ! sudo ufw status | grep -Fq 'Windows VM NAT'; then
+    say "Allowing Windows VM NAT through UFW (${HOST_UPLINK})..."
+    sudo ufw route allow in on virbr0 out on "${HOST_UPLINK}" comment 'Windows VM NAT'
+  fi
+fi
 
 # --------------------------------------------------------------------------
 # 9. KWin rule — the piece that decides whether this feels transparent
@@ -347,25 +423,35 @@ else
 fi
 
 # --------------------------------------------------------------------------
-# 10. Next steps
+# 10. One physical key toggles into Windows and back out again.
+# --------------------------------------------------------------------------
+TOGGLE_INPUT="$(find /dev/input/by-id -maxdepth 1 -type l -name '*Dell*event-kbd' -print -quit 2>/dev/null || true)"
+if [[ -n "${TOGGLE_INPUT}" ]]; then
+  say "Installing Ctrl+Alt+F12 desktop-handoff key service..."
+  sudo install -D -m 0755 "${TOGGLE_SCRIPT}" /usr/local/lib/win-vm/win-vm-toggle.py
+  TOGGLE_UNIT="$(sed -e "s|@USER@|${TARGET_USER}|g" -e "s|@HOME@|${USER_HOME}|g" -e "s|@INPUT@|${TOGGLE_INPUT}|g" "${TOGGLE_SERVICE_TEMPLATE}")"
+  printf '%s\n' "${TOGGLE_UNIT}" | sudo tee /etc/systemd/system/win-vm-toggle.service >/dev/null
+  sudo systemctl daemon-reload
+  sudo systemctl enable --now win-vm-toggle.service
+else
+  warn "Dell keyboard input was not found; Pause/Break handoff service was not installed."
+fi
+
+# --------------------------------------------------------------------------
+# 11. Next steps
 # --------------------------------------------------------------------------
 cat <<EOF
 
-[win-vm] ================= DEFINED — Windows is NOT installed yet =================
+[win-vm] ================= READY FOR WINDOWS INSTALL =================
 
-Before first boot, drop two ISOs into ${IMAGES_DIR}/iso/ :
-  win11.iso        Windows 11 **Pro**  (Home has no RDP server — it will not work)
-  virtio-win.iso   https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/
+Windows 11 Pro, VirtIO drivers, RDP, OpenSSH, the virtiofs share and the
+host-local SSH control key are staged. Start it once with:
 
-Then:
-  1. Log out and back in (group membership: libvirt, kvm).
-  2. virt-manager  ->  ${VM_NAME}  ->  boot, install Windows.
-     At the disk step, "Load driver" from the virtio-win CD -> viostor.
-  3. In the guest, run windev-box\\setup-vm-guest.ps1 (elevated). That installs
-     virtio + guest agent + WinFsp/virtiofs, enables RDP, and kills sleep/lock.
-  4. Detach both CDROMs, reboot.
-  5. Back on the host:   winbox
-     -> fullscreen, both monitors, French keyboard, Z: share, clipboard.
+  virsh -c qemu:///system start ${VM_NAME}
+
+The virtual USB installer starts automatically; all Windows installation and
+guest configuration then runs automatically. Once
+RDP becomes reachable, daily use is simply: winbox
 
 Tunables:      ${ENV_FILE}
 Shared drive:  ${WIN_SHARE_DIR}  (host)  ->  Z:  (guest)  ->  ~/winshare symlink

@@ -59,7 +59,7 @@ case "${1:-list}" in
     done < <(lsusb)
     echo
     say "'->' marks devices currently handed to '${VM_NAME}'."
-    say "Configured for auto-attach at boot (WIN_VM_USB): ${WIN_VM_USB:-<none>}"
+    say "Configured for winbox session handoff (WIN_VM_USB): ${WIN_VM_USB:-<none>}"
     ;;
 
   attach)

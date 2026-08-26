@@ -10,8 +10,11 @@ conflicts:
   - gnome
   - xfce
 
-# No dotfiles yet — Plasma stores config in ~/.config/*rc (kwriteconfig6 if needed)
-dotfiles_sync: false
+dotfiles:
+  # Monitors can transiently enumerate their USB hubs when powered on/off.
+  # Keep the device notification but do not play the default information sound.
+  - source: dotfiles/devicenotificationsrc
+    target: ~/.config/devicenotificationsrc
 
 post_install_hook: scripts/setup-kde.sh
 hook_behavior: ask

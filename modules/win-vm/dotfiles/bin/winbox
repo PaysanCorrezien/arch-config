@@ -74,6 +74,7 @@ wait_for_rdp() {
 
 connect() {
   local mode="$1"
+  local status=0
   local -a args=(
     "/v:${VM_IP}"
     "/u:${RDP_USER}"
@@ -114,10 +115,24 @@ connect() {
     args+=( "/size:1600x900" "/dynamic-resolution" )
   fi
 
+  # Give Windows the real selected USB audio device(s) while this desktop is
+  # foregrounded, then return them to Linux as soon as the RDP session exits.
+  if [[ -n "${WIN_VM_USB:-}" ]]; then
+    say "Handing USB audio devices to Windows..."
+    "${HOME}/.local/bin/win-usb" audio || warn "Some USB devices could not be attached."
+  fi
+
   say "Connecting (${mode}) via ${FREERDP}"
   # FreeRDP is chatty on stderr about certs and codecs; keep it out of the way
   # unless something actually fails.
-  exec "${FREERDP}" "${args[@]}"
+  "${FREERDP}" "${args[@]}" || status=$?
+  if [[ -n "${WIN_VM_USB:-}" ]]; then
+    say "Returning USB audio devices to Linux..."
+    for id in ${WIN_VM_USB}; do
+      "${HOME}/.local/bin/win-usb" detach "${id}" || true
+    done
+  fi
+  return "${status}"
 }
 
 case "${1:-}" in

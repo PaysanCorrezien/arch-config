@@ -8,6 +8,7 @@ packages:
   - libvirt
   - virt-manager          # GUI for the guest console (install + recovery only)
   - virt-viewer
+  - vncdotool             # Direct VNC keyboard events for unattended-install recovery
   - dnsmasq               # Required by libvirt's default NAT network
   - iptables-nft          # libvirt network filtering
   - bridge-utils
@@ -27,3 +28,9 @@ packages:
   - usbutils              # lsusb, for finding hostdev vendor:product IDs
   - libguestfs            # Offline guest disk inspection/repair
   - dosfstools            # mkfs.vfat for the OVMF varstore edge cases
+  - parted                # Creates the GPT EFI partition on virtual USB media
+  - xorriso               # Builds the unattended Windows answer CD
+  - 7zip                  # Extracts the user-supplied Windows ISO into virtual USB media
+  - mtools                # Copies the extracted files to the FAT32 virtual USB media
+  - wimlib                # Splits install.wim so the FAT32 UEFI installer is bootable
+  - python-evdev          # Host-level Ctrl+Alt+F12 toggle for the desktop handoff

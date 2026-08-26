@@ -39,18 +39,17 @@ Arch host — KDE Plasma 6 (Wayland), iGPU drives both monitors
 ## Setup
 
 1. **BIOS**: enable SVM. (`Advanced -> CPU Configuration -> SVM Mode`)
-2. `dcli sync` with `host: devbox`, accept the `win-vm` hook.
+2. `dcli sync` with `host: devbox`, accept the `win-vm` hook. It creates an
+   answer CD with the host's public SSH key; no private key enters this repo.
 3. Drop ISOs into `/var/lib/libvirt/images/iso/`:
    - `win11.iso` — must be **Windows 11 Pro**. Home has no RDP server and this
      whole design collapses without it.
    - `virtio-win.iso` — from the [virtio-win direct downloads](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/)
 4. Log out and back in (you were added to `libvirt` and `kvm`).
-5. `winbox --console`, install Windows. At the disk-selection step the disk is
-   invisible until you **Load driver** from the virtio-win CD → `viostor`.
-6. Guest-side configuration is **`windev-box`'s job**, run manually inside the
-   VM once it boots — see `windev-box/setup-vm-guest.ps1`. This module
-   deliberately does not reach into the guest.
-7. Detach both CDROMs, reboot, then `winbox`.
+5. Start the VM. Its generated FAT32 installer disk bypasses the Windows DVD
+   key gate, then Setup runs unattended: partitioning, Windows 11 Pro selection, VirtIO drivers, guest agent, RDP,
+   OpenSSH, the `Z:` virtiofs mount and the `windev-box` guest treatment.
+6. Once `winbox --status` reports RDP reachable, use `winbox` for daily work.
 
 ## Audio — read this before filing a bug
 

@@ -14,6 +14,8 @@ modules/onedrive/dotfiles/systemd/user/openclaw-gateway.service
 # Local state (do not version)
 state/
 .docs/
+__pycache__/
+*.py[cod]
 
 # Nested Neovim config repo (managed separately)
 modules/shell-config/dotfiles/nvim/
