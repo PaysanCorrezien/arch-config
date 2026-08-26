@@ -1,4 +1,4 @@
-description: Resilient client DNS with conditional Tailscale MagicDNS
+description: Resilient client DNS with local dnsmasq and Tailscale MagicDNS
 
 requires:
   - tailscale

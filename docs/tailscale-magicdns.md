@@ -31,9 +31,12 @@ Tailscale's DNS backend priority: systemd-resolved > NetworkManager > **resolvco
 ## Solution: local DNS with conditional MagicDNS
 
 Use `openresolv` to point the host at a local `dnsmasq` cache. Public queries go to
-independent public resolvers. Only the current tailnet's `*.ts.net` suffix is forwarded to
-Tailscale's Quad100 resolver. The Tailscale client is configured with
+independent public resolvers. All `.ts.net` names are forwarded to Tailscale's
+Quad100 resolver. The Tailscale client is configured with
 `--accept-dns=false`, so a broken tailnet resolver cannot take over all host DNS.
+All `.ts.net` lookups are conditionally forwarded to Quad100. This avoids a
+deployment-order bug: MagicDNS works immediately after the first login instead
+of requiring a second module run to discover the tailnet-specific suffix.
 
 The `tailscale-client-dns` setup script handles this automatically on opted-in client hosts.
 For manual setup:
@@ -76,8 +79,9 @@ sudo systemctl restart NetworkManager
 
 ```bash
 sudo pacman -S --needed dnsmasq
-# The setup hook writes /etc/dnsmasq.d/arch-config-tailscale.conf dynamically
-# and configures openresolv to use nameserver 127.0.0.1.
+# The setup hook writes /etc/dnsmasq.d/arch-config-tailscale.conf with a
+# conditional .ts.net route to Quad100 and configures openresolv to use
+# nameserver 127.0.0.1.
 sudo systemctl enable --now dnsmasq
 sudo resolvconf -u
 ```
@@ -89,8 +93,8 @@ sudo systemctl enable --now tailscaled
 sudo tailscale up --accept-dns=false
 ```
 
-Re-run the module hook after first authentication so it can discover the tailnet suffix
-and add conditional MagicDNS forwarding.
+No second module run is needed after authentication: dnsmasq forwards `.ts.net`
+queries to Quad100, which knows the current tailnet's MagicDNS records.
 
 ### Step 6: Verify
 
