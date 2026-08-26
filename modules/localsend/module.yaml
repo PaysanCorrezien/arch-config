@@ -4,6 +4,8 @@
 
 description: LocalSend file sharing with UFW firewall configuration
 
-# Post-install hook for firewall setup
+# LocalSend must be able to receive on the active LAN.  This hook is safe to
+# rerun and follows the current uplink, so it must not wait for an interactive
+# confirmation during a dcli sync.
 post_install_hook: scripts/setup-localsend-firewall.sh
-hook_behavior: ask
+hook_behavior: always
