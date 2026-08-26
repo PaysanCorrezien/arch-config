@@ -102,5 +102,25 @@ if ((Test-Path $viofsService) -and -not (Get-Service -Name VirtioFsSvc -ErrorAct
 }
 Set-Service -Name VirtioFsSvc -StartupType Automatic -ErrorAction SilentlyContinue
 Start-Service -Name VirtioFsSvc -ErrorAction SilentlyContinue
+
+# The KVM integration above must finish before the development bootstrap: it
+# gives that bootstrap its one Drive source, Z:\GoogleDrive. Run the generic
+# windev-box bootstrap once at the next interactive logon, but in VM mode so it
+# does not install Google Drive for Desktop as a second sync client.
+if ($answer) {
+  $bootstrapTask = 'WinVm-DevBootstrap'
+  $bootstrapPath = "{0}:\windev-box\bootstrap.ps1" -f $answer.DriveLetter
+  if (Test-Path $bootstrapPath) {
+    try {
+      $bootstrapArgs = "-NoProfile -ExecutionPolicy Bypass -File `"$bootstrapPath`" -ComputerName `"@VM_NAME@`" -UseHostDriveShare -HostDriveRoot `"Z:\GoogleDrive`" -ManagementSourceRanges `"192.168.122.0/24`" -CompletionTaskName `"$bootstrapTask`""
+      $bootstrapAction = New-ScheduledTaskAction -Execute "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument $bootstrapArgs
+      $bootstrapTrigger = New-ScheduledTaskTrigger -AtLogOn -User ([Security.Principal.WindowsIdentity]::GetCurrent().Name)
+      $bootstrapPrincipal = New-ScheduledTaskPrincipal -UserId ([Security.Principal.WindowsIdentity]::GetCurrent().Name) -LogonType Interactive -RunLevel Highest
+      Register-ScheduledTask -TaskName $bootstrapTask -Action $bootstrapAction -Trigger $bootstrapTrigger -Principal $bootstrapPrincipal -Description 'One-time dev bootstrap for the Windows KVM guest.' -Force | Out-Null
+    } catch { Write-Warning "Could not schedule the Windows dev bootstrap: $($_.Exception.Message)" }
+  } else {
+    Write-Warning 'windev-box bootstrap was not present on the answer media.'
+  }
+}
 Stop-Transcript -ErrorAction SilentlyContinue
 Restart-Computer -Force

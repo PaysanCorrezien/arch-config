@@ -48,7 +48,10 @@ Arch host — KDE Plasma 6 (Wayland), iGPU drives both monitors
 4. Log out and back in (you were added to `libvirt` and `kvm`).
 5. Start the VM. Its generated FAT32 installer disk bypasses the Windows DVD
    key gate, then Setup runs unattended: partitioning, Windows 11 Pro selection, VirtIO drivers, guest agent, RDP,
-   OpenSSH, the `Z:` virtiofs mount and the `windev-box` guest treatment.
+   OpenSSH, the `Z:` virtiofs mount, then the one-time `windev-box` development
+   bootstrap. VM mode installs the normal developer toolchain plus Claude and
+   ChatGPT desktop, but deliberately does **not** install Google Drive for
+   Desktop: Drive is already available at `Z:\GoogleDrive` from the host.
 6. Once `winbox --status` reports RDP reachable, use `winbox` for daily work.
 
 ## Audio — read this before filing a bug
@@ -91,6 +94,11 @@ sides. pnpm's store is symlink-heavy, and a repo checked out on one side and
 built on the other produces failures that look exactly like code bugs. Keep
 repos native to whichever OS builds them; use the share for documents,
 screenshots, logs, and artefacts.
+
+The host's rclone mount makes Google Drive available as `Z:\GoogleDrive`.
+That is the VM's only Drive source; do not add Google Drive for Desktop as a
+second `G:` mount. Use the database from one operating system at a time rather
+than leaving the same KeePass database open on Windows and Linux together.
 
 This is also why `<memoryBacking>` uses `memfd` with `access mode='shared'` —
 virtiofs requires shared memory backing. Converting that to static hugepages

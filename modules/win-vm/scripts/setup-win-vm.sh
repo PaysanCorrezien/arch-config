@@ -23,6 +23,9 @@ fi
 USER_HOME="$(getent passwd "${TARGET_USER}" | cut -d: -f6)"
 USER_UID="$(id -u "${TARGET_USER}")"
 USER_GID="$(id -g "${TARGET_USER}")"
+WINDEV_BOX_DIR="${WINDEV_BOX_DIR:-${USER_HOME}/windev-box}"
+WINDEV_BOOTSTRAP_SCRIPT="${WINDEV_BOX_DIR}/bootstrap.ps1"
+WINDEV_VAULT_SCRIPT="${WINDEV_BOX_DIR}/setup-vault.ps1"
 
 say() { printf '[win-vm] %s\n' "$*"; }
 warn() { printf '[win-vm] WARNING: %s\n' "$*" >&2; }
@@ -105,6 +108,8 @@ INSTALLER_USB_IMAGE="/var/lib/libvirt/images/iso/windows-installer-usb.img"
 [[ -f "${WIN_VM_PASSWORD_FILE}" ]] || die "Create ${WIN_VM_PASSWORD_FILE} (mode 0600) with the Windows password, then re-run this hook."
 WIN_VM_PASSWORD="$(<"${WIN_VM_PASSWORD_FILE}")"
 [[ -n "${WIN_VM_PASSWORD}" ]] || die "${WIN_VM_PASSWORD_FILE} is empty."
+[[ -f "${WINDEV_BOOTSTRAP_SCRIPT}" ]] || die "windev-box bootstrap missing: ${WINDEV_BOOTSTRAP_SCRIPT}"
+[[ -f "${WINDEV_VAULT_SCRIPT}" ]] || die "windev-box vault setup missing: ${WINDEV_VAULT_SCRIPT}"
 
 # --------------------------------------------------------------------------
 # 1. Hardware preflight. Fail loudly and early rather than at `virsh start`.
@@ -235,7 +240,10 @@ UNATTEND_DIR="$(mktemp -d)"
 trap 'rm -rf "${UNATTEND_DIR}"' EXIT
 sed -e "s|@VM_USER@|${WIN_VM_USER}|g" -e "s|@VM_PASSWORD@|${WIN_VM_PASSWORD}|g" \
   "${UNATTEND_TEMPLATE}" > "${UNATTEND_DIR}/Autounattend.xml"
-install -m 0644 "${GUEST_SETUP_SCRIPT}" "${UNATTEND_DIR}/setup-vm-guest.ps1"
+sed "s|@VM_NAME@|${VM_NAME}|g" "${GUEST_SETUP_SCRIPT}" > "${UNATTEND_DIR}/setup-vm-guest.ps1"
+mkdir -p "${UNATTEND_DIR}/windev-box"
+install -m 0644 "${WINDEV_BOOTSTRAP_SCRIPT}" "${UNATTEND_DIR}/windev-box/bootstrap.ps1"
+install -m 0644 "${WINDEV_VAULT_SCRIPT}" "${UNATTEND_DIR}/windev-box/setup-vault.ps1"
 install -m 0644 "${USER_HOME}/.ssh/win-vm-control.pub" "${UNATTEND_DIR}/host-authorized-key.pub"
 sudo xorriso -as mkisofs -quiet -iso-level 3 -J -R -V WINSETUP -o "${UNATTEND_ISO}" "${UNATTEND_DIR}"
 sudo chown "${TARGET_USER}:${TARGET_USER}" "${UNATTEND_ISO}"

@@ -18,6 +18,17 @@ mount_dir="/srv/winshare/GoogleDrive"
 install -d -m 0755 "${mount_dir}"
 install -d -m 0700 "${target_home}/.cache/rclone/gdrive" "${target_home}/.config/rclone"
 
+# The Windows guest reaches this FUSE mount through the root-owned virtiofsd
+# process. `allow_other` is therefore required; FUSE rejects it unless this
+# host-level opt-in is enabled first.
+if ! grep -qxF 'user_allow_other' /etc/fuse.conf 2>/dev/null; then
+  if [ "$(id -u)" -eq 0 ]; then
+    sed -i 's/^#user_allow_other$/user_allow_other/' /etc/fuse.conf
+  else
+    sudo sed -i 's/^#user_allow_other$/user_allow_other/' /etc/fuse.conf
+  fi
+fi
+
 if [ ! -e "${target_home}/GoogleDrive" ] && [ ! -L "${target_home}/GoogleDrive" ]; then
   ln -s "${mount_dir}" "${target_home}/GoogleDrive"
 elif [ -L "${target_home}/GoogleDrive" ] && [ "$(readlink -f "${target_home}/GoogleDrive")" != "${mount_dir}" ]; then

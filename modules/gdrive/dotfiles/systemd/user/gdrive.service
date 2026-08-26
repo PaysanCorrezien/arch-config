@@ -10,7 +10,9 @@ Type=notify
 # The desktop user owns that directory; the OAuth token stays in the private
 # rclone config under %h and is never exposed to the guest.
 ExecStartPre=/usr/bin/mkdir -p /srv/winshare/GoogleDrive %h/.cache/rclone/gdrive
-ExecStart=/usr/bin/rclone mount gdrive: /srv/winshare/GoogleDrive --config %h/.config/rclone/rclone.conf --vfs-cache-mode full --vfs-cache-max-age 24h --vfs-cache-max-size 50G --cache-dir %h/.cache/rclone --dir-cache-time 5m --poll-interval 1m --umask 077
+# `allow-other` lets the root-owned virtiofsd process read the mount on behalf
+# of Windows. Without it Z:\GoogleDrive exists but returns Access denied.
+ExecStart=/usr/bin/rclone mount gdrive: /srv/winshare/GoogleDrive --config %h/.config/rclone/rclone.conf --vfs-cache-mode full --vfs-cache-max-age 24h --vfs-cache-max-size 50G --cache-dir %h/.cache/rclone --dir-cache-time 5m --poll-interval 1m --umask 077 --allow-other
 ExecStop=/usr/bin/fusermount3 -uz /srv/winshare/GoogleDrive
 Restart=on-failure
 RestartSec=10
