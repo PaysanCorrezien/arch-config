@@ -33,6 +33,10 @@ dotfiles:
     target: ~/.local/share/applications/devbox-gmail.desktop
   - source: dotfiles/applications/devbox-gmail.desktop
     target: ~/.local/share/kglobalaccel/devbox-gmail.desktop
+  - source: dotfiles/applications/devbox-email.desktop
+    target: ~/.local/share/applications/devbox-email.desktop
+  - source: dotfiles/applications/devbox-email.desktop
+    target: ~/.local/share/kglobalaccel/devbox-email.desktop
   - source: dotfiles/applications/devbox-x.desktop
     target: ~/.local/share/applications/devbox-x.desktop
   - source: dotfiles/applications/devbox-x.desktop

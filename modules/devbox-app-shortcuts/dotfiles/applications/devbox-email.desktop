@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Email
+Comment=Focus or launch Thunderbird
+Exec=/home/dylan/.local/bin/devbox-focus-or-launch --class thunderbird -- thunderbird
+Icon=org.mozilla.Thunderbird
+StartupWMClass=thunderbird
+Terminal=false
+Categories=Network;Email;
+X-KDE-GlobalAccel-CommandShortcut=true

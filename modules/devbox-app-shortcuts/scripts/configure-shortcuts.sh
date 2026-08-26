@@ -25,7 +25,7 @@ run_as_desktop_user() {
 shortcut_file="$desktop_home/.config/kglobalshortcutsrc"
 
 # These are default positional bindings.  Clear only the ones claimed below.
-for number in 1 2 3 6; do
+for number in 1 2 3 6 9; do
   run_as_desktop_user kwriteconfig6 --file "$shortcut_file" --group plasmashell \
     --key "activate task manager entry $number" "none,none,Activate task manager entry $number"
 done
@@ -44,6 +44,7 @@ declare -A shortcuts=(
   [devbox-claude.desktop]=Meta+3
   [devbox-chatgpt.desktop]=Meta+X
   [devbox-gmail.desktop]=Meta+0
+  [devbox-email.desktop]=Meta+9
   [devbox-x.desktop]=Meta+P
 )
 declare -A key_codes=(
@@ -53,6 +54,7 @@ declare -A key_codes=(
   [devbox-claude.desktop]=268435507   # Meta+3
   [devbox-chatgpt.desktop]=268435544  # Meta+X
   [devbox-gmail.desktop]=268435504    # Meta+0
+  [devbox-email.desktop]=268435513    # Meta+9
   [devbox-x.desktop]=268435536        # Meta+P
 )
 declare -A labels=(
@@ -62,6 +64,7 @@ declare -A labels=(
   [devbox-claude.desktop]='Claude Desktop'
   [devbox-chatgpt.desktop]=ChatGPT
   [devbox-gmail.desktop]=Gmail
+  [devbox-email.desktop]=Email
   [devbox-x.desktop]=X
 )
 for desktop_file in "${!shortcuts[@]}"; do
@@ -88,4 +91,4 @@ for desktop_file in "${!shortcuts[@]}"; do
     "Focus or launch $label" 1 "${key_codes[$desktop_file]}" 0 >/dev/null
 done
 
-echo "[devbox-app-shortcuts] Installed Meta+0/1/2/3/6/X/P application bindings"
+echo "[devbox-app-shortcuts] Installed Meta+0/1/2/3/6/9/X/P application bindings"

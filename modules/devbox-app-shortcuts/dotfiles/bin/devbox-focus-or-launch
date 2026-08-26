@@ -4,18 +4,41 @@
 
 set -euo pipefail
 
-if [[ $# -lt 3 || $1 != "--class" ]]; then
-  echo "Usage: devbox-focus-or-launch --class WINDOW_CLASS -- COMMAND [ARG...]" >&2
-  exit 64
-fi
+window_class=""
+process_regex=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --class)
+      window_class="${2:-}"
+      shift 2
+      ;;
+    --process-regex)
+      process_regex="${2:-}"
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      echo "Usage: devbox-focus-or-launch --class WINDOW_CLASS [--process-regex REGEX] -- COMMAND [ARG...]" >&2
+      exit 64
+      ;;
+  esac
+done
 
-window_class="$2"
-shift 2
-[[ $1 == "--" ]] || { echo "Missing -- before launch command" >&2; exit 64; }
-shift
+[[ -n "$window_class" && $# -gt 0 ]] || { echo "Missing window class or launch command" >&2; exit 64; }
 
 if command -v kdotool >/dev/null 2>&1; then
-  window_id="$(kdotool search --class "$window_class" 2>/dev/null | sed -n '1p' || true)"
+  window_id=""
+  if [[ -n "$process_regex" ]]; then
+    while IFS= read -r process_id; do
+      window_id="$(kdotool search --class --pid "$process_id" --all "$window_class" 2>/dev/null | sed -n '1p' || true)"
+      [[ -n "$window_id" ]] && break
+    done < <(pgrep -f "$process_regex" 2>/dev/null || true)
+  else
+    window_id="$(kdotool search --class "$window_class" 2>/dev/null | sed -n '1p' || true)"
+  fi
   if [[ -n "$window_id" ]]; then
     kdotool windowactivate "$window_id" >/dev/null 2>&1 && exit 0
   fi

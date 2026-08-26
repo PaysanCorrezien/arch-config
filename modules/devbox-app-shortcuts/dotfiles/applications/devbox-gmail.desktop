@@ -1,9 +1,9 @@
 [Desktop Entry]
 Type=Application
 Name=Gmail
-Comment=Focus or launch personal Gmail as a Chromium web app
-Exec=/home/dylan/.local/bin/devbox-focus-or-launch --class chrome-mail.google.com__-Default -- chromium --ozone-platform-hint=auto --app=https://mail.google.com/
-Icon=applications-internet
+Comment=Focus or launch personal Gmail in Helium
+Exec=/home/dylan/.local/bin/devbox-focus-or-launch --class chrome-mail.google.com__-Default --process-regex ^/opt/helium-browser-bin/helium\ --app=https://mail.google.com/ -- helium-browser --app=https://mail.google.com/
+Icon=helium-browser
 StartupWMClass=chrome-mail.google.com__-Default
 Terminal=false
 Categories=Network;Email;
