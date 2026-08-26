@@ -20,11 +20,19 @@ def freerdp_is_active(uid: int) -> bool:
     return result.returncode == 0
 
 
-def send_key(ui: UInput, key: int) -> None:
-    ui.write(ecodes.EV_KEY, key, 1)
-    ui.syn()
-    ui.write(ecodes.EV_KEY, key, 0)
-    ui.syn()
+def stop_winbox(uid: int) -> None:
+    """Return to Linux by ending only the local RDP client.
+
+    Windows continues running and keeps the user session, while the winbox
+    wrapper performs its normal USB-release cleanup.  This is more reliable
+    than trying to synthesize compositor-dependent fullscreen/minimize keys.
+    """
+    subprocess.run(
+        ["pkill", "-TERM", "-u", str(uid), "-f", r"xfreerdp3|xfreerdp|sdl-freerdp3|sdl-freerdp"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
 
 
 def start_winbox(user: str, home: str, runtime_dir: str) -> None:
@@ -65,6 +73,7 @@ def main() -> None:
     ui = UInput.from_device(device, name="win-vm-toggle", phys="win-vm-toggle/input0")
     device.grab()
     last_toggle = 0.0
+    launch_pending_until = 0.0
     held_keys: set[int] = set()
     suppress_f12 = False
 
@@ -84,13 +93,17 @@ def main() -> None:
                         continue
                     last_toggle = time.monotonic()
                     if freerdp_is_active(uid):
-                        # Ctrl and Alt are already relayed as physically held.
-                        # Feed FreeRDP only its two built-in actions: leave
-                        # fullscreen, then minimize back to the Linux desktop.
-                        send_key(ui, ecodes.KEY_ENTER)
-                        time.sleep(0.25)
-                        send_key(ui, ecodes.KEY_M)
+                        print("Ctrl+Alt+F12: returning to Linux desktop", flush=True)
+                        stop_winbox(uid)
+                    elif time.monotonic() < launch_pending_until:
+                        print("Ctrl+Alt+F12: Windows desktop is still opening; ignored", flush=True)
                     else:
+                        print("Ctrl+Alt+F12: opening Windows desktop", flush=True)
+                        # RDP authentication and fullscreen setup take a few
+                        # seconds.  Do not start a second client if the key is
+                        # pressed again before xfreerdp appears in the process
+                        # list.
+                        launch_pending_until = time.monotonic() + 30.0
                         start_winbox(args.user, args.home, runtime_dir)
                     continue
                 if suppress_f12:

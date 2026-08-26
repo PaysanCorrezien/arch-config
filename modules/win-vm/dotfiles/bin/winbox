@@ -24,6 +24,7 @@ ENV_FILE="${HOME}/.config/win-vm/win-vm.env"
 : "${WIN_SHARE_DIR:=/srv/winshare}"
 : "${RDP_USER:=${USER}}"
 : "${RDP_DOMAIN:=}"
+RDP_PASSWORD_FILE="${HOME}/.config/win-vm/windows-password"
 # 0x040C = French (AZERTY). Mismatched layout is the classic first-hour
 # papercut — every symbol key lands somewhere else. Override here if needed.
 : "${RDP_KBD:=0x0000040C}"
@@ -75,10 +76,21 @@ wait_for_rdp() {
 connect() {
   local mode="$1"
   local status=0
+  [[ -r "${RDP_PASSWORD_FILE}" ]] || die "Missing RDP password file: ${RDP_PASSWORD_FILE}"
   local -a args=(
     "/v:${VM_IP}"
     "/u:${RDP_USER}"
-    "/cert:tofu"
+    "/d:${RDP_DOMAIN}"
+    # Read the password from the owner-only file through stdin, never from
+    # the command line (which would expose it in the process list).  This is
+    # essential for the keyboard service, which has no terminal to prompt in.
+    "/from-stdin:force"
+    # The endpoint is the fixed, host-only libvirt guest address.  Windows
+    # regenerates its self-signed certificate during provisioning and its CN
+    # is a Windows computer name rather than this private IP, so TOFU cannot
+    # reconnect non-interactively after a rebuild.  Do not use this profile
+    # for a LAN or Internet RDP target.
+    "/cert:ignore"
 
     # --- Display -----------------------------------------------------------
     # /multimon spans every host monitor and presents each as a real display
@@ -125,7 +137,7 @@ connect() {
   say "Connecting (${mode}) via ${FREERDP}"
   # FreeRDP is chatty on stderr about certs and codecs; keep it out of the way
   # unless something actually fails.
-  "${FREERDP}" "${args[@]}" || status=$?
+  "${FREERDP}" "${args[@]}" < "${RDP_PASSWORD_FILE}" || status=$?
   if [[ -n "${WIN_VM_USB:-}" ]]; then
     say "Returning USB audio devices to Linux..."
     for id in ${WIN_VM_USB}; do
