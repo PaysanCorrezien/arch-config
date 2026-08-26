@@ -1,0 +1,4 @@
+description: Dependencies for dedicated Plasma Wayland application shortcuts
+
+packages:
+  - kdotool # Wayland-native KWin window search/activation helper (AUR)

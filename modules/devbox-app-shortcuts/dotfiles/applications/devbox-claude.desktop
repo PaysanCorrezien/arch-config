@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Claude Desktop
+Comment=Focus or launch the native Claude Desktop application
+Exec=/home/dylan/.local/bin/devbox-focus-or-launch --class com.anthropic.Claude -- claude-desktop
+Icon=claude-desktop
+StartupWMClass=com.anthropic.Claude
+Terminal=false
+Categories=Development;
+X-KDE-GlobalAccel-CommandShortcut=true

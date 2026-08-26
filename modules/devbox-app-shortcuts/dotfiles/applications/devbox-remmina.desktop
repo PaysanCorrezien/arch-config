@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Remmina
+Comment=Focus or launch Remmina
+Exec=/home/dylan/.local/bin/devbox-focus-or-launch --class remmina -- remmina
+Icon=org.remmina.Remmina
+StartupWMClass=remmina
+Terminal=false
+Categories=Network;RemoteAccess;
+X-KDE-GlobalAccel-CommandShortcut=true

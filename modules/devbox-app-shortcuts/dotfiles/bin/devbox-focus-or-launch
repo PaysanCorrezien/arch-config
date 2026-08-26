@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Focus an existing Plasma Wayland window, otherwise launch the supplied app.
+# kdotool uses KWin's scripting API, so this works without X11/wmctrl.
+
+set -euo pipefail
+
+if [[ $# -lt 3 || $1 != "--class" ]]; then
+  echo "Usage: devbox-focus-or-launch --class WINDOW_CLASS -- COMMAND [ARG...]" >&2
+  exit 64
+fi
+
+window_class="$2"
+shift 2
+[[ $1 == "--" ]] || { echo "Missing -- before launch command" >&2; exit 64; }
+shift
+
+if command -v kdotool >/dev/null 2>&1; then
+  window_id="$(kdotool search --class "$window_class" 2>/dev/null | sed -n '1p' || true)"
+  if [[ -n "$window_id" ]]; then
+    kdotool windowactivate "$window_id" >/dev/null 2>&1 && exit 0
+  fi
+fi
+
+exec "$@"

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=X
+Comment=Focus or launch X as a Chromium web app
+Exec=/home/dylan/.local/bin/devbox-focus-or-launch --class chrome-x.com__-Default -- chromium --ozone-platform-hint=auto --app=https://x.com/
+Icon=applications-internet
+StartupWMClass=chrome-x.com__-Default
+Terminal=false
+Categories=Network;News;
+X-KDE-GlobalAccel-CommandShortcut=true

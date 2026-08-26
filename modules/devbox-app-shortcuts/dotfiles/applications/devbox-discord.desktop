@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Discord
+Comment=Focus or launch Vesktop
+Exec=/home/dylan/.local/bin/devbox-focus-or-launch --class vesktop -- vesktop
+Icon=vesktop
+StartupWMClass=vesktop
+Terminal=false
+Categories=Network;InstantMessaging;
+X-KDE-GlobalAccel-CommandShortcut=true

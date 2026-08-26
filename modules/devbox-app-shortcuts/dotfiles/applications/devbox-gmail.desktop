@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Gmail
+Comment=Focus or launch personal Gmail as a Chromium web app
+Exec=/home/dylan/.local/bin/devbox-focus-or-launch --class chrome-mail.google.com__-Default -- chromium --ozone-platform-hint=auto --app=https://mail.google.com/
+Icon=applications-internet
+StartupWMClass=chrome-mail.google.com__-Default
+Terminal=false
+Categories=Network;Email;
+X-KDE-GlobalAccel-CommandShortcut=true

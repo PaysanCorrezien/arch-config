@@ -34,6 +34,7 @@ enabled_modules:
   - user-profile             # User profile picture (.face)
   - espanso                  # Text expander (Wayland)
   - webapps                  # PWA launchers for web services
+  - devbox-app-shortcuts     # Dedicated Meta-key focus-or-launch bindings
   - kde-remote-desktop       # KRDP over Tailscale — reach the HOST remotely
   - devbox-kde-display       # Stable 60 Hz DP/MST layout for the two displays
   - localsend                # Cross-platform file transfer

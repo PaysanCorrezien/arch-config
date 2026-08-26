@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=ChatGPT
+Comment=Focus or launch ChatGPT as a Chromium web app
+Exec=/home/dylan/.local/bin/devbox-focus-or-launch --class chrome-chatgpt.com__-Default -- chromium --ozone-platform-hint=auto --app=https://chatgpt.com/
+Icon=applications-internet
+StartupWMClass=chrome-chatgpt.com__-Default
+Terminal=false
+Categories=Network;
+X-KDE-GlobalAccel-CommandShortcut=true

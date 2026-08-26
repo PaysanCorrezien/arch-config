@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Terminal
+Comment=Focus or launch Ghostty
+Exec=/home/dylan/.local/bin/devbox-focus-or-launch --class com.mitchellh.ghostty -- ghostty --gtk-single-instance=true
+Icon=com.mitchellh.ghostty
+StartupWMClass=com.mitchellh.ghostty
+Terminal=false
+Categories=System;TerminalEmulator;
+X-KDE-GlobalAccel-CommandShortcut=true

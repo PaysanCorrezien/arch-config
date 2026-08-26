@@ -1,0 +1,42 @@
+# Devbox-only application bindings for Plasma Wayland.
+#
+# Each launcher declares its own KDE global shortcut.  The launch command goes
+# through devbox-focus-or-launch so a running window is activated instead of a
+# second instance being started.
+
+description: Dedicated Plasma Wayland app shortcuts and Chromium web apps
+
+dotfiles:
+  - source: dotfiles/bin/devbox-focus-or-launch
+    target: ~/.local/bin/devbox-focus-or-launch
+  - source: dotfiles/applications/devbox-discord.desktop
+    target: ~/.local/share/applications/devbox-discord.desktop
+  - source: dotfiles/applications/devbox-discord.desktop
+    target: ~/.local/share/kglobalaccel/devbox-discord.desktop
+  - source: dotfiles/applications/devbox-terminal.desktop
+    target: ~/.local/share/applications/devbox-terminal.desktop
+  - source: dotfiles/applications/devbox-terminal.desktop
+    target: ~/.local/share/kglobalaccel/devbox-terminal.desktop
+  - source: dotfiles/applications/devbox-remmina.desktop
+    target: ~/.local/share/applications/devbox-remmina.desktop
+  - source: dotfiles/applications/devbox-remmina.desktop
+    target: ~/.local/share/kglobalaccel/devbox-remmina.desktop
+  - source: dotfiles/applications/devbox-claude.desktop
+    target: ~/.local/share/applications/devbox-claude.desktop
+  - source: dotfiles/applications/devbox-claude.desktop
+    target: ~/.local/share/kglobalaccel/devbox-claude.desktop
+  - source: dotfiles/applications/devbox-chatgpt.desktop
+    target: ~/.local/share/applications/devbox-chatgpt.desktop
+  - source: dotfiles/applications/devbox-chatgpt.desktop
+    target: ~/.local/share/kglobalaccel/devbox-chatgpt.desktop
+  - source: dotfiles/applications/devbox-gmail.desktop
+    target: ~/.local/share/applications/devbox-gmail.desktop
+  - source: dotfiles/applications/devbox-gmail.desktop
+    target: ~/.local/share/kglobalaccel/devbox-gmail.desktop
+  - source: dotfiles/applications/devbox-x.desktop
+    target: ~/.local/share/applications/devbox-x.desktop
+  - source: dotfiles/applications/devbox-x.desktop
+    target: ~/.local/share/kglobalaccel/devbox-x.desktop
+
+post_install_hook: scripts/configure-shortcuts.sh
+hook_behavior: always
