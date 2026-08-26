@@ -18,6 +18,8 @@ conflicts:
   - winapps          # winapps runs its own dockurr/windows on :3389 — mutually exclusive
 
 dotfiles:
+  - source: dotfiles/config/win-vm/win-vm.env
+    target: ~/.config/win-vm/win-vm.env
   - source: dotfiles/bin/winbox
     target: ~/.local/bin/winbox
   - source: dotfiles/bin/win-usb
