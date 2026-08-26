@@ -15,6 +15,10 @@ dotfiles:
   # Keep the device notification but do not play the default information sound.
   - source: dotfiles/devicenotificationsrc
     target: ~/.config/devicenotificationsrc
+  # KWin owns the Wayland keymap, but XWayland needs an explicit map in this
+  # session to keep legacy/X11 applications on the French layout too.
+  - source: dotfiles/systemd/user/xwayland-keymap.service
+    target: ~/.config/systemd/user/xwayland-keymap.service
 
 post_install_hook: scripts/setup-kde.sh
 hook_behavior: ask

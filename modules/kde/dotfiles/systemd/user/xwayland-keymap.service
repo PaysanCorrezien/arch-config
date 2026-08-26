@@ -1,0 +1,11 @@
+[Unit]
+Description=Apply the French keyboard map to XWayland
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/setxkbmap -layout fr,us -variant ,altgr-intl -option grp:win_space_toggle
+
+[Install]
+WantedBy=graphical-session.target
