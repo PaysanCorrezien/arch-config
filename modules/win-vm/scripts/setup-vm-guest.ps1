@@ -60,6 +60,18 @@ if ($answer) {
   icacls $auth /inheritance:r /grant '*S-1-5-32-544:F' /grant '*S-1-5-18:F' | Out-Null
 }
 New-NetFirewallRule -DisplayName 'win-vm SSH from KVM host' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22 -RemoteAddress '192.168.122.0/24' -Profile Any -ErrorAction SilentlyContinue | Out-Null
+# WinGet's source bundle is initialized per interactive user session.  Running
+# its first source refresh through Windows OpenSSH can leave the source cache
+# empty (0x8a15000f), so schedule that first refresh at the user's next desktop
+# logon instead.  The task deletes itself after succeeding.
+try {
+  $wingetTask = 'WindevBox-InitializeWinget'
+  $wingetUser = [Security.Principal.WindowsIdentity]::GetCurrent().Name
+  $wingetAction = New-ScheduledTaskAction -Execute "$env:SystemRoot\System32\cmd.exe" -Argument "/c winget source reset --force && winget source update && schtasks /Delete /TN $wingetTask /F"
+  $wingetTrigger = New-ScheduledTaskTrigger -AtLogOn -User $wingetUser
+  $wingetPrincipal = New-ScheduledTaskPrincipal -UserId $wingetUser -LogonType Interactive -RunLevel Limited
+  Register-ScheduledTask -TaskName $wingetTask -Action $wingetAction -Trigger $wingetTrigger -Principal $wingetPrincipal -Description 'Initialize WinGet sources from an interactive Windows desktop session.' -Force | Out-Null
+} catch { Write-Warning "Could not schedule interactive WinGet initialization: $($_.Exception.Message)" }
 powercfg /hibernate off; powercfg -change -standby-timeout-ac 0; powercfg -change -monitor-timeout-ac 0
 Start-Sleep -Seconds 5
 # WinFsp is optional for the first bootstrap: it needs internet access, whereas
