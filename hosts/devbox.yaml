@@ -81,6 +81,7 @@ aur_helper: paru
 # Services to enable
 services:
   enabled:
+    - sshd                    # Windows guest -> host over the private libvirt bridge only
     - tailscaled             # Tailnet access, KRDP binding, and MagicDNS
     - bluetooth             # Host BT. See win-vm README: if the guest takes the
                             # radio via USB hostdev, the host loses BT while the

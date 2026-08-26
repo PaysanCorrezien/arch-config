@@ -391,6 +391,18 @@ if command -v ufw >/dev/null 2>&1 && sudo ufw status | grep -q 'Status: active';
   fi
 fi
 
+# After the guest bootstrap exports its public key to the virtiofs exchange,
+# a normal dcli re-run makes SSH work in both directions without ever tracking
+# a private key.  During first installation the export is not present yet, so
+# this is intentionally a non-failing later phase.
+GUEST_SSH_PUBLIC_KEY="${WIN_SHARE_DIR}/exchange/windows-id_ed25519.pub"
+if [[ -f "${GUEST_SSH_PUBLIC_KEY}" ]]; then
+  say "Authorizing the Windows guest key for host-local SSH..."
+  "${MODULE_DIR}/scripts/setup-host-guest-ssh.sh" < "${GUEST_SSH_PUBLIC_KEY}"
+else
+  say "Guest SSH key export not present yet; it will be authorized on the next dcli sync."
+fi
+
 # --------------------------------------------------------------------------
 # 9. KWin rule — the piece that decides whether this feels transparent
 # --------------------------------------------------------------------------
