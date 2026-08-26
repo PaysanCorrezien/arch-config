@@ -1,0 +1,10 @@
+# Google Drive Module
+# rclone-backed user mount. OAuth credentials remain only in
+# ~/.config/rclone/rclone.conf and are never committed.
+
+description: Google Drive mount via rclone
+
+dotfiles_sync: true
+
+post_install_hook: scripts/setup-gdrive.sh
+hook_behavior: ask

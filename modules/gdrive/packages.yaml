@@ -1,0 +1,5 @@
+description: Google Drive client and FUSE mount support
+
+packages:
+  - rclone
+  - fuse3
