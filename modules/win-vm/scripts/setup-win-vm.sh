@@ -71,9 +71,10 @@ WIN_SHARE_DIR="/srv/winshare"
 # Leave empty on first run, then fill it in — you need the guest booted once to
 # know what you actually want over there.
 #
-# Typical members: a USB audio interface or headset, a monitor's built-in USB
-# hub, or the onboard Bluetooth radio (which enumerates as USB, so a Bluetooth
-# headset can be given to the guest by handing over the radio itself).
+# Typical members: a USB audio interface or headset, a security key, a
+# monitor's built-in USB hub, or the onboard Bluetooth radio (which enumerates
+# as USB, so a Bluetooth headset can be given to the guest by handing over the
+# radio itself).
 #
 #   lsusb                    list candidates
 #   lsusb | grep -i blue     find the Bluetooth radio
@@ -328,10 +329,10 @@ say "  host keeps cpus ${HOST_CPUSET}; guest gets ${VCPUS} vCPU (${GUEST_CORES}c
 # --------------------------------------------------------------------------
 HOSTDEV=""
 if [[ -n "${WIN_VM_USB}" ]]; then
-  say "  USB devices will attach only while winbox is open: ${WIN_VM_USB}"
+  say "  USB peripherals will attach only while winbox is open: ${WIN_VM_USB}"
 else
   HOSTDEV=""
-  warn "WIN_VM_USB is empty — the guest will fall back to emulated HDA over PipeWire."
+  warn "WIN_VM_USB is empty — no physical USB peripherals will follow winbox."
   warn "That is fine for playback, but NOT a faithful capture path for dictation work."
 fi
 

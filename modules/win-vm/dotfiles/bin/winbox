@@ -127,11 +127,13 @@ connect() {
     args+=( "/size:1600x900" "/dynamic-resolution" )
   fi
 
-  # Give Windows the real selected USB audio device(s) while this desktop is
+  # Give Windows the selected real USB peripherals while its desktop is
   # foregrounded, then return them to Linux as soon as the RDP session exits.
+  # This includes security keys, so WebAuthn/smart-card use is native to Windows
+  # rather than an RDP redirection approximation.
   if [[ -n "${WIN_VM_USB:-}" ]]; then
-    say "Handing USB audio devices to Windows..."
-    "${HOME}/.local/bin/win-usb" audio || warn "Some USB devices could not be attached."
+    say "Handing USB peripherals to Windows..."
+    "${HOME}/.local/bin/win-usb" session || warn "Some USB peripherals could not be attached."
   fi
 
   say "Connecting (${mode}) via ${FREERDP}"
@@ -139,7 +141,7 @@ connect() {
   # unless something actually fails.
   "${FREERDP}" "${args[@]}" < "${RDP_PASSWORD_FILE}" || status=$?
   if [[ -n "${WIN_VM_USB:-}" ]]; then
-    say "Returning USB audio devices to Linux..."
+    say "Returning USB peripherals to Linux..."
     for id in ${WIN_VM_USB}; do
       "${HOME}/.local/bin/win-usb" detach "${id}" || true
     done

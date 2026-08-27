@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 # win-usb — hot-plug USB devices between the Arch host and the Windows guest.
 #
-# This is the real audio path. RDP's /sound and /microphone redirection is
-# resampled and buffered; handing Windows the actual device is not. A Bluetooth
+# Attach physical USB peripherals to the guest while it is in use. This makes a
+# device native to Windows: unlike RDP smart-card/FIDO or audio redirection, its
+# protocol is not translated through the remote-desktop session. A Bluetooth
 # headset cannot be passed directly — it is not a USB device. Pass the HOST'S
 # BLUETOOTH RADIO instead, and Windows pairs the headset itself, owning HFP/A2DP.
 #
 #   win-usb list                    devices on the host, marked if attached
 #   win-usb attach 1234:abcd        hand a device to the guest
 #   win-usb detach 1234:abcd        take it back
-#   win-usb audio                   attach everything in WIN_VM_USB at once
+#   win-usb session                 attach everything in WIN_VM_USB at once
+#   win-usb audio                   compatibility alias for `session`
 #
 # NOTE: while the Bluetooth radio is attached to the guest, the HOST has no
 # Bluetooth. That is inherent — a radio has one owner. A second USB BT dongle
@@ -47,6 +49,11 @@ attached_ids() {
     | paste -d: - - 2>/dev/null || true
 }
 
+is_attached() {
+  local id="$1"
+  attached_ids | grep -Fxiq "${id}"
+}
+
 case "${1:-list}" in
   list)
     mapfile -t ATTACHED < <(attached_ids)
@@ -66,6 +73,10 @@ case "${1:-list}" in
     [[ -n "${2:-}" ]] || die "usage: win-usb attach <vendor:product>"
     require_running
     lsusb -d "$2" >/dev/null 2>&1 || die "Device $2 is not plugged into the host."
+    if is_attached "$2"; then
+      say "$2 is already attached to ${VM_NAME}."
+      exit 0
+    fi
     "${VIRSH[@]}" attach-device "${VM_NAME}" /dev/stdin <<< "$(devxml "$2")"
     say "Attached $2 to ${VM_NAME}."
     ;;
@@ -77,13 +88,17 @@ case "${1:-list}" in
     say "Detached $2 — back on the host."
     ;;
 
-  audio)
+  session|audio)
     [[ -n "${WIN_VM_USB}" ]] || die "WIN_VM_USB is empty in ${ENV_FILE}. Run 'win-usb list' and fill it in."
     require_running
     for id in ${WIN_VM_USB}; do
       if lsusb -d "${id}" >/dev/null 2>&1; then
-        "${VIRSH[@]}" attach-device "${VM_NAME}" /dev/stdin <<< "$(devxml "${id}")" \
-          && say "  attached ${id}" || warn "  failed ${id} (already attached?)"
+        if is_attached "${id}"; then
+          say "  ${id} is already attached"
+        else
+          "${VIRSH[@]}" attach-device "${VM_NAME}" /dev/stdin <<< "$(devxml "${id}")" \
+            && say "  attached ${id}" || warn "  failed ${id}"
+        fi
       else
         warn "  ${id} not plugged in — skipped"
       fi

@@ -21,7 +21,7 @@ Arch host — KDE Plasma 6 (Wayland), iGPU drives both monitors
 └── libvirt / KVM
     └── windows                4c/8t pinned, 32 GB, no GPU
         ├── virtiofs           /srv/winshare  ->  Z:
-        ├── USB hostdev        audio devices, BT radio  -> real audio
+        ├── USB hostdev        session peripherals      -> real USB devices
         └── RDP :3389          <- winbox, fullscreen, /multimon
 ```
 
@@ -63,7 +63,10 @@ Roughly 20–40 ms, resampled on the way in. Fine for system sounds, calls, and
 playback.
 
 **USB hostdev passthrough.** Windows gets the real device. This is the only
-honest path for anything where capture fidelity or latency matters.
+honest path for anything where capture fidelity or latency matters. It is also
+how a YubiKey follows `winbox`: add its `vendor:product` ID to `WIN_VM_USB` and
+it becomes a native Windows security key for the duration of that fullscreen
+session, then returns to Linux when it ends.
 
 A **Bluetooth** headset cannot be passed directly — it is not a USB device, it
 is a profile negotiated by the host's radio. Pass the **radio** instead (it

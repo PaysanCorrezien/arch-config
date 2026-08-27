@@ -204,8 +204,8 @@
     <!-- ===================== USB passthrough ===================== -->
     <!-- Populated by scripts/setup-win-vm.sh from WIN_VM_USB in the module
          env file, and hot-pluggable at runtime with `win-usb attach <id>`.
-         Typical members: a USB audio device, a monitor's USB hub, or the
-         onboard Bluetooth radio (which lets the guest own BT headsets). -->
+         Typical members: a USB audio device, security key, monitor USB hub,
+         or the onboard Bluetooth radio (which lets the guest own BT headsets). -->
 @HOSTDEV@
 
     <!-- ===================== Guest agent ===================== -->
