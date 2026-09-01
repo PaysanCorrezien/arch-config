@@ -432,11 +432,11 @@ else
 fi
 
 # --------------------------------------------------------------------------
-# 10. One physical key toggles into Windows and back out again.
+# 10. One passive physical-key listener toggles into Windows and back out.
 # --------------------------------------------------------------------------
 TOGGLE_INPUT="$(find /dev/input/by-id -maxdepth 1 -type l -name '*Dell*event-kbd' -print -quit 2>/dev/null || true)"
 if [[ -n "${TOGGLE_INPUT}" ]]; then
-  say "Installing Ctrl+Alt+F12 desktop-handoff key service..."
+  say "Installing Meta+Shift+F12 desktop-handoff key service..."
   sudo install -D -m 0755 "${TOGGLE_SCRIPT}" /usr/local/lib/win-vm/win-vm-toggle.py
   TOGGLE_UNIT="$(sed -e "s|@USER@|${TARGET_USER}|g" -e "s|@HOME@|${USER_HOME}|g" -e "s|@INPUT@|${TOGGLE_INPUT}|g" "${TOGGLE_SERVICE_TEMPLATE}")"
   printf '%s\n' "${TOGGLE_UNIT}" | sudo tee /etc/systemd/system/win-vm-toggle.service >/dev/null

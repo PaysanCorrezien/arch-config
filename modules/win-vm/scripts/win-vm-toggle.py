@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reserve Ctrl+Alt+F12 as the one-key Linux <-> Windows desktop handoff."""
+"""Reserve Meta+Shift+F12 as the one-key Linux <-> Windows desktop handoff."""
 
 import argparse
 import os
@@ -7,7 +7,7 @@ import subprocess
 import time
 from glob import glob as find_glob
 
-from evdev import InputDevice, UInput, ecodes
+from evdev import InputDevice, ecodes
 
 
 def freerdp_is_active(uid: int) -> bool:
@@ -70,13 +70,9 @@ def main() -> None:
     uid = os.stat(args.home).st_uid
     runtime_dir = f"/run/user/{uid}"
     device = InputDevice(args.input)
-    ui = UInput.from_device(device, name="win-vm-toggle", phys="win-vm-toggle/input0")
-    device.grab()
     last_toggle = 0.0
     launch_pending_until = 0.0
     held_keys: set[int] = set()
-    suppress_f12 = False
-    suppress_ctrl_alt_delete = False
 
     for event in device.read_loop():
         if event.type == ecodes.EV_KEY:
@@ -85,57 +81,32 @@ def main() -> None:
             elif event.value == 0:
                 held_keys.discard(event.code)
 
-            ctrl_held = bool({ecodes.KEY_LEFTCTRL, ecodes.KEY_RIGHTCTRL} & held_keys)
-            alt_held = bool({ecodes.KEY_LEFTALT, ecodes.KEY_RIGHTALT} & held_keys)
-
-            # The virtual keyboard is visible to systemd-logind.  Letting this
-            # chord through sends SIGINT to PID 1 and starts reboot.target,
-            # even if the user intended it for the RDP session.  FreeRDP's
-            # Ctrl+Alt+End shortcut remains available for Windows secure
-            # attention instead.
-            if event.code == ecodes.KEY_DELETE:
-                if event.value == 1 and ctrl_held and alt_held:
-                    suppress_ctrl_alt_delete = True
-                    print(
-                        "Ctrl+Alt+Delete: suppressed on the Linux host; "
-                        "use Ctrl+Alt+End for Windows",
-                        flush=True,
-                    )
-                    continue
-                if suppress_ctrl_alt_delete:
-                    if event.value == 0:
-                        suppress_ctrl_alt_delete = False
-                    continue
-
+            meta_held = bool({ecodes.KEY_LEFTMETA, ecodes.KEY_RIGHTMETA} & held_keys)
+            shift_held = bool({ecodes.KEY_LEFTSHIFT, ecodes.KEY_RIGHTSHIFT} & held_keys)
             if event.code == ecodes.KEY_F12:
-                if event.value == 1 and ctrl_held and alt_held:
-                    suppress_f12 = True
+                if event.value == 1 and meta_held and shift_held:
                     if time.monotonic() - last_toggle < 1.0:
                         continue
                     last_toggle = time.monotonic()
                     if freerdp_is_active(uid):
-                        print("Ctrl+Alt+F12: returning to Linux desktop", flush=True)
+                        print("Meta+Shift+F12: returning to Linux desktop", flush=True)
                         stop_winbox(uid)
                     elif time.monotonic() < launch_pending_until:
-                        print("Ctrl+Alt+F12: Windows desktop is still opening; ignored", flush=True)
+                        print("Meta+Shift+F12: Windows desktop is still opening; ignored", flush=True)
                     else:
-                        print("Ctrl+Alt+F12: opening Windows desktop", flush=True)
+                        print("Meta+Shift+F12: opening Windows desktop", flush=True)
                         # RDP authentication and fullscreen setup take a few
                         # seconds.  Do not start a second client if the key is
                         # pressed again before xfreerdp appears in the process
                         # list.
                         launch_pending_until = time.monotonic() + 30.0
                         start_winbox(args.user, args.home, runtime_dir)
-                    continue
-                if suppress_f12:
-                    if event.value == 0:
-                        suppress_f12 = False
-                    continue
 
-        if event.type == ecodes.EV_SYN:
-            ui.syn()
-            continue
-        ui.write_event(event)
+        # This is deliberately a passive observer.  Never grab and recreate
+        # the user's keyboard: injecting a virtual keyboard exposed both the
+        # Ctrl+Alt+Delete reboot path and Ctrl+Alt+F12's virtual-console path.
+        # Meta+Shift+F12 is not a kernel console chord and works even when the
+        # fullscreen RDP window suppresses Plasma global shortcuts.
 
 
 if __name__ == "__main__":

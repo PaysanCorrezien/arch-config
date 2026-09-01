@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # winbox — bring up the Windows guest and drop into it fullscreen, both monitors.
 #
-# This is the daily-driver entry point. Bind it to a KDE global shortcut
-# (System Settings -> Shortcuts -> Custom -> `winbox`) and it becomes the
-# "switch to Windows" key.
+# This is the daily-driver entry point.  The win-vm module's passive
+# Meta+Shift+F12 listener makes it the "switch to Windows" key without
+# grabbing or recreating the host keyboard.
 #
 #   winbox              start if needed, connect fullscreen multi-monitor
 #   winbox --window     connect windowed (useful for a quick glance)
@@ -96,9 +96,13 @@ connect() {
     # /multimon spans every host monitor and presents each as a real display
     # to Windows, with correct geometry. Do NOT add +dynamic-resolution: it is
     # a single-monitor feature and fights /multimon.
-    "/gfx:avc444"
+    # The CachyOS FreeRDP build marks VAAPI H.264 decoding experimental and
+    # warns that it may crash.  This desktop has an AMD iGPU that also drives
+    # the Plasma session, so retain it for the compositor and decode RDP in
+    # software instead of risking a whole-host GPU hang.
+    "/gdi:sw"
+    "/gfx:AVC420:off,AVC444:off"
     "/network:lan"
-    "/video"
 
     # --- Input -------------------------------------------------------------
     "/kbd:layout:${RDP_KBD}"

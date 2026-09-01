@@ -1,5 +1,5 @@
 [Unit]
-Description=Ctrl+Alt+F12 Linux to Windows desktop handoff
+Description=Meta+Shift+F12 Linux to Windows desktop handoff
 # Do not order this after graphical.target while also enabling it from
 # multi-user.target: graphical.target itself depends on multi-user.target,
 # which creates a boot cycle and prevents the key service from ever starting.
