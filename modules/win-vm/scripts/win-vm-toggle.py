@@ -76,6 +76,7 @@ def main() -> None:
     launch_pending_until = 0.0
     held_keys: set[int] = set()
     suppress_f12 = False
+    suppress_ctrl_alt_delete = False
 
     for event in device.read_loop():
         if event.type == ecodes.EV_KEY:
@@ -86,6 +87,26 @@ def main() -> None:
 
             ctrl_held = bool({ecodes.KEY_LEFTCTRL, ecodes.KEY_RIGHTCTRL} & held_keys)
             alt_held = bool({ecodes.KEY_LEFTALT, ecodes.KEY_RIGHTALT} & held_keys)
+
+            # The virtual keyboard is visible to systemd-logind.  Letting this
+            # chord through sends SIGINT to PID 1 and starts reboot.target,
+            # even if the user intended it for the RDP session.  FreeRDP's
+            # Ctrl+Alt+End shortcut remains available for Windows secure
+            # attention instead.
+            if event.code == ecodes.KEY_DELETE:
+                if event.value == 1 and ctrl_held and alt_held:
+                    suppress_ctrl_alt_delete = True
+                    print(
+                        "Ctrl+Alt+Delete: suppressed on the Linux host; "
+                        "use Ctrl+Alt+End for Windows",
+                        flush=True,
+                    )
+                    continue
+                if suppress_ctrl_alt_delete:
+                    if event.value == 0:
+                        suppress_ctrl_alt_delete = False
+                    continue
+
             if event.code == ecodes.KEY_F12:
                 if event.value == 1 and ctrl_held and alt_held:
                     suppress_f12 = True
