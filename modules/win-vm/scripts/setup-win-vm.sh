@@ -374,8 +374,11 @@ fi
 
 say "Defining domain '${VM_NAME}'..."
 sudo virsh define "${WORK_XML}" >/dev/null
-sudo virsh autostart "${VM_NAME}" >/dev/null 2>&1 || true
-say "  defined (uuid ${UUID})"
+# The guest is intentionally demand-only.  winbox (normally reached through
+# Meta+Shift+F12) starts it when required; it must not consume host resources
+# after an unrelated host boot.
+sudo virsh autostart --disable "${VM_NAME}" >/dev/null 2>&1 || true
+say "  defined (uuid ${UUID}; demand-only, no host-boot autostart)"
 
 # NetworkManager must leave libvirt's bridge and ephemeral vnet taps alone.
 # Otherwise it may adopt a tap after boot and detach it from virbr0, leaving a
@@ -434,17 +437,12 @@ fi
 # --------------------------------------------------------------------------
 # 10. One passive physical-key listener toggles into Windows and back out.
 # --------------------------------------------------------------------------
-TOGGLE_INPUT="$(find /dev/input/by-id -maxdepth 1 -type l -name '*Dell*event-kbd' -print -quit 2>/dev/null || true)"
-if [[ -n "${TOGGLE_INPUT}" ]]; then
-  say "Installing Meta+Shift+F12 desktop-handoff key service..."
-  sudo install -D -m 0755 "${TOGGLE_SCRIPT}" /usr/local/lib/win-vm/win-vm-toggle.py
-  TOGGLE_UNIT="$(sed -e "s|@USER@|${TARGET_USER}|g" -e "s|@HOME@|${USER_HOME}|g" -e "s|@INPUT@|${TOGGLE_INPUT}|g" "${TOGGLE_SERVICE_TEMPLATE}")"
-  printf '%s\n' "${TOGGLE_UNIT}" | sudo tee /etc/systemd/system/win-vm-toggle.service >/dev/null
-  sudo systemctl daemon-reload
-  sudo systemctl enable --now win-vm-toggle.service
-else
-  warn "Dell keyboard input was not found; Pause/Break handoff service was not installed."
-fi
+say "Installing Meta+Shift+F12 desktop-handoff key service..."
+sudo install -D -m 0755 "${TOGGLE_SCRIPT}" /usr/local/lib/win-vm/win-vm-toggle.py
+TOGGLE_UNIT="$(sed -e "s|@USER@|${TARGET_USER}|g" -e "s|@HOME@|${USER_HOME}|g" -e "s|@VM_NAME@|${VM_NAME}|g" "${TOGGLE_SERVICE_TEMPLATE}")"
+printf '%s\n' "${TOGGLE_UNIT}" | sudo tee /etc/systemd/system/win-vm-toggle.service >/dev/null
+sudo systemctl daemon-reload
+sudo systemctl enable --now win-vm-toggle.service
 
 # --------------------------------------------------------------------------
 # 11. Next steps

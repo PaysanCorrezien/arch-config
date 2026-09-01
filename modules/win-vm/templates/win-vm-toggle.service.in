@@ -8,7 +8,7 @@ Wants=systemd-user-sessions.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /usr/local/lib/win-vm/win-vm-toggle.py --user @USER@ --home @HOME@ --input @INPUT@
+ExecStart=/usr/bin/python3 /usr/local/lib/win-vm/win-vm-toggle.py --user @USER@ --home @HOME@ --vm @VM_NAME@
 Restart=always
 RestartSec=2
 

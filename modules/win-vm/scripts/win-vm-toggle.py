@@ -20,15 +20,22 @@ def freerdp_is_active(uid: int) -> bool:
     return result.returncode == 0
 
 
-def stop_winbox(uid: int) -> None:
-    """Return to Linux by ending only the local RDP client.
+def stop_winbox(uid: int, vm_name: str) -> None:
+    """Return to Linux and request a graceful shutdown of the Windows guest.
 
-    Windows continues running and keeps the user session, while the winbox
-    wrapper performs its normal USB-release cleanup.  This is more reliable
-    than trying to synthesize compositor-dependent fullscreen/minimize keys.
+    The VM is intentionally demand-only: a second hotkey press ends the local
+    RDP client, lets its normal USB-release cleanup run, then asks the guest
+    agent to shut Windows down.  It does not force-destroy the VM, so Windows
+    can save work and refuse shutdown when appropriate.
     """
     subprocess.run(
         ["pkill", "-TERM", "-u", str(uid), "-f", r"xfreerdp3|xfreerdp|sdl-freerdp3|sdl-freerdp"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    subprocess.run(
+        ["virsh", "-c", "qemu:///system", "shutdown", vm_name],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         check=False,
@@ -64,33 +71,54 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--user", required=True)
     parser.add_argument("--home", required=True)
-    parser.add_argument("--input", required=True)
+    parser.add_argument(
+        "--input-glob",
+        default="/dev/input/by-id/*Dell*event-kbd",
+        help="stable by-id keyboard path pattern; re-evaluated after hotplug",
+    )
+    parser.add_argument("--vm", required=True)
     args = parser.parse_args()
 
     uid = os.stat(args.home).st_uid
     runtime_dir = f"/run/user/{uid}"
-    device = InputDevice(args.input)
     last_toggle = 0.0
     launch_pending_until = 0.0
     held_keys: set[int] = set()
 
-    for event in device.read_loop():
-        if event.type == ecodes.EV_KEY:
-            if event.value == 1:
-                held_keys.add(event.code)
-            elif event.value == 0:
-                held_keys.discard(event.code)
+    # This is deliberately a passive observer.  Never grab and recreate the
+    # user's keyboard: injecting a virtual keyboard exposed both the
+    # Ctrl+Alt+Delete reboot path and Ctrl+Alt+F12's virtual-console path.
+    # Meta+Shift+F12 is not a kernel console chord and works even when the
+    # fullscreen RDP window suppresses Plasma global shortcuts.
+    while True:
+        paths = sorted(path for path in find_glob(args.input_glob) if os.path.exists(path))
+        if not paths:
+            # A receiver can disappear during USB reassignment.  Stay alive
+            # and find it again rather than making systemd churn on a stale
+            # /dev/input/eventN path.
+            time.sleep(2)
+            continue
 
-            meta_held = bool({ecodes.KEY_LEFTMETA, ecodes.KEY_RIGHTMETA} & held_keys)
-            shift_held = bool({ecodes.KEY_LEFTSHIFT, ecodes.KEY_RIGHTSHIFT} & held_keys)
-            if event.code == ecodes.KEY_F12:
-                if event.value == 1 and meta_held and shift_held:
+        device = None
+        try:
+            device = InputDevice(paths[0])
+            for event in device.read_loop():
+                if event.type != ecodes.EV_KEY:
+                    continue
+                if event.value == 1:
+                    held_keys.add(event.code)
+                elif event.value == 0:
+                    held_keys.discard(event.code)
+
+                meta_held = bool({ecodes.KEY_LEFTMETA, ecodes.KEY_RIGHTMETA} & held_keys)
+                shift_held = bool({ecodes.KEY_LEFTSHIFT, ecodes.KEY_RIGHTSHIFT} & held_keys)
+                if event.code == ecodes.KEY_F12 and event.value == 1 and meta_held and shift_held:
                     if time.monotonic() - last_toggle < 1.0:
                         continue
                     last_toggle = time.monotonic()
                     if freerdp_is_active(uid):
-                        print("Meta+Shift+F12: returning to Linux desktop", flush=True)
-                        stop_winbox(uid)
+                        print("Meta+Shift+F12: returning to Linux and shutting down Windows", flush=True)
+                        stop_winbox(uid, args.vm)
                     elif time.monotonic() < launch_pending_until:
                         print("Meta+Shift+F12: Windows desktop is still opening; ignored", flush=True)
                     else:
@@ -101,12 +129,13 @@ def main() -> None:
                         # list.
                         launch_pending_until = time.monotonic() + 30.0
                         start_winbox(args.user, args.home, runtime_dir)
-
-        # This is deliberately a passive observer.  Never grab and recreate
-        # the user's keyboard: injecting a virtual keyboard exposed both the
-        # Ctrl+Alt+Delete reboot path and Ctrl+Alt+F12's virtual-console path.
-        # Meta+Shift+F12 is not a kernel console chord and works even when the
-        # fullscreen RDP window suppresses Plasma global shortcuts.
+        except (FileNotFoundError, OSError):
+            # The selected device was unplugged or renumbered.  Rediscover it.
+            held_keys.clear()
+            time.sleep(1)
+        finally:
+            if device is not None:
+                device.close()
 
 
 if __name__ == "__main__":

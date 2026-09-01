@@ -33,4 +33,4 @@ packages:
   - 7zip                  # Extracts the user-supplied Windows ISO into virtual USB media
   - mtools                # Copies the extracted files to the FAT32 virtual USB media
   - wimlib                # Splits install.wim so the FAT32 UEFI installer is bootable
-  - python-evdev          # Host-level Ctrl+Alt+F12 toggle for the desktop handoff
+  - python-evdev          # Passive Meta+Shift+F12 desktop-handoff listener
