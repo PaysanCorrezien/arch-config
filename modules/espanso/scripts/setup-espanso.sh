@@ -20,7 +20,10 @@ run_user_cmd() {
 
 espanso_bin="$(command -v espanso || true)"
 if [ -z "${espanso_bin}" ]; then
-  echo "⚠️  espanso not found in PATH; skipping setup"
+  echo "⚠️  espanso not found in PATH; disabling any stale user service"
+  if command -v systemctl >/dev/null 2>&1; then
+    run_user_cmd systemctl --user disable --now espanso.service >/dev/null 2>&1 || true
+  fi
   exit 0
 fi
 
