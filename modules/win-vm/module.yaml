@@ -22,8 +22,6 @@ dotfiles:
     target: ~/.config/win-vm/win-vm.env
   - source: dotfiles/bin/winbox
     target: ~/.local/bin/winbox
-  - source: dotfiles/bin/win-vm-ready-apps
-    target: ~/.local/bin/win-vm-ready-apps
   - source: dotfiles/bin/win-usb
     target: ~/.local/bin/win-usb
 

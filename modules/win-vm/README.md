@@ -33,8 +33,8 @@ Arch host — KDE Plasma 6 (Wayland), iGPU drives both monitors
 | `templates/windows.xml.in` | Guest definition. **Edit this, never the live XML.** |
 | `scripts/setup-win-vm.sh` | Preflight, libvirt config, share, disk, pinning, define, KWin rule |
 | `dotfiles/bin/winbox` | Daily entry point — start + connect fullscreen |
-| `dotfiles/bin/win-vm-ready-apps` | Starts Brassens Claude Remote Control and ChatGPT Desktop when the VM boots |
 | `dotfiles/bin/win-usb` | Hot-plug USB between host and guest |
+| `scripts/start-guest-ready-apps.ps1` | Starts Claude Remote Control and ChatGPT inside Windows at sign-in |
 | `~/.config/win-vm/win-vm.env` | All tunables. Generated on first run, yours thereafter. |
 
 ## Setup
@@ -54,10 +54,10 @@ Arch host — KDE Plasma 6 (Wayland), iGPU drives both monitors
    ChatGPT desktop, but deliberately does **not** install Google Drive for
    Desktop: Drive is already available at `Z:\GoogleDrive` from the host.
 6. Press `Meta+Alt+W` for daily use. When the VM is off, it starts Windows,
-   opens RDP, launches Claude Remote Control in a Brassens Ghostty terminal,
-   and launches ChatGPT Desktop on the host. When the VM is on, the same key
-   closes RDP and requests a graceful Windows shutdown. Both the listener and
-   Windows VM start at host boot, so Windows is normally ready to connect.
+   and opens RDP. At Windows sign-in, a Windows Terminal opens Claude Remote
+   Control in `C:\code\brassens-monorepo` and launches ChatGPT inside the guest.
+   When RDP is visible, the same key closes only the RDP client and returns to Linux; Windows stays running. Both
+   the listener and Windows VM start at host boot, so Windows remains ready.
 
 ## Audio — read this before filing a bug
 

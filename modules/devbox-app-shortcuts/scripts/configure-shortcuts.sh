@@ -69,7 +69,7 @@ declare -A labels=(
   [devbox-remmina.desktop]=Remmina
   [devbox-claude.desktop]='Claude Desktop'
   [devbox-chatgpt.desktop]=ChatGPT
-  [devbox-winbox-toggle.desktop]='Toggle Winbox VM'
+  [devbox-winbox-toggle.desktop]='Toggle Winbox Desktop'
   [devbox-email.desktop]=Email
   [devbox-x.desktop]=X
 )

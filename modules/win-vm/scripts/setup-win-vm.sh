@@ -13,6 +13,7 @@ MODULE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEMPLATE="${MODULE_DIR}/templates/windows.xml.in"
 UNATTEND_TEMPLATE="${MODULE_DIR}/templates/autounattend.xml.in"
 GUEST_SETUP_SCRIPT="${MODULE_DIR}/scripts/setup-vm-guest.ps1"
+GUEST_READY_APPS_SCRIPT="${MODULE_DIR}/scripts/start-guest-ready-apps.ps1"
 TOGGLE_SCRIPT="${MODULE_DIR}/scripts/win-vm-toggle.py"
 TOGGLE_SERVICE_TEMPLATE="${MODULE_DIR}/templates/win-vm-toggle.service.in"
 
@@ -242,6 +243,7 @@ trap 'rm -rf "${UNATTEND_DIR}"' EXIT
 sed -e "s|@VM_USER@|${WIN_VM_USER}|g" -e "s|@VM_PASSWORD@|${WIN_VM_PASSWORD}|g" \
   "${UNATTEND_TEMPLATE}" > "${UNATTEND_DIR}/Autounattend.xml"
 sed "s|@VM_NAME@|${VM_NAME}|g" "${GUEST_SETUP_SCRIPT}" > "${UNATTEND_DIR}/setup-vm-guest.ps1"
+install -m 0644 "${GUEST_READY_APPS_SCRIPT}" "${UNATTEND_DIR}/start-guest-ready-apps.ps1"
 mkdir -p "${UNATTEND_DIR}/windev-box"
 install -m 0644 "${WINDEV_BOOTSTRAP_SCRIPT}" "${UNATTEND_DIR}/windev-box/bootstrap.ps1"
 install -m 0644 "${WINDEV_VAULT_SCRIPT}" "${UNATTEND_DIR}/windev-box/setup-vault.ps1"
@@ -437,7 +439,7 @@ fi
 # --------------------------------------------------------------------------
 # 10. One passive physical-key listener toggles into Windows and back out.
 # --------------------------------------------------------------------------
-say "Installing Meta+Alt+W Winbox VM on/off toggle service..."
+say "Installing Meta+Alt+W Winbox desktop show/hide service..."
 sudo install -D -m 0755 "${TOGGLE_SCRIPT}" /usr/local/lib/win-vm/win-vm-toggle.py
 TOGGLE_UNIT="$(sed -e "s|@USER@|${TARGET_USER}|g" -e "s|@HOME@|${USER_HOME}|g" -e "s|@VM_NAME@|${VM_NAME}|g" "${TOGGLE_SERVICE_TEMPLATE}")"
 printf '%s\n' "${TOGGLE_UNIT}" | sudo tee /etc/systemd/system/win-vm-toggle.service >/dev/null

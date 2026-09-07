@@ -20,36 +20,10 @@ def freerdp_is_active(uid: int) -> bool:
     return result.returncode == 0
 
 
-def vm_is_active(vm_name: str) -> bool:
-    """Return whether the guest is on, independently of the RDP client."""
-    result = subprocess.run(
-        ["virsh", "-c", "qemu:///system", "domstate", vm_name],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        text=True,
-        env={**os.environ, "LC_ALL": "C"},
-        check=False,
-    )
-    state = result.stdout.strip().lower()
-    return result.returncode == 0 and state not in {"", "shut off", "shutoff", "crashed"}
-
-
-def stop_winbox(uid: int, vm_name: str) -> None:
-    """Return to Linux and request a graceful shutdown of the Windows guest.
-
-    A second hotkey press ends the local RDP client, lets its normal USB-release
-    cleanup run, then asks the guest agent to shut Windows down. It does not
-    force-destroy the VM, so Windows can save work and refuse shutdown when
-    appropriate. Libvirt starts it again automatically on the next host boot.
-    """
+def close_winbox(uid: int) -> None:
+    """Return to Linux by closing RDP while leaving Windows running."""
     subprocess.run(
         ["pkill", "-TERM", "-u", str(uid), "-f", r"xfreerdp3|xfreerdp|sdl-freerdp3|sdl-freerdp"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        check=False,
-    )
-    subprocess.run(
-        ["virsh", "-c", "qemu:///system", "shutdown", vm_name],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         check=False,
@@ -134,9 +108,9 @@ def main() -> None:
                     if time.monotonic() - last_toggle < 1.0:
                         continue
                     last_toggle = time.monotonic()
-                    if vm_is_active(args.vm) or freerdp_is_active(uid):
-                        print("Meta+Alt+W: returning to Linux and shutting down Windows", flush=True)
-                        stop_winbox(uid, args.vm)
+                    if freerdp_is_active(uid):
+                        print("Meta+Alt+W: closing RDP; Windows stays running", flush=True)
+                        close_winbox(uid)
                     elif time.monotonic() < launch_pending_until:
                         print("Meta+Alt+W: Windows desktop is still opening; ignored", flush=True)
                     else:

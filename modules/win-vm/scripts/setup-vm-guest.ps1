@@ -121,6 +121,26 @@ if ($answer) {
   } else {
     Write-Warning 'windev-box bootstrap was not present on the answer media.'
   }
+
+  # Start the Windows-side tools at every interactive sign-in. The launcher
+  # waits for the one-time development bootstrap on a fresh guest, then opens
+  # Claude Remote Control in Brassens and the installed ChatGPT desktop app.
+  $readyAppsSource = "{0}:\start-guest-ready-apps.ps1" -f $answer.DriveLetter
+  if (Test-Path $readyAppsSource) {
+    try {
+      $readyAppsDir = Join-Path $env:ProgramData 'win-vm'
+      $readyAppsPath = Join-Path $readyAppsDir 'start-guest-ready-apps.ps1'
+      New-Item -ItemType Directory -Path $readyAppsDir -Force | Out-Null
+      Copy-Item $readyAppsSource $readyAppsPath -Force
+      $readyAppsAction = New-ScheduledTaskAction -Execute "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$readyAppsPath`""
+      $readyAppsTrigger = New-ScheduledTaskTrigger -AtLogOn -User ([Security.Principal.WindowsIdentity]::GetCurrent().Name)
+      $readyAppsPrincipal = New-ScheduledTaskPrincipal -UserId ([Security.Principal.WindowsIdentity]::GetCurrent().Name) -LogonType Interactive -RunLevel Limited
+      $readyAppsSettings = New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 20)
+      Register-ScheduledTask -TaskName 'WinVm-ReadyApps' -Action $readyAppsAction -Trigger $readyAppsTrigger -Principal $readyAppsPrincipal -Settings $readyAppsSettings -Description 'Start Claude Remote Control in Brassens and ChatGPT at Windows sign-in.' -Force | Out-Null
+    } catch { Write-Warning "Could not configure Windows ready apps: $($_.Exception.Message)" }
+  } else {
+    Write-Warning 'Windows ready-app launcher was not present on the answer media.'
+  }
 }
 Stop-Transcript -ErrorAction SilentlyContinue
 Restart-Computer -Force
