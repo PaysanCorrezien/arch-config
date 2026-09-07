@@ -56,8 +56,8 @@ Arch host — KDE Plasma 6 (Wayland), iGPU drives both monitors
 6. Press `Meta+Alt+W` for daily use. When the VM is off, it starts Windows,
    opens RDP, launches Claude Remote Control in a Brassens Ghostty terminal,
    and launches ChatGPT Desktop on the host. When the VM is on, the same key
-   closes RDP and requests a graceful Windows shutdown. The toggle listener
-   starts at host boot, while the VM itself stays off until requested.
+   closes RDP and requests a graceful Windows shutdown. Both the listener and
+   Windows VM start at host boot, so Windows is normally ready to connect.
 
 ## Audio — read this before filing a bug
 

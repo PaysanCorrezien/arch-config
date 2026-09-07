@@ -40,7 +40,9 @@ for c in xfreerdp3 xfreerdp sdl-freerdp3 sdl-freerdp; do
 done
 [[ -n "${FREERDP}" ]] || die "No FreeRDP client found. Install the 'freerdp' package."
 
-domstate() { virsh -c qemu:///system domstate "${VM_NAME}" 2>/dev/null | head -n1 | tr -d '[:space:]'; }
+# libvirt localizes human-readable states (for example, "fermé" in French).
+# Force the C locale so this state machine receives stable values.
+domstate() { LC_ALL=C virsh -c qemu:///system domstate "${VM_NAME}" 2>/dev/null | head -n1 | tr -d '[:space:]'; }
 
 ensure_running() {
   local state; state="$(domstate)"

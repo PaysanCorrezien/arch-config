@@ -27,6 +27,7 @@ def vm_is_active(vm_name: str) -> bool:
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
         text=True,
+        env={**os.environ, "LC_ALL": "C"},
         check=False,
     )
     state = result.stdout.strip().lower()
@@ -36,10 +37,10 @@ def vm_is_active(vm_name: str) -> bool:
 def stop_winbox(uid: int, vm_name: str) -> None:
     """Return to Linux and request a graceful shutdown of the Windows guest.
 
-    The VM is intentionally demand-only: a second hotkey press ends the local
-    RDP client, lets its normal USB-release cleanup run, then asks the guest
-    agent to shut Windows down.  It does not force-destroy the VM, so Windows
-    can save work and refuse shutdown when appropriate.
+    A second hotkey press ends the local RDP client, lets its normal USB-release
+    cleanup run, then asks the guest agent to shut Windows down. It does not
+    force-destroy the VM, so Windows can save work and refuse shutdown when
+    appropriate. Libvirt starts it again automatically on the next host boot.
     """
     subprocess.run(
         ["pkill", "-TERM", "-u", str(uid), "-f", r"xfreerdp3|xfreerdp|sdl-freerdp3|sdl-freerdp"],
@@ -123,7 +124,11 @@ def main() -> None:
                 elif event.value == 0:
                     held_keys.discard(event.code)
 
-                meta_held = bool({ecodes.KEY_LEFTMETA, ecodes.KEY_RIGHTMETA} & held_keys)
+                # Caps is remapped to Meta by the desktop, but this root evdev
+                # observer sees physical KEY_CAPSLOCK before the XKB mapping.
+                meta_held = bool(
+                    {ecodes.KEY_LEFTMETA, ecodes.KEY_RIGHTMETA, ecodes.KEY_CAPSLOCK} & held_keys
+                )
                 alt_held = bool({ecodes.KEY_LEFTALT, ecodes.KEY_RIGHTALT} & held_keys)
                 if event.code == ecodes.KEY_W and event.value == 1 and meta_held and alt_held:
                     if time.monotonic() - last_toggle < 1.0:

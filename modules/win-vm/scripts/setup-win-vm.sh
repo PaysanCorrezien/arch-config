@@ -374,11 +374,11 @@ fi
 
 say "Defining domain '${VM_NAME}'..."
 sudo virsh define "${WORK_XML}" >/dev/null
-# The guest is intentionally demand-only.  winbox (normally reached through
-# Meta+Alt+W) starts it when required; it must not consume host resources
-# after an unrelated host boot.
-sudo virsh autostart --disable "${VM_NAME}" >/dev/null 2>&1 || true
-say "  defined (uuid ${UUID}; demand-only, no host-boot autostart)"
+# Keep the workstation VM booted and ready for an immediate RDP connection.
+# The toggle can still request a graceful shutdown for maintenance; libvirt
+# starts the guest again on the next host boot.
+sudo virsh autostart "${VM_NAME}" >/dev/null
+say "  defined (uuid ${UUID}; host-boot autostart enabled)"
 
 # NetworkManager must leave libvirt's bridge and ephemeral vnet taps alone.
 # Otherwise it may adopt a tap after boot and detach it from virbr0, leaving a
