@@ -10,6 +10,11 @@ modules/onedrive/dotfiles/onedrive/.config.hash
 modules/onedrive/dotfiles/onedrive/.sync_list.hash
 modules/onedrive/dotfiles/onedrive/sync_list
 modules/onedrive/dotfiles/systemd/user/openclaw-gateway.service
+# Hermes owns these definitions in modules/hermes. This host's systemd dotfile
+# target receives runtime copies that Hermes may rewrite on every gateway boot.
+modules/onedrive/dotfiles/systemd/user/hermes-*.service
+modules/onedrive/dotfiles/systemd/user/hermes-*.service.d/
+modules/onedrive/dotfiles/systemd/user/default.target.wants/hermes-*.service
 
 # Local state (do not version)
 state/
