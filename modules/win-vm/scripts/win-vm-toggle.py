@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reserve Meta+Shift+F12 as the one-key Linux <-> Windows desktop handoff."""
+"""Reserve Meta+Alt+W as the one-key Linux <-> Windows desktop handoff."""
 
 import argparse
 import os
@@ -100,9 +100,9 @@ def main() -> None:
 
     # This is deliberately a passive observer.  Never grab and recreate the
     # user's keyboard: injecting a virtual keyboard exposed both the
-    # Ctrl+Alt+Delete reboot path and Ctrl+Alt+F12's virtual-console path.
-    # Meta+Shift+F12 is not a kernel console chord and works even when the
-    # fullscreen RDP window suppresses Plasma global shortcuts.
+    # Ctrl+Alt+Delete and Ctrl+Alt+Fn are host control paths, so this binding
+    # deliberately avoids both Ctrl and function keys. Meta+Alt+W also works
+    # when the fullscreen RDP window suppresses Plasma global shortcuts.
     while True:
         paths = sorted(path for path in find_glob(args.input_glob) if os.path.exists(path))
         if not paths:
@@ -124,18 +124,18 @@ def main() -> None:
                     held_keys.discard(event.code)
 
                 meta_held = bool({ecodes.KEY_LEFTMETA, ecodes.KEY_RIGHTMETA} & held_keys)
-                shift_held = bool({ecodes.KEY_LEFTSHIFT, ecodes.KEY_RIGHTSHIFT} & held_keys)
-                if event.code == ecodes.KEY_F12 and event.value == 1 and meta_held and shift_held:
+                alt_held = bool({ecodes.KEY_LEFTALT, ecodes.KEY_RIGHTALT} & held_keys)
+                if event.code == ecodes.KEY_W and event.value == 1 and meta_held and alt_held:
                     if time.monotonic() - last_toggle < 1.0:
                         continue
                     last_toggle = time.monotonic()
                     if vm_is_active(args.vm) or freerdp_is_active(uid):
-                        print("Meta+Shift+F12: returning to Linux and shutting down Windows", flush=True)
+                        print("Meta+Alt+W: returning to Linux and shutting down Windows", flush=True)
                         stop_winbox(uid, args.vm)
                     elif time.monotonic() < launch_pending_until:
-                        print("Meta+Shift+F12: Windows desktop is still opening; ignored", flush=True)
+                        print("Meta+Alt+W: Windows desktop is still opening; ignored", flush=True)
                     else:
-                        print("Meta+Shift+F12: opening Windows desktop", flush=True)
+                        print("Meta+Alt+W: opening Windows desktop", flush=True)
                         # RDP authentication and fullscreen setup take a few
                         # seconds.  Do not start a second client if the key is
                         # pressed again before xfreerdp appears in the process

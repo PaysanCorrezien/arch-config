@@ -375,7 +375,7 @@ fi
 say "Defining domain '${VM_NAME}'..."
 sudo virsh define "${WORK_XML}" >/dev/null
 # The guest is intentionally demand-only.  winbox (normally reached through
-# Meta+Shift+F12) starts it when required; it must not consume host resources
+# Meta+Alt+W) starts it when required; it must not consume host resources
 # after an unrelated host boot.
 sudo virsh autostart --disable "${VM_NAME}" >/dev/null 2>&1 || true
 say "  defined (uuid ${UUID}; demand-only, no host-boot autostart)"
@@ -437,7 +437,7 @@ fi
 # --------------------------------------------------------------------------
 # 10. One passive physical-key listener toggles into Windows and back out.
 # --------------------------------------------------------------------------
-say "Installing Meta+Shift+F12 Winbox VM on/off toggle service..."
+say "Installing Meta+Alt+W Winbox VM on/off toggle service..."
 sudo install -D -m 0755 "${TOGGLE_SCRIPT}" /usr/local/lib/win-vm/win-vm-toggle.py
 TOGGLE_UNIT="$(sed -e "s|@USER@|${TARGET_USER}|g" -e "s|@HOME@|${USER_HOME}|g" -e "s|@VM_NAME@|${VM_NAME}|g" "${TOGGLE_SERVICE_TEMPLATE}")"
 printf '%s\n' "${TOGGLE_UNIT}" | sudo tee /etc/systemd/system/win-vm-toggle.service >/dev/null

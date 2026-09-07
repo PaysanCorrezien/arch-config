@@ -2,7 +2,7 @@
 # winbox — bring up the Windows guest and drop into it fullscreen, both monitors.
 #
 # This is the daily-driver entry point.  The win-vm module's passive
-# Meta+Shift+F12 listener makes it the "switch to Windows" key without
+# Meta+Alt+W listener makes it the "switch to Windows" key without
 # grabbing or recreating the host keyboard.
 #
 #   winbox              start if needed, connect fullscreen multi-monitor

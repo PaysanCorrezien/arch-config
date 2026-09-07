@@ -53,7 +53,7 @@ Arch host — KDE Plasma 6 (Wayland), iGPU drives both monitors
    bootstrap. VM mode installs the normal developer toolchain plus Claude and
    ChatGPT desktop, but deliberately does **not** install Google Drive for
    Desktop: Drive is already available at `Z:\GoogleDrive` from the host.
-6. Press `Meta+Shift+F12` for daily use. When the VM is off, it starts Windows,
+6. Press `Meta+Alt+W` for daily use. When the VM is off, it starts Windows,
    opens RDP, launches Claude Remote Control in a Brassens Ghostty terminal,
    and launches ChatGPT Desktop on the host. When the VM is on, the same key
    closes RDP and requests a graceful Windows shutdown. The toggle listener
