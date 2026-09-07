@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Keep the dashboard local unless explicitly opted into tailnet mode.  Hermes
+# itself refuses non-loopback binds without an authentication provider, so this
+# default prevents a restart loop while retaining a dynamic Tailscale path for
+# a properly authenticated deployment.
+set -euo pipefail
+
+if [[ "${HERMES_DASHBOARD_BIND:-loopback}" != "tailnet" ]]; then
+    exec "${HOME}/.local/bin/hermes" dashboard --host 127.0.0.1 --port 8443 --no-open
+fi
+
+for _attempt in $(seq 1 90); do
+    tailnet_ip="$(tailscale ip -4 2>/dev/null | head -n 1 || true)"
+    if [[ -n "${tailnet_ip}" ]]; then
+        exec "${HOME}/.local/bin/hermes" dashboard --host "${tailnet_ip}" --port 8443 --no-open
+    fi
+    sleep 1
+done
+
+echo "Hermes dashboard could not resolve a Tailscale IPv4 address" >&2
+exit 1

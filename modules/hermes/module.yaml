@@ -6,5 +6,13 @@
 
 description: Hermes Agent + gateway/dashboard user services
 
+dotfiles:
+  - source: dotfiles/bin/hermes
+    target: ~/.local/bin/hermes
+  - source: dotfiles/bin/hermes-dashboard-tailnet
+    target: ~/.local/bin/hermes-dashboard-tailnet
+  - source: dotfiles/bin/hermes-wait-network
+    target: ~/.local/bin/hermes-wait-network
+
 post_install_hook: scripts/install.sh
 hook_behavior: ask

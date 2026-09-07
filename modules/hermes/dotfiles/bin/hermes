@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Stable command entry point for the Hermes user services and interactive use.
+# The upstream installer places the CLI module in its virtual environment but
+# does not guarantee a ~/.local/bin/hermes executable.
+set -euo pipefail
+
+exec "${HOME}/.hermes/hermes-agent/venv/bin/python" -m hermes_cli.main "$@"

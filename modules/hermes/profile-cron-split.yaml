@@ -1,0 +1,121 @@
+# Declarative target ownership for Hermes cron migration.
+# This file intentionally does not enable or duplicate live jobs.  It is the
+# reviewed cutover manifest used when per-profile Discord bot tokens arrive.
+
+version: 1
+default_model:
+  provider: openai-codex
+  model: gpt-5.6-luna
+
+cutover:
+  require_distinct_discord_bot_tokens: true
+  target_jobs_start_disabled: true
+  source_job_must_be_paused_before_target_enabled: true
+  verify_manual_run_before_enable: true
+  verify_discord_attribution_before_enable: true
+
+discord_routing:
+  # A Bot responds freely only in its dedicated channel. It automatically
+  # follows threads it has participated in under its own channel and this
+  # shared forum. Elsewhere, including another Bot's thread, it needs an
+  # explicit @mention.
+  global_intake_channel_id: "1519977352388673687"
+  require_explicit_mention_outside_home: true
+
+profiles:
+  correzianlabs-manager:
+    bot:
+      display_name: CorrezianLabs Manager
+      discord_identity: Themis
+      discord_token_variable: THEMIS_DISCORD_BOT_TOKEN
+      home_channel_id: "1542227199552397392"
+      callable_as: "hermes -p correzianlabs-manager chat"
+      model: gpt-5.6-luna
+      behavior: >-
+        Company operations, planning, execution tracking, host-state reporting,
+        and cross-automation oversight.
+    env_contract:
+      required:
+        - DISCORD_BOT_TOKEN
+        - DISCORD_ALLOWED_USERS
+        - DISCORD_HOME_CHANNEL
+        - DISCORD_HOME_CHANNEL_THREAD_ID
+      discord_token: distinct-per-profile
+    role: company operations and fleet oversight
+    jobs:
+      - daily-agent-cron-behavior-audit
+      - host-state-manager
+
+  repository-orchestrator:
+    bot:
+      display_name: Repository Orchestrator
+      discord_identity: Ariadne
+      discord_token_variable: ARIADNE_DISCORD_BOT_TOKEN
+      home_channel_id: "1542227147740024842"
+      callable_as: "hermes -p repository-orchestrator chat"
+      model: gpt-5.6-luna
+      behavior: >-
+        Repository classification, PR queues, isolated repair worktrees,
+        verification, and Sentry/Electron remediation.
+    env_contract:
+      required:
+        - DISCORD_BOT_TOKEN
+        - DISCORD_ALLOWED_USERS
+        - DISCORD_HOME_CHANNEL
+        - DISCORD_HOME_CHANNEL_THREAD_ID
+      discord_token: distinct-per-profile
+    role: GitHub, PR queue, classification, and repair automation
+    jobs:
+      - chirac-classifier
+      - chirac-pull-request-queue
+      - brassens-pull-request-queue
+      - maria-pull-request-queue
+      - sentry-error-autofix
+      - brassens-electron-log-autofix
+
+  marketing:
+    bot:
+      display_name: Marketing Intelligence
+      discord_identity: Calliope
+      discord_token_variable: CALLIOPE_DISCORD_BOT_TOKEN
+      home_channel_id: "1542227194565103666"
+      callable_as: "hermes -p marketing chat"
+      model: gpt-5.6-luna
+      behavior: >-
+        Competitor intelligence, pricing, positioning, messaging, and
+        evidence-based marketing recommendations.
+    env_contract:
+      required:
+        - DISCORD_BOT_TOKEN
+        - DISCORD_ALLOWED_USERS
+        - DISCORD_HOME_CHANNEL
+        - DISCORD_HOME_CHANNEL_THREAD_ID
+      discord_token: distinct-per-profile
+    role: competitor intelligence, pricing, and positioning
+    jobs:
+      - competitor-analysis
+
+  life:
+    bot:
+      display_name: Life Assistant
+      discord_identity: Hestia
+      discord_token_variable: HESTIA_DISCORD_BOT_TOKEN
+      home_channel_id: "1542227204367323212"
+      callable_as: "hermes -p life chat"
+      model: gpt-5.6-luna
+      behavior: >-
+        Personal-assistant event processing for Tuva and speech-to-text input,
+        with health and personal-context boundaries.
+    env_contract:
+      required:
+        - DISCORD_BOT_TOKEN
+        - DISCORD_ALLOWED_USERS
+        - DISCORD_HOME_CHANNEL
+        - DISCORD_HOME_CHANNEL_THREAD_ID
+      discord_token: distinct-per-profile
+    role: personal-assistant event processing
+    jobs:
+      - tuva-nightly-issue-run
+      - tuva-nightly-issue-status
+      - tuva-nightly-issue-approval-intake
+      - artificial-analysis-stt-monitor

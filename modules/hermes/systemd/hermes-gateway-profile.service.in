@@ -1,18 +1,18 @@
 [Unit]
-Description=Hermes Agent Gateway - Messaging Platform Integration
+Description=Hermes Agent Gateway - @PROFILE@ profile
 After=network-online.target
 Wants=network-online.target
-StartLimitIntervalSec=600
-StartLimitBurst=5
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
 ExecStartPre=%h/.local/bin/hermes-wait-network
-ExecStart=%h/.hermes/hermes-agent/venv/bin/python -m hermes_cli.main gateway run --replace
-WorkingDirectory=%h/.hermes/hermes-agent
+ExecStartPre=/bin/sleep @START_DELAY@
+ExecStart=%h/.hermes/hermes-agent/venv/bin/python -m hermes_cli.main --profile @PROFILE@ gateway run
+WorkingDirectory=%h/.hermes/profiles/@PROFILE@
 Environment="PATH=%h/.hermes/hermes-agent/venv/bin:%h/.hermes/hermes-agent/node_modules/.bin:/usr/bin:%h/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 Environment="VIRTUAL_ENV=%h/.hermes/hermes-agent/venv"
-Environment="HERMES_HOME=%h/.hermes"
+Environment="HERMES_HOME=%h/.hermes/profiles/@PROFILE@"
 Restart=always
 RestartSec=10
 RestartForceExitStatus=75
