@@ -437,7 +437,7 @@ fi
 # --------------------------------------------------------------------------
 # 10. One passive physical-key listener toggles into Windows and back out.
 # --------------------------------------------------------------------------
-say "Installing Meta+Shift+F12 desktop-handoff key service..."
+say "Installing Meta+Shift+F12 Winbox VM on/off toggle service..."
 sudo install -D -m 0755 "${TOGGLE_SCRIPT}" /usr/local/lib/win-vm/win-vm-toggle.py
 TOGGLE_UNIT="$(sed -e "s|@USER@|${TARGET_USER}|g" -e "s|@HOME@|${USER_HOME}|g" -e "s|@VM_NAME@|${VM_NAME}|g" "${TOGGLE_SERVICE_TEMPLATE}")"
 printf '%s\n' "${TOGGLE_UNIT}" | sudo tee /etc/systemd/system/win-vm-toggle.service >/dev/null

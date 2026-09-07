@@ -33,6 +33,7 @@ Arch host — KDE Plasma 6 (Wayland), iGPU drives both monitors
 | `templates/windows.xml.in` | Guest definition. **Edit this, never the live XML.** |
 | `scripts/setup-win-vm.sh` | Preflight, libvirt config, share, disk, pinning, define, KWin rule |
 | `dotfiles/bin/winbox` | Daily entry point — start + connect fullscreen |
+| `dotfiles/bin/win-vm-ready-apps` | Starts Brassens Claude Remote Control and ChatGPT Desktop when the VM boots |
 | `dotfiles/bin/win-usb` | Hot-plug USB between host and guest |
 | `~/.config/win-vm/win-vm.env` | All tunables. Generated on first run, yours thereafter. |
 
@@ -52,7 +53,11 @@ Arch host — KDE Plasma 6 (Wayland), iGPU drives both monitors
    bootstrap. VM mode installs the normal developer toolchain plus Claude and
    ChatGPT desktop, but deliberately does **not** install Google Drive for
    Desktop: Drive is already available at `Z:\GoogleDrive` from the host.
-6. Once `winbox --status` reports RDP reachable, use `winbox` for daily work.
+6. Press `Meta+Shift+F12` for daily use. When the VM is off, it starts Windows,
+   opens RDP, launches Claude Remote Control in a Brassens Ghostty terminal,
+   and launches ChatGPT Desktop on the host. When the VM is on, the same key
+   closes RDP and requests a graceful Windows shutdown. The toggle listener
+   starts at host boot, while the VM itself stays off until requested.
 
 ## Audio — read this before filing a bug
 

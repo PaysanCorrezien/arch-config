@@ -51,6 +51,11 @@ ensure_running() {
       [[ -n "${state}" ]] || die "Domain '${VM_NAME}' is not defined. Run the win-vm module hook first."
       say "Starting '${VM_NAME}'..."
       virsh -c qemu:///system start "${VM_NAME}" >/dev/null
+      if [[ -x "${HOME}/.local/bin/win-vm-ready-apps" ]]; then
+        "${HOME}/.local/bin/win-vm-ready-apps" || warn "Could not start one or more companion apps."
+      else
+        warn "Companion-app launcher is missing; run dcli sync to deploy it."
+      fi
       ;;
     *) warn "Unexpected domain state '${state}' — trying anyway" ;;
   esac

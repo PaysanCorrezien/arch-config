@@ -20,6 +20,19 @@ def freerdp_is_active(uid: int) -> bool:
     return result.returncode == 0
 
 
+def vm_is_active(vm_name: str) -> bool:
+    """Return whether the guest is on, independently of the RDP client."""
+    result = subprocess.run(
+        ["virsh", "-c", "qemu:///system", "domstate", vm_name],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        check=False,
+    )
+    state = result.stdout.strip().lower()
+    return result.returncode == 0 and state not in {"", "shut off", "shutoff", "crashed"}
+
+
 def stop_winbox(uid: int, vm_name: str) -> None:
     """Return to Linux and request a graceful shutdown of the Windows guest.
 
@@ -116,7 +129,7 @@ def main() -> None:
                     if time.monotonic() - last_toggle < 1.0:
                         continue
                     last_toggle = time.monotonic()
-                    if freerdp_is_active(uid):
+                    if vm_is_active(args.vm) or freerdp_is_active(uid):
                         print("Meta+Shift+F12: returning to Linux and shutting down Windows", flush=True)
                         stop_winbox(uid, args.vm)
                     elif time.monotonic() < launch_pending_until:
