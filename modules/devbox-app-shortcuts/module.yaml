@@ -37,6 +37,10 @@ dotfiles:
     target: ~/.local/share/applications/devbox-chatgpt.desktop
   - source: dotfiles/applications/devbox-chatgpt.desktop
     target: ~/.local/share/kglobalaccel/devbox-chatgpt.desktop
+  - source: dotfiles/applications/devbox-winbox-toggle.desktop
+    target: ~/.local/share/applications/devbox-winbox-toggle.desktop
+  - source: dotfiles/applications/devbox-winbox-toggle.desktop
+    target: ~/.local/share/kglobalaccel/devbox-winbox-toggle.desktop
   - source: dotfiles/applications/devbox-gmail.desktop
     target: ~/.local/share/applications/devbox-gmail.desktop
   - source: dotfiles/applications/devbox-gmail.desktop

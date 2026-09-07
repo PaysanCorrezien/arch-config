@@ -8,6 +8,7 @@
 #   winbox              start if needed, connect fullscreen multi-monitor
 #   winbox --window     connect windowed (useful for a quick glance)
 #   winbox --console    open the SPICE/qxl console instead (install / recovery)
+#   winbox --toggle     start/connect when off; close/shut down when on
 #   winbox --stop       graceful shutdown via the guest agent
 #   winbox --status     domain state, address, RDP reachability
 #
@@ -160,6 +161,25 @@ connect() {
   return "${status}"
 }
 
+toggle() {
+  local state; state="$(domstate)"
+  case "${state}" in
+    shutoff|crashed)
+      ensure_running
+      wait_for_rdp
+      connect fullscreen
+      ;;
+    "")
+      die "Domain '${VM_NAME}' is not defined. Run the win-vm module hook first."
+      ;;
+    *)
+      say "Closing RDP and requesting a graceful shutdown of '${VM_NAME}'..."
+      pkill -TERM -u "$(id -u)" -f 'xfreerdp3|xfreerdp|sdl-freerdp3|sdl-freerdp' 2>/dev/null || true
+      virsh -c qemu:///system shutdown "${VM_NAME}" >/dev/null
+      ;;
+  esac
+}
+
 case "${1:-}" in
   --status)
     printf 'domain : %s\n' "$(domstate || echo 'not defined')"
@@ -175,6 +195,9 @@ case "${1:-}" in
   --stop)
     say "Requesting graceful shutdown (needs qemu-guest-agent in the guest)"
     virsh -c qemu:///system shutdown "${VM_NAME}"
+    ;;
+  --toggle)
+    toggle
     ;;
   --console)
     ensure_running

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Toggle Winbox VM
+Comment=Connect to Windows when off or shut it down when on
+Exec=/home/dylan/.local/bin/winbox --toggle
+Icon=computer
+Terminal=false
+Categories=System;
+X-KDE-GlobalAccel-CommandShortcut=true
