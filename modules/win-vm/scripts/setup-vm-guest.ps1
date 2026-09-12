@@ -124,7 +124,7 @@ if ($answer) {
 
   # Start the Windows-side tools at every interactive sign-in. The launcher
   # waits for the one-time development bootstrap on a fresh guest, then opens
-  # Claude Remote Control in Brassens and the installed ChatGPT desktop app.
+  # Claude Remote Control in both project workspaces and the ChatGPT desktop app.
   $readyAppsSource = "{0}:\start-guest-ready-apps.ps1" -f $answer.DriveLetter
   if (Test-Path $readyAppsSource) {
     try {
@@ -136,7 +136,7 @@ if ($answer) {
       $readyAppsTrigger = New-ScheduledTaskTrigger -AtLogOn -User ([Security.Principal.WindowsIdentity]::GetCurrent().Name)
       $readyAppsPrincipal = New-ScheduledTaskPrincipal -UserId ([Security.Principal.WindowsIdentity]::GetCurrent().Name) -LogonType Interactive -RunLevel Limited
       $readyAppsSettings = New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 20)
-      Register-ScheduledTask -TaskName 'WinVm-ReadyApps' -Action $readyAppsAction -Trigger $readyAppsTrigger -Principal $readyAppsPrincipal -Settings $readyAppsSettings -Description 'Start Claude Remote Control in Brassens and ChatGPT at Windows sign-in.' -Force | Out-Null
+      Register-ScheduledTask -TaskName 'WinVm-ReadyApps' -Action $readyAppsAction -Trigger $readyAppsTrigger -Principal $readyAppsPrincipal -Settings $readyAppsSettings -Description 'Start Claude Remote Control in Brassens and Chirac plus ChatGPT at Windows sign-in.' -Force | Out-Null
     } catch { Write-Warning "Could not configure Windows ready apps: $($_.Exception.Message)" }
   } else {
     Write-Warning 'Windows ready-app launcher was not present on the answer media.'

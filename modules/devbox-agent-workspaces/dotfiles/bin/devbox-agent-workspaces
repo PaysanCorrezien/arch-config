@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+launch_workspace() {
+  local name="$1"
+  local repo="$2"
+  local unit="devbox-claude-rc-${name}"
+
+  if [[ ! -d "${repo}" ]]; then
+    printf '[devbox-agent-workspaces] Missing %s workspace: %s\n' "${name}" "${repo}" >&2
+    return 0
+  fi
+
+  if systemctl --user is-active --quiet "${unit}.service"; then
+    return 0
+  fi
+
+  systemd-run --user --quiet --collect --unit="${unit}" \
+    /usr/bin/ghostty --working-directory="${repo}" \
+    -e /usr/bin/claude --remote-control "${name}"
+}
+
+launch_workspace brassens /home/dylan/code/brassens-monorepo
+launch_workspace chirac /home/dylan/code/chirac

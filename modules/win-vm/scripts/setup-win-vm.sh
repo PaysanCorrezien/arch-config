@@ -130,6 +130,7 @@ say "  ok — SVM present, /dev/kvm exists"
 # --------------------------------------------------------------------------
 say "Enabling libvirtd and adding ${TARGET_USER} to libvirt/kvm..."
 sudo systemctl enable --now libvirtd.socket >/dev/null
+sudo systemctl enable --now libvirtd.service >/dev/null
 sudo usermod -aG libvirt,kvm "${TARGET_USER}"
 
 # QEMU must run as the desktop user, not as `qemu`. Two reasons, both hard

@@ -54,8 +54,9 @@ Arch host — KDE Plasma 6 (Wayland), iGPU drives both monitors
    ChatGPT desktop, but deliberately does **not** install Google Drive for
    Desktop: Drive is already available at `Z:\GoogleDrive` from the host.
 6. Press `Meta+Alt+W` for daily use. When the VM is off, it starts Windows,
-   and opens RDP. At Windows sign-in, a Windows Terminal opens Claude Remote
-   Control in `C:\code\brassens-monorepo` and launches ChatGPT inside the guest.
+   and opens RDP. At Windows sign-in, Windows Terminal opens Claude Remote
+   Control in `C:\code\brassens-monorepo` and `C:\code\chirac`, then launches
+   ChatGPT inside the guest.
    When RDP is visible, the same key closes only the RDP client and returns to Linux; Windows stays running. Both
    the listener and Windows VM start at host boot, so Windows remains ready.
 

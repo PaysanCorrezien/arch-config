@@ -1,0 +1,9 @@
+# Open one Claude Remote Control terminal for each primary project at KDE login.
+
+description: Start Claude Remote Control in the Brassens and Chirac workspaces at login
+
+dotfiles:
+  - source: dotfiles/bin/devbox-agent-workspaces
+    target: ~/.local/bin/devbox-agent-workspaces
+  - source: dotfiles/autostart/devbox-agent-workspaces.desktop
+    target: ~/.config/autostart/devbox-agent-workspaces.desktop

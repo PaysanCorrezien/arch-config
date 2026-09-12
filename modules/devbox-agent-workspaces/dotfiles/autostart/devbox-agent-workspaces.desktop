@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Claude project workspaces
+Comment=Open Claude Remote Control for Brassens and Chirac
+Exec=/home/dylan/.local/bin/devbox-agent-workspaces
+TryExec=/home/dylan/.local/bin/devbox-agent-workspaces
+Terminal=false
+X-KDE-autostart-after=panel
