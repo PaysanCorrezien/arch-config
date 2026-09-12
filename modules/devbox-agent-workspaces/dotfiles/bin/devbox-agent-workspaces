@@ -22,3 +22,9 @@ launch_workspace() {
 
 launch_workspace brassens /home/dylan/code/brassens-monorepo
 launch_workspace chirac /home/dylan/code/chirac
+
+if ! pgrep -u "${UID}" -x ChatGPT >/dev/null 2>&1; then
+  systemd-run --user --quiet --collect --unit=devbox-chatgpt-desktop.service \
+    /usr/bin/codex-desktop \
+    || printf '[devbox-agent-workspaces] ChatGPT Desktop did not launch.\n' >&2
+fi

@@ -1,6 +1,6 @@
-# Open one Claude Remote Control terminal for each primary project at KDE login.
+# Open ChatGPT Desktop and one Claude Remote Control terminal for each primary project at KDE login.
 
-description: Start Claude Remote Control in the Brassens and Chirac workspaces at login
+description: Start ChatGPT Desktop and Claude Remote Control for Brassens and Chirac at login
 
 dotfiles:
   - source: dotfiles/bin/devbox-agent-workspaces
