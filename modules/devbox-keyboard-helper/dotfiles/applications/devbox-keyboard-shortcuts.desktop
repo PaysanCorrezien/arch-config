@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Keyboard shortcuts
+Comment=Show active Plasma keyboard shortcuts
+Exec=/home/dylan/.local/bin/devbox-keyboard-shortcuts
+Icon=input-keyboard
+Terminal=false
+Categories=Utility;
+X-KDE-GlobalAccel-CommandShortcut=true

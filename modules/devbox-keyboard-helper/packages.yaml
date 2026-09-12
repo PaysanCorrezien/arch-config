@@ -1,0 +1,4 @@
+description: Quickshell runtime for the Plasma keyboard shortcut viewer
+
+packages:
+  - quickshell

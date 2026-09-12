@@ -1,0 +1,19 @@
+# A small standalone Quickshell window that lists active KDE global shortcuts.
+# Data is read from Plasma's live KGlobalAccel configuration whenever opened.
+
+description: Quickshell keyboard shortcut viewer for KDE Plasma
+
+dotfiles:
+  - source: dotfiles/bin/devbox-keyboard-shortcuts
+    target: ~/.local/bin/devbox-keyboard-shortcuts
+  - source: dotfiles/libexec/devbox-keyboard-shortcuts-data.py
+    target: ~/.local/lib/devbox/devbox-keyboard-shortcuts-data.py
+  - source: dotfiles/applications/devbox-keyboard-shortcuts.desktop
+    target: ~/.local/share/applications/devbox-keyboard-shortcuts.desktop
+  - source: dotfiles/applications/devbox-keyboard-shortcuts.desktop
+    target: ~/.local/share/kglobalaccel/devbox-keyboard-shortcuts.desktop
+  - source: dotfiles/quickshell/devbox-keyboard-helper/shell.qml
+    target: ~/.config/quickshell/devbox-keyboard-helper/shell.qml
+
+post_install_hook: scripts/configure-shortcut.sh
+hook_behavior: always
