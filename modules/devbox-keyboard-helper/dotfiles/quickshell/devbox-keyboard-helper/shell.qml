@@ -39,8 +39,8 @@ Scope {
 
         title: "Keyboard shortcuts"
         visible: true
-        width: 1040
-        height: 720
+        implicitWidth: 1040
+        implicitHeight: 720
         minimumSize: Qt.size(720, 480)
         color: "#11151d"
         onClosed: Qt.quit()
