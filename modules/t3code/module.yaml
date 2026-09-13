@@ -4,9 +4,13 @@ description: Always-on T3 Code server with local web UI and Tailscale pairing
 
 packages:
   - t3code-bin # Official Arch package name from the T3 Code project
+  - nodejs # Required by the T3 Code CLI service runtime
+  - npm # Provides npx for the T3 Code service manager
 
 dotfiles:
   - source: dotfiles/autostart/t3code.desktop
     target: ~/.config/autostart/t3code.desktop
+  - source: dotfiles/systemd/user/t3code.service
+    target: ~/.config/systemd/user/t3code.service
 post_install_hook: scripts/setup-t3code-service.sh
 hook_behavior: always

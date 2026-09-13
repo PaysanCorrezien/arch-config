@@ -35,7 +35,7 @@ enabled_modules:
   - espanso                  # Text expander (Wayland)
   - webapps                  # PWA launchers for web services
   - devbox-app-shortcuts     # Dedicated Meta-key focus-or-launch bindings
-  - devbox-t3code            # T3 Code desktop control surface, start at KDE login
+  - t3code                   # Always-on T3 Code server, local UI, and Tailscale pairing
   - devbox-agent-workspaces # Start Claude Remote Control for Brassens + Chirac at KDE login
   - devbox-keyboard-helper   # Quickshell viewer for active Plasma shortcuts
   - kde-remote-desktop       # KRDP over Tailscale — reach the HOST remotely

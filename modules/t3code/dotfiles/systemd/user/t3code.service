@@ -1,0 +1,21 @@
+[Unit]
+Description=T3 Code server
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+ExecStartPre=%h/.config/dcli/modules/t3code/scripts/prepare-node-pty.sh
+Type=simple
+WorkingDirectory=%h
+Environment=T3CODE_HOME=%h/.t3
+Environment=T3_BOOT_SERVICE_UNIT=t3code.service
+ExecStart=/usr/bin/node %h/.t3/runtime/service-launcher.mjs
+KillMode=mixed
+OOMPolicy=continue
+Restart=always
+RestartSec=5
+StandardOutput=append:%h/.t3/userdata/logs/boot-service.log
+StandardError=append:%h/.t3/userdata/logs/boot-service.log
+
+[Install]
+WantedBy=default.target
