@@ -51,6 +51,20 @@ Start-Service sshd
 Set-Service -Name sshd -StartupType Automatic
 $answer = Get-Volume | Where-Object { $_.FileSystemLabel -eq 'WINSETUP' } | Select-Object -First 1
 if ($answer) {
+  $autologonSource = "{0}:\configure-windows-autologon.ps1" -f $answer.DriveLetter
+  if (Test-Path $autologonSource) {
+    try {
+      & "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File $autologonSource
+      if ($LASTEXITCODE -ne 0) { throw "Autologon setup exited with code $LASTEXITCODE." }
+    } catch {
+      Write-Error "Could not configure persistent Windows sign-in: $($_.Exception.Message)"
+      exit 1
+    }
+  } else {
+    Write-Error 'Windows autologon setup script was not present on the answer media.'
+    exit 1
+  }
+
   $key = Get-Content ("{0}:\host-authorized-key.pub" -f $answer.DriveLetter)
   $auth = 'C:\ProgramData\ssh\administrators_authorized_keys'
   New-Item -ItemType File -Path $auth -Force | Out-Null

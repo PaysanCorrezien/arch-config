@@ -14,6 +14,7 @@ TEMPLATE="${MODULE_DIR}/templates/windows.xml.in"
 UNATTEND_TEMPLATE="${MODULE_DIR}/templates/autounattend.xml.in"
 GUEST_SETUP_SCRIPT="${MODULE_DIR}/scripts/setup-vm-guest.ps1"
 GUEST_READY_APPS_SCRIPT="${MODULE_DIR}/scripts/start-guest-ready-apps.ps1"
+GUEST_AUTOLOGON_SCRIPT="${MODULE_DIR}/scripts/configure-windows-autologon.ps1"
 TOGGLE_SCRIPT="${MODULE_DIR}/scripts/win-vm-toggle.py"
 TOGGLE_SERVICE_TEMPLATE="${MODULE_DIR}/templates/win-vm-toggle.service.in"
 
@@ -245,12 +246,14 @@ sed -e "s|@VM_USER@|${WIN_VM_USER}|g" -e "s|@VM_PASSWORD@|${WIN_VM_PASSWORD}|g" 
   "${UNATTEND_TEMPLATE}" > "${UNATTEND_DIR}/Autounattend.xml"
 sed "s|@VM_NAME@|${VM_NAME}|g" "${GUEST_SETUP_SCRIPT}" > "${UNATTEND_DIR}/setup-vm-guest.ps1"
 install -m 0644 "${GUEST_READY_APPS_SCRIPT}" "${UNATTEND_DIR}/start-guest-ready-apps.ps1"
+install -m 0644 "${GUEST_AUTOLOGON_SCRIPT}" "${UNATTEND_DIR}/configure-windows-autologon.ps1"
 mkdir -p "${UNATTEND_DIR}/windev-box"
 install -m 0644 "${WINDEV_BOOTSTRAP_SCRIPT}" "${UNATTEND_DIR}/windev-box/bootstrap.ps1"
 install -m 0644 "${WINDEV_VAULT_SCRIPT}" "${UNATTEND_DIR}/windev-box/setup-vault.ps1"
 install -m 0644 "${USER_HOME}/.ssh/win-vm-control.pub" "${UNATTEND_DIR}/host-authorized-key.pub"
 sudo xorriso -as mkisofs -quiet -iso-level 3 -J -R -V WINSETUP -o "${UNATTEND_ISO}" "${UNATTEND_DIR}"
 sudo chown "${TARGET_USER}:${TARGET_USER}" "${UNATTEND_ISO}"
+sudo chmod 0600 "${UNATTEND_ISO}"
 
 # On btrfs, VM images MUST be nocow or fragmentation and snapshot cost explode.
 # chattr +C only takes effect on files created afterwards, so it goes on the

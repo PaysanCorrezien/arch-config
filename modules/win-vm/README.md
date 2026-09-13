@@ -57,8 +57,16 @@ Arch host — KDE Plasma 6 (Wayland), iGPU drives both monitors
    and opens RDP. At Windows sign-in, Windows Terminal opens Claude Remote
    Control in `C:\code\brassens-monorepo` and `C:\code\chirac`, then launches
    ChatGPT inside the guest.
-   When RDP is visible, the same key closes only the RDP client and returns to Linux; Windows stays running. Both
-   the listener and Windows VM start at host boot, so Windows remains ready.
+   At host boot the VM starts and Windows signs in automatically. The
+   `WinVm-ReadyApps` task starts Claude Remote Control and ChatGPT at every
+   Windows sign-in, including after guest reboots. `Meta+Alt+W` opens or closes
+   only the RDP window; Windows stays running when you return to Linux.
+
+Windows automatic sign-in uses Microsoft Sysinternals Autologon, which keeps
+the password in an LSA secret rather than a plaintext Winlogon registry value.
+Local administrators of the guest can still recover it, so keep guest admin
+access restricted. The generated answer ISO also contains setup credentials
+and is stored with owner-only permissions.
 
 ## Audio — read this before filing a bug
 
