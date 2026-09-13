@@ -57,8 +57,10 @@ export ANDROID_HOME ANDROID_SDK_ROOT="$ANDROID_HOME" JAVA_HOME
 export PATH="$JAVA_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
 
 echo "-> Accepting SDK licenses"
-yes | run_as_user env ANDROID_HOME="$ANDROID_HOME" JAVA_HOME="$JAVA_HOME" PATH="$PATH" \
-  sdkmanager --licenses >/dev/null
+# Current Android CLI releases accept licenses during component installation;
+# feeding an endless `yes` stream now causes a SIGPIPE under `pipefail`.
+run_as_user env ANDROID_HOME="$ANDROID_HOME" JAVA_HOME="$JAVA_HOME" PATH="$PATH" \
+  sdkmanager --licenses </dev/null >/dev/null
 
 echo "-> Installing SDK components (platform-tools, emulator, platform 35, build-tools 35, system image)"
 run_as_user env ANDROID_HOME="$ANDROID_HOME" JAVA_HOME="$JAVA_HOME" PATH="$PATH" \
