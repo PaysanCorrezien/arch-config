@@ -7,7 +7,7 @@
 #   2. Accept all Android SDK licenses.
 #   3. Install platform-tools, emulator, platforms;android-35, build-tools;35.0.0,
 #      and a Google Play system image for the emulator.
-#   4. Create a Pixel API 35 AVD if none exists.
+#   4. Create the capped Chirac API 35 tablet AVD when missing.
 #   5. Install Maestro CLI to ~/.maestro (user-scoped).
 #   6. Install EAS CLI globally via npm (requires npm in PATH).
 
@@ -15,8 +15,11 @@ set -euo pipefail
 
 ANDROID_HOME="/opt/android-sdk"
 JAVA_HOME="/usr/lib/jvm/java-21-openjdk"
-AVD_NAME="Pixel_API_35"
+AVD_NAME="Chirac_Tablet_API_35"
+DEVICE_PROFILE="pixel_tablet"
 SYSTEM_IMAGE="system-images;android-35;google_apis_playstore;x86_64"
+AVD_RAM_MB="4096"
+AVD_CORES="2"
 
 echo "=== Expo Dev Setup ==="
 
@@ -72,10 +75,34 @@ if run_as_user env ANDROID_HOME="$ANDROID_HOME" PATH="$PATH" \
      avdmanager list avd 2>/dev/null | grep -q "Name: ${AVD_NAME}"; then
   echo "✓ AVD ${AVD_NAME} already exists"
 else
-  echo "-> Creating AVD ${AVD_NAME}"
+  echo "-> Creating AVD ${AVD_NAME} (${AVD_RAM_MB} MiB, ${AVD_CORES} cores)"
   echo "no" | run_as_user env ANDROID_HOME="$ANDROID_HOME" JAVA_HOME="$JAVA_HOME" PATH="$PATH" \
-    avdmanager create avd -n "$AVD_NAME" -k "$SYSTEM_IMAGE" -d "pixel_7" --force >/dev/null
+    avdmanager create avd -n "$AVD_NAME" -k "$SYSTEM_IMAGE" -d "$DEVICE_PROFILE" --force >/dev/null
   echo "✓ AVD created"
+fi
+
+# Keep this single UAT lane bounded even while the Windows VM is active. The
+# emulator can grow graphics caches beyond its initial allocation, but these
+# AVD values cap the guest RAM/heap and avoid consuming every host core.
+avd_config="${user_home}/.android/avd/${AVD_NAME}.avd/config.ini"
+if [ -f "$avd_config" ]; then
+  config_tmp="${avd_config}.tmp.$$"
+  run_as_user awk -v ram="$AVD_RAM_MB" -v cores="$AVD_CORES" '
+    BEGIN { ram_seen = heap_seen = cores_seen = gpu_seen = 0 }
+    /^hw\.ramSize=/ { print "hw.ramSize=" ram; ram_seen = 1; next }
+    /^vm\.heapSize=/ { print "vm.heapSize=512"; heap_seen = 1; next }
+    /^hw\.cpu\.ncore=/ { print "hw.cpu.ncore=" cores; cores_seen = 1; next }
+    /^hw\.gpu\.enabled=/ { print "hw.gpu.enabled=yes"; gpu_seen = 1; next }
+    { print }
+    END {
+      if (!ram_seen) print "hw.ramSize=" ram
+      if (!heap_seen) print "vm.heapSize=512"
+      if (!cores_seen) print "hw.cpu.ncore=" cores
+      if (!gpu_seen) print "hw.gpu.enabled=yes"
+    }
+  ' "$avd_config" > "$config_tmp"
+  run_as_user mv "$config_tmp" "$avd_config"
+  echo "✓ Capped ${AVD_NAME} at ${AVD_RAM_MB} MiB / ${AVD_CORES} cores"
 fi
 
 # 5. Maestro

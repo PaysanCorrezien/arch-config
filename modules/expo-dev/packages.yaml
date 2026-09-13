@@ -1,0 +1,10 @@
+# Lean Android runtime for Expo/React Native work. Android Studio is optional
+# and intentionally omitted: Gradle, adb, sdkmanager, and the emulator cover
+# the Chirac development and UAT workflow without its extra host footprint.
+description: Expo Android development runtime
+
+packages:
+  - jdk21-openjdk                       # Android Gradle Plugin requires JDK 17 or 21
+  - android-tools                       # adb and fastboot
+  - android-udev                        # udev rules for physical devices over USB
+  - android-sdk-cmdline-tools-latest    # sdkmanager and avdmanager (AUR)

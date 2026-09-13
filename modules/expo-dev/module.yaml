@@ -15,14 +15,10 @@
 # Workaround: pin the project's Gradle wrapper to 8.14 in
 # android/gradle/wrapper/gradle-wrapper.properties. Remove once Expo patches.
 
-description: Expo / React Native mobile development (Android Studio + SDK + Maestro + EAS)
+description: Expo / React Native Android development (SDK, emulator, Maestro, and EAS)
 
-packages:
-  - jdk21-openjdk                       # Android Gradle Plugin requires JDK 17 or 21
-  - android-tools                       # adb, fastboot
-  - android-udev                        # udev rules for physical devices over USB
-  - android-studio                      # IDE (AUR)
-  - android-sdk-cmdline-tools-latest    # sdkmanager / avdmanager (AUR)
-
-scripts:
-  - scripts/setup-expo-dev.sh
+# Install the runtime through the explicit hook after the packages are present.
+# It downloads one API image and creates a capped development AVD; it does not
+# install Android Studio or start an emulator.
+post_install_hook: scripts/setup-expo-dev.sh
+hook_behavior: ask
