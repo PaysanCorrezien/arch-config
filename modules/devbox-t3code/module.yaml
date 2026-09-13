@@ -1,6 +1,6 @@
-# T3 Code desktop control surface for local coding agents.
+# T3 Code server for always-on remote access through the tailnet.
 
-description: T3 Code desktop app with KDE login autostart
+description: Always-on T3 Code server with local web UI and Tailscale pairing
 
 packages:
   - t3code-bin # Official Arch package name from the T3 Code project
@@ -8,3 +8,5 @@ packages:
 dotfiles:
   - source: dotfiles/autostart/t3code.desktop
     target: ~/.config/autostart/t3code.desktop
+post_install_hook: scripts/setup-t3code-service.sh
+hook_behavior: always
