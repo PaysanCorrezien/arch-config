@@ -32,8 +32,10 @@ run_as_desktop_user systemctl --user enable --now t3code.service
 run_as_desktop_user systemctl --user restart t3code.service
 
 if command -v ufw >/dev/null 2>&1; then
-  sudo ufw allow in on tailscale0 to any port 443 proto tcp \
+  sudo ufw delete allow in on tailscale0 to any port 443 proto tcp \
+    comment 'T3 Code HTTPS via Tailscale Serve' || true
+  sudo ufw allow in on tailscale0 to any port 3010 proto tcp \
     comment 'T3 Code HTTPS via Tailscale Serve' || true
 fi
 
-echo "[t3code] Enabled the always-on T3 Code user service and tailnet HTTPS access"
+echo "[t3code] Enabled the always-on T3 Code service and tailnet HTTPS on port 3010"

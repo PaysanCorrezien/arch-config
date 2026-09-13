@@ -9,6 +9,8 @@ Type=simple
 WorkingDirectory=%h
 Environment=T3CODE_HOME=%h/.t3
 Environment=T3_BOOT_SERVICE_UNIT=t3code.service
+Environment=T3CODE_TAILSCALE_SERVE=true
+Environment=T3CODE_TAILSCALE_SERVE_PORT=3010
 ExecStart=/usr/bin/node %h/.t3/runtime/service-launcher.mjs
 KillMode=mixed
 OOMPolicy=continue
