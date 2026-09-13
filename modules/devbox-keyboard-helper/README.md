@@ -5,8 +5,8 @@ shortcuts configured by KDE Plasma. It reads `~/.config/kglobalshortcutsrc`
 each time it opens, so shortcut changes appear without keeping a second list in
 the repository. Desktop-entry names are used to label the host's app shortcuts.
 
-Press **Meta+Shift+K** to open the viewer. Press **Escape** or click **Close**
-to dismiss it.
+Press **Meta+Shift+K** to toggle the viewer open or closed. Press **Escape** or
+click **Close** to dismiss it. Repeated presses never create duplicate windows.
 
 The data adapter is intentionally limited to Plasma global shortcuts. It does
 not enumerate shortcuts internal to individual applications.

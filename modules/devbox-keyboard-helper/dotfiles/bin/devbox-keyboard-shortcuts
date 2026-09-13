@@ -11,4 +11,11 @@ chmod 0600 "$temporary_file"
 mv -f "$temporary_file" "$data_file"
 trap - EXIT
 
-exec qs -c devbox-keyboard-helper
+# The global shortcut is a toggle: close the existing viewer when it is
+# running, otherwise start one instance. --no-duplicate covers presses that
+# race while Quickshell is registering its IPC endpoint.
+if qs ipc -c devbox-keyboard-helper call keyboard-shortcuts close >/dev/null 2>&1; then
+  exit 0
+fi
+
+exec qs --no-duplicate --config devbox-keyboard-helper

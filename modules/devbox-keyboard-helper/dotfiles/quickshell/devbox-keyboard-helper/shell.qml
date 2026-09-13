@@ -34,6 +34,14 @@ Scope {
         }
     }
 
+    IpcHandler {
+        target: "keyboard-shortcuts"
+
+        function close() {
+            Qt.quit();
+        }
+    }
+
     FloatingWindow {
         id: window
 
