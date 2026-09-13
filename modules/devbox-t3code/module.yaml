@@ -1,0 +1,10 @@
+# T3 Code desktop control surface for local coding agents.
+
+description: T3 Code desktop app with KDE login autostart
+
+packages:
+  - t3code-bin # Official Arch package name from the T3 Code project
+
+dotfiles:
+  - source: dotfiles/autostart/t3code.desktop
+    target: ~/.config/autostart/t3code.desktop

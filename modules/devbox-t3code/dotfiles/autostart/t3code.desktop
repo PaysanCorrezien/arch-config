@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=T3 Code
+Comment=Desktop control surface for local coding agents
+Exec=t3code
+TryExec=t3code
+Terminal=false
+X-KDE-autostart-after=panel
