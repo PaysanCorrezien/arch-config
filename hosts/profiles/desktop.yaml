@@ -13,6 +13,5 @@ enabled_modules:
   # NOTE: SDDM is configured per-compositor:
   #   - desktop-niri.yaml uses the `sddm` module (Noctalia theme)
   #   - desktop-kde.yaml uses KDE's own SDDM setup (Breeze theme, Wayland)
-  - kanata           # Keyboard remapping
   - snapper          # Btrfs snapshots + GRUB entries
   - localsend        # LocalSend + firewall rule
