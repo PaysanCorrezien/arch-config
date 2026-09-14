@@ -20,7 +20,7 @@ exclude:
   - wofi                     # Launcher — replaced by KRunner
   - wlogout                  # Logout menu — Plasma SDDM/leave action
   - wlsunset                 # Night Light — built into Plasma
-  - wtype                    # Wayland typing tool — kdotool/kdialog alternatives
+  # wtype is NOT excluded: brassens desktop (`just check-linux`) requires it.
   - bemenu-wayland           # dmenu-clone — replaced by KRunner
   - noctalia-shell           # niri Quickshell — Plasma is the shell now
   - cachyos-niri-noctalia    # niri+noctalia integration meta

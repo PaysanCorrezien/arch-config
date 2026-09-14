@@ -99,7 +99,7 @@ packages:
 - localsend
 - bun
 - claude-desktop
-- codex-desktop
+- codex-desktop-git
 exclude: []
 conflicts: []
 pre_install_hook: null

@@ -1,0 +1,14 @@
+# GPU host media disk + SFTPGo
+# Mounts the 8TB ext4 "media8" disk at /mnt/media8 and serves all of it with
+# SFTPGo in Docker, reachable over Tailscale only (via `tailscale serve`).
+# No credentials in the repo: SFTPGo's first-run page (/web/admin/setup)
+# creates the admin; add a user with home /srv/media8 and all permissions.
+
+description: Mount the 8TB media disk and serve it over the tailnet with SFTPGo
+
+requires:
+  - docker
+  - tailscale
+
+post_install_hook: scripts/setup-media.sh
+hook_behavior: ask

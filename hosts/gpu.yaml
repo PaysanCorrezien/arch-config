@@ -18,8 +18,13 @@ enabled_modules:
   - nvidia                   # Nvidia open drivers + CUDA + Wayland support
   - docker                   # Docker engine + nvidia-container-runtime
   - gpu-zfs                  # ZFS DKMS + import/create mirror pool (sda+sdb)
+                             # NOTE: disks changed — sda is now the ext4 media8 disk and
+                             # mediapool is single-disk on sdb. Hook skipped: `dcli hooks skip gpu-zfs`
+  - gpu-media                # Mount 8TB media8 at /mnt/media8 + SFTPGo over Tailscale
   - kde-remote-desktop       # krdp bound to Tailscale (reliable Wayland remote-in)
-  - expo-dev                 # Android Studio + SDK + Maestro + EAS for Expo mobile dev
+  - devbox-agent-workspaces  # Claude Remote Control for Brassens + Chirac at KDE login (clones repos)
+  - dev-build-cache          # Gradle/Cargo/ccache tuning, private deps over SSH, git-lfs, ydotool
+  - expo-dev                 # Android SDK + emulators (Chirac phone/tablet, Brassens phone) + Maestro + EAS
   # NOTE: gpu-niri intentionally removed — this host runs KDE Plasma now.
 
 # Module processing mode
@@ -33,6 +38,18 @@ packages:
   - python-pytorch-cuda     # PyTorch with CUDA support (AUR)
   # Pin cron provider so pacman doesn't prompt (transitive dep from KDE/snapper stack)
   - cronie
+  # Build caches for the Brassens/Chirac native builds
+  - ccache                  # React Native's CMake uses it automatically when present
+  - sccache                 # rustc wrapper (~/.cargo/config.toml) for napi addons + sidecars
+  - mold                    # fast linker for those Rust builds
+  # Desktop app runtime deps on KDE Wayland
+  - wtype                   # brassens `just check-linux`
+  - wl-clipboard            # brassens `just check-linux`
+  - ydotool                 # brassens paste on KDE (no wlroots virtual keyboard)
+  - tesseract               # chirac desktop OCR capture
+  - tesseract-data-eng
+  - tesseract-data-jpn
+  - tesseract-data-jpn_vert
 
 # Host-specific excludes (niri/wlroots stack is excluded by desktop-kde.yaml).
 exclude:
@@ -47,7 +64,7 @@ config_backups:
 
 # System backup settings
 system_backups:
-  enabled: true
+  enabled: false            # root is ext4 on this machine — snapper can't snapshot it
   backup_on_sync: true
   backup_on_update: true
   tool: snapper

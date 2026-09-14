@@ -15,9 +15,17 @@ launch_workspace() {
     return 0
   fi
 
-  systemd-run --user --quiet --collect --unit="${unit}" \
-    /usr/bin/ghostty --working-directory="${repo}" \
-    -e /usr/bin/claude --remote-control "${name}"
+  # Ghostty never spawns its child process on the NVIDIA/KDE Wayland gpu host
+  # (window process starts, command never runs, no error), so use Konsole there.
+  if [[ -e /proc/driver/nvidia/version ]]; then
+    systemd-run --user --quiet --collect --unit="${unit}" \
+      /usr/bin/konsole --separate --workdir "${repo}" \
+      -e /usr/bin/claude --remote-control "${name}"
+  else
+    systemd-run --user --quiet --collect --unit="${unit}" \
+      /usr/bin/ghostty --working-directory="${repo}" \
+      -e /usr/bin/claude --remote-control "${name}"
+  fi
 }
 
 launch_workspace brassens /home/dylan/code/brassens-monorepo

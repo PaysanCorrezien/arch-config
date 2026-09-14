@@ -69,6 +69,20 @@ configure_resolvconf() {
         printf '\n# Managed by arch-config/modules/tailscale-client-dns.\nname_servers="127.0.0.1"\n' |
             sudo tee -a /etc/resolvconf.conf >/dev/null
     fi
+
+    # accept-dns=false also drops Tailscale's search domain, so short names
+    # like `ssh workstation` stop resolving. Add the tailnet suffix back.
+    local suffix
+    suffix="$(tailscale status --json 2>/dev/null | python3 -c 'import json, sys; print(json.load(sys.stdin).get("MagicDNSSuffix") or "")' 2>/dev/null || true)"
+    if [[ -n "${suffix}" ]]; then
+        if grep -Eq '^[[:space:]]*search_domains=' /etc/resolvconf.conf; then
+            sudo sed -i "s|^[[:space:]]*search_domains=.*|search_domains=\"${suffix}\"|" /etc/resolvconf.conf
+        else
+            printf 'search_domains="%s"\n' "${suffix}" | sudo tee -a /etc/resolvconf.conf >/dev/null
+        fi
+    else
+        echo "⚠ Tailscale not authenticated; short tailnet names need a re-run after 'tailscale up'"
+    fi
     sudo resolvconf -u
 }
 

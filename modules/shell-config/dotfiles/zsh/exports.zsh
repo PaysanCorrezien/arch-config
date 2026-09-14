@@ -8,6 +8,14 @@ export PATH="$HOME/.cargo/bin:$PATH"
 export NPM_CONFIG_PREFIX="$HOME/.npm-global"
 export PATH="$HOME/.npm-global/bin:$PATH"
 
+# sharp links a system libvips when one is present (KDE's appstream pulls it
+# in), then fails to compile against it. Always use sharp's prebuilt binary.
+export SHARP_IGNORE_GLOBAL_LIBVIPS=1
+
+# Build caches that fall back to /tmp (e.g. chirac's Android/Metro cache) would
+# land on the RAM-backed tmpfs and vanish on reboot; keep them on disk.
+export XDG_CACHE_HOME="$HOME/.cache"
+
 # Truecolor support
 export COLORTERM=truecolor
 

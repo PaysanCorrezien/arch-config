@@ -1,0 +1,28 @@
+# Developer build plumbing for the Brassens and Chirac workspaces.
+# Host-wide caches and settings that make their Android (Gradle/NDK), Electron
+# native (Rust napi + sidecars) and JS builds fast and reproducible:
+#   - Gradle: bigger heap, parallel + build cache, pinned JVM locale
+#   - Cargo: sccache + mold, git CLI fetches for private git deps
+#   - ccache: React Native's Android CMake picks it up automatically
+# The hook routes private GitHub deps over SSH, installs Git LFS filters and
+# enables the ydotool daemon (brassens desktop paste on KDE).
+
+description: Build caches and settings for Gradle, Cargo and NDK builds
+
+packages:
+  - ccache
+  - sccache
+  - mold
+  - git-lfs
+  - ydotool
+
+dotfiles:
+  - source: dotfiles/gradle/gradle.properties
+    target: ~/.gradle/gradle.properties
+  - source: dotfiles/cargo/config.toml
+    target: ~/.cargo/config.toml
+  - source: dotfiles/ccache/ccache.conf
+    target: ~/.config/ccache/ccache.conf
+
+post_install_hook: scripts/setup-dev-build.sh
+hook_behavior: ask

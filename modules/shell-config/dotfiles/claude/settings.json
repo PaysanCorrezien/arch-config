@@ -84,6 +84,8 @@
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark-daltonized",
   "remoteControlAtStartup": true,
+  "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "tui": "fullscreen"
 }

@@ -1,0 +1,14 @@
+# Host-wide Cargo tuning (managed by arch-config dev-build-cache).
+# sccache caches rustc outputs across repos/worktrees and `cargo clean`;
+# mold cuts link time for the Electron napi addons and sidecar binaries.
+[build]
+rustc-wrapper = "sccache"
+
+# Private git deps (e.g. PaysanCorrezien/windows-cli) need the git CLI so the
+# global `url.insteadOf` rewrite to SSH applies; libgit2 has no credentials.
+[net]
+git-fetch-with-cli = true
+
+[target.x86_64-unknown-linux-gnu]
+linker = "clang"
+rustflags = ["-C", "link-arg=-fuse-ld=mold"]

@@ -46,6 +46,10 @@ else
 	git clone "${REPO_URL}" "${TARGET_DIR}"
 fi
 
+# nvim-config is an SSH submodule: without it the dotfile link points nowhere.
+git -C "${TARGET_DIR}" submodule update --init ||
+	echo "⚠ Submodules not fetched (needs this host's SSH key on GitHub). Re-run: git -C ${TARGET_DIR} submodule update --init"
+
 install_dcli
 
 cd "${TARGET_DIR}"

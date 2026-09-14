@@ -7,3 +7,7 @@ dotfiles:
     target: ~/.local/bin/devbox-agent-workspaces
   - source: dotfiles/autostart/devbox-agent-workspaces.desktop
     target: ~/.config/autostart/devbox-agent-workspaces.desktop
+
+# Clone ~/code/brassens-monorepo and ~/code/chirac when missing.
+post_install_hook: scripts/clone-workspaces.sh
+hook_behavior: ask

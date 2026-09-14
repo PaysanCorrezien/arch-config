@@ -39,6 +39,7 @@ packages:
   - markdownlint-cli2  # Markdown linter
 
   # Build tools and runtimes
+  - git-lfs            # brassens-monorepo stores its Gradle wrapper, images and .so files in LFS
   - nodejs-lts-jod
   - npm
   - pnpm               # Fast package manager

@@ -1,0 +1,24 @@
+# SFTPGo serving the whole 8TB media disk on the gpu host.
+# Published on loopback only — Docker's port publishing bypasses ufw — and
+# exposed to the tailnet by `tailscale serve` (see scripts/setup-media.sh).
+# No admin is pre-seeded: SFTPGo's first-run page at /web/admin creates it.
+services:
+  sftpgo:
+    image: drakkan/sftpgo:v2
+    container_name: sftpgo
+    restart: unless-stopped
+    user: "1000:1000"
+    ports:
+      - "127.0.0.1:2022:2022" # SFTP
+      - "127.0.0.1:8080:8080" # Web admin, web client, REST API
+      - "127.0.0.1:8090:8090" # WebDAV (network drive)
+    environment:
+      # Upload temp files on the same filesystem, so a finished upload is a rename.
+      SFTPGO_COMMON__TEMP_PATH: /srv/media8/.sftpgo-tmp
+      SFTPGO_WEBDAVD__BINDINGS__0__PORT: "8090"
+    volumes:
+      - /mnt/media8:/srv/media8
+      - sftpgo-data:/var/lib/sftpgo
+
+volumes:
+  sftpgo-data:

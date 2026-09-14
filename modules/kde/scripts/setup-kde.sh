@@ -155,11 +155,19 @@ for u in "$desktop_user"; do
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key SwitchMode "Global"
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key ShowFlag true
   run_as_user kwriteconfig6 --file kxkbrc --group Layout --key ShowLayoutIndicator true
+  # Region: English UI with French formats. A Formats locale picked during
+  # install (seen: ar_EG on gpu) otherwise mirrors the whole session right-to-left.
+  run_as_user kwriteconfig6 --file plasma-localerc --group Formats --key LANG en_US.UTF-8
+  for lc in LC_ADDRESS LC_MEASUREMENT LC_MONETARY LC_NAME LC_NUMERIC LC_PAPER LC_TELEPHONE LC_TIME; do
+    run_as_user kwriteconfig6 --file plasma-localerc --group Formats --key "$lc" fr_FR.UTF-8
+  done
+  run_as_user kwriteconfig6 --file plasma-localerc --group Translations --key LANGUAGE en_US
 done
 
 echo "[kde] Reloading user systemd to pick up portal changes (if logged in)"
 systemctl --user daemon-reload 2>/dev/null || true
-sudo systemctl restart systemd-logind 2>/dev/null || true
+# Do not restart systemd-logind here: on a live Wayland session that can take
+# down KWin and the terminal running this hook. logind.conf.d applies at boot.
 
 # Reload powerdevil live so changes apply without logout
 qdbus6 org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement \

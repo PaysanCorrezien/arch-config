@@ -63,6 +63,13 @@ sudo install -Dm0755 "${module_dir}/scripts/krdp-tailnet-wrapper.sh" /usr/local/
 sudo install -Dm0644 "${module_dir}/systemd/app-org.kde.krdpserver.service.d/10-tailnet.conf" \
   /etc/systemd/user/app-org.kde.krdpserver.service.d/10-tailnet.conf
 
+# The ssh module turns ufw on with default-deny incoming, which would silently
+# drop RDP. Open 3389 on the tailnet interface only (ufw skips duplicate rules).
+if command -v ufw >/dev/null 2>&1; then
+  echo "[krdp] Allowing 3389/tcp on tailscale0 through ufw"
+  sudo ufw allow in on tailscale0 to any port 3389 proto tcp comment 'KRDP over Tailscale' >/dev/null
+fi
+
 # --- Always-on session so RDP works after a cold boot ----------------------
 # krdp is a user service inside the Plasma session — if no session exists,
 # port 3389 is closed. To make "power on → RDP in" work without a human at
