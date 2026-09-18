@@ -11,7 +11,11 @@ if [[ -z "${tailnet_ip}" ]]; then
     exit 75
 fi
 
-virtual_monitor="${KRDP_VIRTUAL_MONITOR:-2560x1440@1}"
+# KRDP 6.7 can mis-map click/button input on a 2560x1440 virtual output.
+# Keep the unattended default at the 1080p mode that its Plasma input path
+# handles reliably; an explicit systemd environment override can opt in to a
+# different mode once that upstream issue is fixed.
+virtual_monitor="${KRDP_VIRTUAL_MONITOR:-1920x1080@1}"
 
 exec /usr/bin/krdpserver \
     --plasma \
