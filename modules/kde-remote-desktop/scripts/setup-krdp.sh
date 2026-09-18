@@ -18,6 +18,12 @@ fi
 USER_HOME="$(getent passwd "${TARGET_USER}" | cut -d: -f6)"
 USER_UID="$(id -u "${TARGET_USER}")"
 
+# Load a DRM virtual connector before Plasma starts.  Unlike KRDP's own
+# --virtual-monitor mode, this is a normal KWin output, so RDP pointer and
+# button input use the stable desktop path.
+sudo install -Dm0644 "${module_dir}/modules-load.d/vkms.conf" /etc/modules-load.d/dcli-vkms.conf
+sudo modprobe vkms
+
 run_user_cmd() {
   if [[ "$(id -u)" -eq 0 ]]; then
     sudo -u "${TARGET_USER}" XDG_RUNTIME_DIR="/run/user/${USER_UID}" "$@"
