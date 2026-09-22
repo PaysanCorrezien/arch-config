@@ -65,13 +65,20 @@ if ($answer) {
     exit 1
   }
 
+  # OpenSSH on the current Windows image uses the signed-in user's default
+  # AuthorizedKeysFile (.ssh/authorized_keys), not the optional
+  # administrators_authorized_keys override. Keep the host control key on the
+  # account that completed FirstLogonCommands rather than hard-coding a profile.
   $key = Get-Content ("{0}:\host-authorized-key.pub" -f $answer.DriveLetter)
-  $auth = 'C:\ProgramData\ssh\administrators_authorized_keys'
+  $authDir = Join-Path $env:USERPROFILE '.ssh'
+  $auth = Join-Path $authDir 'authorized_keys'
+  New-Item -ItemType Directory -Path $authDir -Force | Out-Null
   New-Item -ItemType File -Path $auth -Force | Out-Null
   if (-not (Select-String -Path $auth -SimpleMatch $key -Quiet)) { Add-Content -Path $auth -Value $key }
-  # Use SIDs rather than localized group names: this image is French, while
-  # the OpenSSH documentation examples use English "Administrators".
-  icacls $auth /inheritance:r /grant '*S-1-5-32-544:F' /grant '*S-1-5-18:F' | Out-Null
+  # Use SIDs rather than localized account names: this image is French.
+  $currentUserSid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+  icacls $authDir /inheritance:r /grant "*$currentUserSid`:(OI)(CI)F" /grant '*S-1-5-18:(OI)(CI)F' | Out-Null
+  icacls $auth /inheritance:r /grant "*$currentUserSid`:F" /grant '*S-1-5-18:F' | Out-Null
 }
 New-NetFirewallRule -DisplayName 'win-vm SSH from KVM host' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22 -RemoteAddress '192.168.122.0/24' -Profile Any -ErrorAction SilentlyContinue | Out-Null
 # LocalSend uses TCP and UDP 53317. Permit it only from the libvirt host

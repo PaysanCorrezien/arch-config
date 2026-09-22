@@ -62,6 +62,19 @@ Arch host — KDE Plasma 6 (Wayland), iGPU drives both monitors
    Windows sign-in, including after guest reboots. `Meta+Alt+W` opens or closes
    only the RDP window; Windows stays running when you return to Linux.
 
+## SSH control
+
+The installer stages the host's `~/.ssh/win-vm-control.pub` on the answer
+media and installs it in the first-logon Windows account's
+`%USERPROFILE%\.ssh\authorized_keys`. It does not rely on the optional
+administrator-wide OpenSSH key file, whose configuration varies by Windows
+image. The guest address is the fixed `VM_IP` in `win-vm.env`; configure the
+host's untracked SSH config with that address, the corresponding Windows user,
+`IdentityFile ~/.ssh/win-vm-control`, and `IdentitiesOnly yes`.
+
+For the current devbox guest, the resulting control command is `ssh win-vm`.
+Keep its private key and `~/.ssh/config` out of Git.
+
 Windows automatic sign-in uses Microsoft Sysinternals Autologon, which keeps
 the password in an LSA secret rather than a plaintext Winlogon registry value.
 Local administrators of the guest can still recover it, so keep guest admin
