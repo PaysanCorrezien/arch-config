@@ -9,6 +9,8 @@ description: Dedicated Plasma Wayland app shortcuts and Chromium web apps
 dotfiles:
   - source: dotfiles/bin/devbox-focus-or-launch
     target: ~/.local/bin/devbox-focus-or-launch
+  - source: dotfiles/bin/devbox-relaunch-chatgpt
+    target: ~/.local/bin/devbox-relaunch-chatgpt
   - source: dotfiles/applications/devbox-discord.desktop
     target: ~/.local/share/applications/devbox-discord.desktop
   - source: dotfiles/applications/devbox-discord.desktop

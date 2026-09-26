@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Replace the obsolete Codex desktop wrapper with the package-managed ChatGPT app.
+set -euo pipefail
+
+old_pids="$(pgrep -u "$UID" -f '^/opt/codex-desktop/ChatGPT( |$)' || true)"
+if [[ -n "$old_pids" ]]; then
+  kill -TERM $old_pids
+  for _ in {1..40}; do
+    pgrep -u "$UID" -f '^/opt/codex-desktop/ChatGPT( |$)' >/dev/null || break
+    sleep 0.25
+  done
+fi
+
+if pgrep -u "$UID" -f '^/opt/codex-desktop/ChatGPT( |$)' >/dev/null; then
+  echo 'The obsolete Codex desktop process did not exit.' >&2
+  exit 1
+fi
+
+exec /usr/bin/chatgpt --ozone-platform=wayland
