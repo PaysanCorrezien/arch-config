@@ -17,6 +17,11 @@ else
 fi
 uid="$(id -u "$target_user")"
 
+echo "[dev-build] private disk-backed temporary directory"
+# Expand HOME in the target user's shell, including when this hook runs as root.
+# shellcheck disable=SC2016
+as_user sh -c 'umask 077; mkdir -p "$HOME/.cache/devbox-tmp"'
+
 echo "[dev-build] git: PaysanCorrezien GitHub URLs over SSH"
 as_user git config --global url."git@github.com:PaysanCorrezien/".insteadOf "https://github.com/PaysanCorrezien/"
 
