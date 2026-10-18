@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Block until tailscale0 carries its address, so containers that bind to the tailscale
+# IP do not fail with "cannot assign requested
+# address" at boot. Without this, Docker can start before the tailnet address is ready.
+set -uo pipefail
+DEADLINE=$((SECONDS + 60))
+while (( SECONDS < DEADLINE )); do
+  if ip -4 addr show dev tailscale0 2>/dev/null | grep -q 'inet '; then
+    echo "tailscale0 is up"
+    exit 0
+  fi
+  sleep 1
+done
+# Do not block docker forever if tailscale is genuinely broken: containers that do not
+# bind the tailscale IP should still start. Report loudly and continue.
+echo "WARNING: tailscale0 has no IPv4 after 60s; starting docker anyway (tailscale-bound containers may fail)"
+exit 0

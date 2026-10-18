@@ -1,0 +1,7 @@
+[Unit]
+Description=Kill wedged GitHub Actions runner job trees
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/runner-watchdog.sh
+Nice=10

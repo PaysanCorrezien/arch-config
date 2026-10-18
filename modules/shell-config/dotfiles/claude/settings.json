@@ -69,13 +69,21 @@
     "frontend-design@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
     "professor-claude@claude-plugins-official": false,
-    "expo@expo-plugins": true
+    "expo@expo-plugins": true,
+    "codex@openai-codex": true,
+    "vercel@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "expo-plugins": {
       "source": {
         "source": "github",
         "repo": "expo/skills"
+      }
+    },
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
       }
     }
   },
@@ -87,5 +95,11 @@
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "modelSettings": {
+    "claude-opus-5": {
+      "effortLevel": "low"
+    }
+  },
+  "skipWorkflowUsageWarning": true
 }

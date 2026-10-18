@@ -84,7 +84,7 @@ function y() {
 # Initialize Starship prompt
 eval "$(starship init zsh)"
 
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.npm-global/bin:$PATH"
 
 # Initialize zoxide (must be last)
 eval "$(zoxide init zsh)"

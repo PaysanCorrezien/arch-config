@@ -3,6 +3,7 @@
 # mold cuts link time for the Electron napi addons and sidecar binaries.
 [build]
 rustc-wrapper = "sccache"
+jobs = 4
 
 # Private git deps (e.g. PaysanCorrezien/windows-cli) need the git CLI so the
 # global `url.insteadOf` rewrite to SSH applies; libgit2 has no credentials.

@@ -11,6 +11,7 @@ import:
 # Host-specific modules
 enabled_modules:
   - nvim-minimal             # Plugin-free Neovim (OSC 52 clipboard for SSH copy)
+  - auth-local-services      # Existing VPS runner, maintenance and application services
 
 # Module processing mode
 module_processing: parallel

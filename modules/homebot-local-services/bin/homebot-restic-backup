@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Keep the live backup policy without storing its password in arch-config.
+set -euo pipefail
+if [[ ! -r /etc/homebot-backup.env ]]; then
+  # Existing installation: keep its script and credentials untouched.
+  exec /data/docker/compose/backup-restic.sh
+fi
+set -a
+# shellcheck source=/dev/null
+source /etc/homebot-backup.env
+set +a
+if ! mountpoint -q /mnt/usb; then
+  # Use a persistent fstab identity, never the old script's /dev/sdc1 guess.
+  mount /mnt/usb
+fi
+mountpoint -q /mnt/usb
+: "${RESTIC_REPOSITORY:?Set RESTIC_REPOSITORY in /etc/homebot-backup.env}"
+case "$RESTIC_REPOSITORY" in
+  /mnt/usb/*) ;;
+  *) echo 'The homebot USB repository must be below /mnt/usb.' >&2; exit 1 ;;
+esac
+restic backup /data/docker /data/media/music --host homebot --verbose \
+  --exclude '*.log' --exclude '**/cache/**' --exclude '**/Cache/**' \
+  --exclude '**/.cache/**' --exclude '**/logs/**'
+restic forget --keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune

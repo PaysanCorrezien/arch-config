@@ -1,0 +1,2 @@
+# Match the VPS noninteractive Rust environment without failing before rustup exists.
+[[ ! -r "$HOME/.cargo/env" ]] || source "$HOME/.cargo/env"

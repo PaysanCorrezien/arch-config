@@ -1,0 +1,14 @@
+# Read by noninteractive agent shells as well as interactive terminals.
+# Preserve explicit per-lane temporary directories and build limits.
+# Keep rustup available to noninteractive commands (also present on vps1).
+[[ ! -r "$HOME/.cargo/env" ]] || source "$HOME/.cargo/env"
+if [[ -z ${TMPDIR:-} ]]; then
+  export TMPDIR="$HOME/.cache/devbox-tmp"
+fi
+if [[ "$TMPDIR" == "$HOME/.cache/devbox-tmp" && ! -d "$TMPDIR" ]]; then
+  (umask 077; mkdir -p -- "$TMPDIR")
+fi
+export TMP="${TMP:-$TMPDIR}"
+export TEMP="${TEMP:-$TMPDIR}"
+export CARGO_BUILD_JOBS="${CARGO_BUILD_JOBS:-4}"
+export CMAKE_BUILD_PARALLEL_LEVEL="${CMAKE_BUILD_PARALLEL_LEVEL:-4}"

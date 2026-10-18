@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# deploy-backup-rotate — enforce retention on /home/dylan/deploy/backups.
+#
+# Keeps the KEEP most recent snapshots by directory name (they are named YYYYMMDD-HHMMSS,
+# so lexical sort == chronological sort). Dry-run unless --apply is passed.
+
+set -uo pipefail
+
+DIR="${DIR:-/home/dylan/deploy/backups}"
+KEEP="${KEEP:-5}"
+[[ "$KEEP" =~ ^[0-9]+$ ]] || { echo "KEEP must be a nonnegative integer" >&2; exit 2; }
+APPLY=0
+[[ "${1:-}" == "--apply" ]] && APPLY=1
+
+[[ -d "$DIR" ]] || { echo "no such directory: $DIR"; exit 0; }
+
+# Only consider directories matching the snapshot naming scheme, so a stray file or an
+# unrelated directory is never a deletion candidate.
+mapfile -t SNAPS < <(find "$DIR" -mindepth 1 -maxdepth 1 -type d \
+  -regextype posix-extended -regex '.*/[0-9]{8}-[0-9]{6}$' -printf '%f\n' | sort)
+
+TOTAL=${#SNAPS[@]}
+if (( TOTAL <= KEEP )); then
+  echo "$TOTAL snapshot(s), keeping $KEEP — nothing to do"
+  exit 0
+fi
+
+DELETE_COUNT=$(( TOTAL - KEEP ))
+echo "$TOTAL snapshot(s) in $DIR; keeping newest $KEEP, removing $DELETE_COUNT"
+
+for s in "${SNAPS[@]:0:$DELETE_COUNT}"; do
+  SIZE=$(du -xsh "$DIR/$s" 2>/dev/null | cut -f1)
+  if (( APPLY )); then
+    echo "removing $s ($SIZE)"
+    rm -rf -- "${DIR:?}/${s:?}"
+  else
+    echo "would remove $s ($SIZE)"
+  fi
+done
+
+(( APPLY )) || echo "(dry run — pass --apply to actually delete)"

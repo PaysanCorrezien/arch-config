@@ -20,5 +20,18 @@ services:
       - /mnt/media8:/srv/media8
       - sftpgo-data:/var/lib/sftpgo
 
+  # Credential-free read/write WebDAV for devices already trusted by the
+  # tailnet. The port is loopback-only; Tailscale Serve is the public edge.
+  webdav:
+    image: rclone/rclone:latest
+    container_name: media-webdav
+    restart: unless-stopped
+    user: "1000:1000"
+    command: ["serve", "webdav", "/data", "--addr", ":8080", "--no-modtime"]
+    ports:
+      - "127.0.0.1:8091:8080"
+    volumes:
+      - /mnt/media8:/data
+
 volumes:
   sftpgo-data:

@@ -1,0 +1,10 @@
+[Unit]
+Description=Rotate deploy rollback snapshots (retain newest 5)
+
+[Service]
+Type=oneshot
+User=dylan
+Environment=KEEP=5
+ExecStart=/usr/local/bin/deploy-backup-rotate --apply
+Nice=19
+IOSchedulingClass=idle

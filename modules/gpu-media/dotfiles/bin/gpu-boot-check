@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Post-reboot health check for the `gpu` host. Read-only; prints PASS/FAIL lines.
+# bash -c snippets deliberately expand in the child shell.
+# shellcheck disable=SC2016
+set -uo pipefail
+
+pass=0; fail=0
+check() { # name, command...
+  local name=$1; shift
+  if "$@" >/dev/null 2>&1; then printf 'PASS  %s\n' "$name"; pass=$((pass + 1))
+  else printf 'FAIL  %s\n' "$name"; fail=$((fail + 1)); fi
+}
+has_claude() {
+  tmux list-panes -t "=claude-resume-$1" -F '#{pane_current_command}' 2>/dev/null | grep -qx claude
+}
+
+echo "== session"
+check "locale is en_US (not ar_EG)"          bash -c '[[ "$(systemctl --user show-environment | sed -n "s/^LANG=//p")" == en_US.UTF-8 ]]'
+check "login shell is zsh"                   bash -c '[[ "$(getent passwd "$USER" | cut -d: -f7)" == /usr/bin/zsh ]]'
+check "docker group active in session"       bash -c 'id -nG | tr " " "\n" | grep -qx docker'
+check "keyboard layouts fr,us"               grep -q '^LayoutList=fr,us' "$HOME/.config/kxkbrc"
+
+echo "== storage + sharing"
+check "media8 mounted at /mnt/media8"        findmnt /mnt/media8
+check "sftpgo container up"                  bash -c 'docker ps --format "{{.Names}}" 2>/dev/null | grep -qx sftpgo || sudo -n docker ps --format "{{.Names}}" | grep -qx sftpgo'
+check "tailscale online"                     bash -c 'tailscale status --json | python3 -c "import json,sys; sys.exit(0 if json.load(sys.stdin)[\"Self\"][\"Online\"] else 1)"'
+check "tailscale serve: SFTP/WebDAV/web"     bash -c 'tailscale serve status | grep -q 2022 && tailscale serve status | grep -q 8443'
+check "WebDAV answers on tailnet port 2022"  bash -c '[[ "$(curl -s -X PROPFIND -H "Depth: 0" -o /dev/null -w "%{http_code}" --max-time 20 "https://$(tailscale status --json | python3 -c "import json,sys; print(json.load(sys.stdin)[\"Self\"][\"DNSName\"].rstrip(\".\"))"):2022/")" == 207 ]]'
+
+echo "== system services"
+for s in docker tailscaled sshd dnsmasq NetworkManager ufw; do check "$s active" systemctl is-active --quiet "$s"; done
+check "ufw allows 3389 + media ports on tailscale0" bash -c 'sudo -n ufw status | grep -q "3389/tcp on tailscale0" && sudo -n ufw status | grep -q "443,2022,2023,8080,8443/tcp on tailscale0"'
+check "krdp (RDP over tailnet) active"       systemctl --user is-active --quiet app-org.kde.krdpserver.service
+check "ydotool user daemon active"           systemctl --user is-active --quiet ydotool.service
+check "fleet-sync timer active"              systemctl --user is-active --quiet fleet-sync.timer
+
+echo "== gpu"
+check "nvidia-smi sees the RTX 3060"          bash -c 'nvidia-smi --query-gpu=name --format=csv,noheader | grep -q 3060'
+check "Docker has NVIDIA runtime configured" bash -c 'docker info --format "{{json .Runtimes}}" 2>/dev/null | grep -q nvidia || sudo -n docker info --format "{{json .Runtimes}}" | grep -q nvidia'
+
+echo "== autostart (login)"
+check "Claude RC chirac process in tmux"      has_claude chirac
+check "Claude RC brassens process in tmux"    has_claude brassens
+check "ChatGPT desktop running"              pgrep -u "$UID" -x ChatGPT
+
+echo "== display"
+check "NanoKVM (HDMI-A-2) mirrors HDMI-A-1"  bash -c 'kscreen-doctor -o 2>/dev/null | sed "s/\x1b\[[0-9;]*m//g" | awk "/HDMI-A-2/{f=1} f&&/replication source/{print; exit}" | grep -q "source:[1-9]"'
+
+echo
+echo "summary: ${pass} passed, ${fail} failed"
+[[ "$fail" -eq 0 ]]

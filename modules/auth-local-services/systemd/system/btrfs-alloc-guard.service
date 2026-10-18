@@ -1,0 +1,9 @@
+[Unit]
+Description=btrfs allocation guard (prevent chunk-exhaustion ENOSPC)
+Documentation=man:btrfs-balance(8)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/btrfs-alloc-guard /
+Nice=19
+IOSchedulingClass=idle

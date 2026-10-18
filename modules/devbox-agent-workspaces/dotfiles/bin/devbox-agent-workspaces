@@ -5,13 +5,24 @@ launch_workspace() {
   local name="$1"
   local repo="$2"
   local unit="devbox-claude-rc-${name}"
+  local session="claude-resume-${name}"
 
   if [[ ! -d "${repo}" ]]; then
     printf '[devbox-agent-workspaces] Missing %s workspace: %s\n' "${name}" "${repo}" >&2
     return 0
   fi
 
-  if systemctl --user is-active --quiet "${unit}.service"; then
+  # Reuse the tmux sessions used by the GPU's working recovery setup. Closing
+  # a desktop terminal must not terminate Claude or its remote connection.
+  if ! tmux has-session -t "=${session}" 2>/dev/null; then
+    local command
+    printf -v command 'claude --continue --remote-control %q || exec claude --remote-control %q' "$name" "$name"
+    tmux new-session -d -s "$session" -c "$repo" "$command"
+  fi
+
+  # A terminal may already be attached by the recovery setup or by the user.
+  if [[ -n "$(tmux list-clients -t "=${session}" -F '#{client_pid}' 2>/dev/null)" ]] ||
+    systemctl --user is-active --quiet "${unit}.service"; then
     return 0
   fi
 
@@ -19,20 +30,31 @@ launch_workspace() {
   # (window process starts, command never runs, no error), so use Konsole there.
   if [[ -e /proc/driver/nvidia/version ]]; then
     systemd-run --user --quiet --collect --unit="${unit}" \
+      --property=PartOf=graphical-session.target \
       /usr/bin/konsole --separate --workdir "${repo}" \
-      -e /usr/bin/claude --remote-control "${name}"
+      -e tmux attach-session -t "=${session}"
   else
     systemd-run --user --quiet --collect --unit="${unit}" \
+      --property=PartOf=graphical-session.target \
       /usr/bin/ghostty --working-directory="${repo}" \
-      -e /usr/bin/claude --remote-control "${name}"
+      -e tmux attach-session -t "=${session}"
   fi
 }
 
-launch_workspace brassens /home/dylan/code/brassens-monorepo
-launch_workspace chirac /home/dylan/code/chirac
+launch_workspace brassens "${HOME}/code/brassens-monorepo"
+launch_workspace chirac "${HOME}/code/chirac"
 
 if ! pgrep -u "${UID}" -x ChatGPT >/dev/null 2>&1; then
+  # chatgpt is the working packaged launcher on gpu; older installs provide
+  # codex-desktop. Keep both installations supported.
+  chatgpt_bin="$(command -v chatgpt || command -v codex-desktop || true)"
+  if [[ -z "$chatgpt_bin" ]]; then
+    printf '[devbox-agent-workspaces] ChatGPT Desktop is not installed.\n' >&2
+    exit 0
+  fi
   systemd-run --user --quiet --collect --unit=devbox-chatgpt-desktop.service \
-    /usr/bin/codex-desktop \
+    --property=PartOf=graphical-session.target \
+    --property=Restart=on-failure --property=RestartSec=5s \
+    "$chatgpt_bin" \
     || printf '[devbox-agent-workspaces] ChatGPT Desktop did not launch.\n' >&2
 fi

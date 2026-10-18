@@ -1,6 +1,9 @@
-# Open ChatGPT Desktop and one Claude Remote Control terminal for each primary project at KDE login.
+# Open ChatGPT Desktop and attach to persistent Claude project sessions at KDE login.
 
-description: Start ChatGPT Desktop and Claude Remote Control for Brassens and Chirac at login
+description: Start ChatGPT Desktop and tmux-backed Claude Remote Control at login
+
+requires:
+  - tmux
 
 dotfiles:
   - source: dotfiles/bin/devbox-agent-workspaces

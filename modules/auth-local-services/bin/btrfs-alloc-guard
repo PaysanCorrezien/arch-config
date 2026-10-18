@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# btrfs-alloc-guard — prevent btrfs chunk-allocation exhaustion on the existing VPS.
+#
+# Background: btrfs can return ENOSPC while `df` reports hundreds of GB free, because
+# the device is fully carved into chunks and metadata has no room to grow. The metric
+# that matters is UNALLOCATED space, which no ordinary disk monitor reports. Once it
+# reaches zero, `btrfs balance` itself fails, so this must act *before* that point.
+#
+# Behaviour: warn below WARN_GIB, auto-balance below ACT_GIB, escalate usage levels
+# only as needed (cheapest reclaim first). Logs to the journal under this unit name.
+
+set -uo pipefail
+
+MOUNT="${1:-/}"
+WARN_GIB=40      # log a warning below this much unallocated
+ACT_GIB=25       # start reclaiming below this
+TARGET_GIB=60    # stop reclaiming once we're back above this
+META_WARN_PCT=85 # metadata fullness that warrants attention
+
+log() { echo "$*"; }
+
+usage_bytes() { btrfs filesystem usage -b "$MOUNT" 2>/dev/null; }
+
+unalloc_gib() {
+  usage_bytes | awk '/Device unallocated:/ {printf "%d", $3/1024/1024/1024; found=1} END {if (!found) exit 1}'
+}
+
+meta_pct() {
+  btrfs filesystem df -b "$MOUNT" 2>/dev/null | awk -F'[ ,=]+' '
+    /^Metadata/ { for(i=1;i<=NF;i++){ if($i ~ /^total$/) t=$(i+1); if($i ~ /^used$/) u=$(i+1) } }
+    END { if (t>0) printf "%d", (u*100)/t; else exit 1 }'
+}
+
+UNALLOC=$(unalloc_gib) || { log "ERROR: cannot read Btrfs allocation; no balance attempted"; exit 1; }
+META=$(meta_pct) || { log "ERROR: cannot read Btrfs metadata; no balance attempted"; exit 1; }
+
+log "unallocated=${UNALLOC}GiB metadata=${META}% mount=${MOUNT}"
+
+# High metadata usage is only dangerous when there is little unallocated space left to
+# grow into. Warning on it unconditionally would fire every run and train us to ignore it.
+if [[ "$META" -ge "$META_WARN_PCT" && "$UNALLOC" -lt "$WARN_GIB" ]]; then
+  log "WARNING: metadata ${META}% full with only ${UNALLOC}GiB unallocated — metadata growth may fail"
+fi
+
+if [[ "$UNALLOC" -ge "$ACT_GIB" ]]; then
+  if [[ "$UNALLOC" -lt "$WARN_GIB" ]]; then
+    log "WARNING: unallocated ${UNALLOC}GiB is below warn threshold ${WARN_GIB}GiB"
+  fi
+  exit 0
+fi
+
+log "unallocated ${UNALLOC}GiB is below ${ACT_GIB}GiB — reclaiming half-empty chunks"
+
+# Cheapest first: -dusage=0 relocates nothing (frees only wholly-empty chunks).
+# Escalate only while still short of target, so we do the least I/O that works.
+for U in 0 5 10 20 35 50; do
+  CUR=$(unalloc_gib) || { log "ERROR: cannot refresh allocation; stopping"; exit 1; }
+  if [[ "$CUR" -ge "$TARGET_GIB" ]]; then
+    log "reached ${CUR}GiB unallocated — stopping"
+    break
+  fi
+  log "running: btrfs balance start -dusage=${U} ${MOUNT} (unallocated ${CUR}GiB)"
+  if ! btrfs balance start -dusage="$U" "$MOUNT" 2>&1; then
+    log "ERROR: balance -dusage=${U} failed (this is expected once unallocated is truly 0)"
+  fi
+done
+
+FINAL=$(unalloc_gib) || { log "ERROR: cannot read final allocation"; exit 1; }
+log "done: unallocated ${UNALLOC}GiB -> ${FINAL}GiB, metadata $(meta_pct)%"
+
+if [[ "$FINAL" -lt "$ACT_GIB" ]]; then
+  log "CRITICAL: still only ${FINAL}GiB unallocated after balancing — free real data (delete files) NOW; the filesystem is at risk of host-wide ENOSPC"
+  exit 1
+fi

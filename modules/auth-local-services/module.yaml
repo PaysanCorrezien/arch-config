@@ -1,0 +1,13 @@
+# Services recovered from the running vps1/auth installation.
+description: Existing VPS runners, maintenance timers and Hermes service
+
+packages:
+  - btrfs-progs
+  - procps-ng
+
+dotfiles:
+  - source: dotfiles/zshenv
+    target: ~/.zshenv
+
+post_install_hook: scripts/install.sh
+hook_behavior: ask

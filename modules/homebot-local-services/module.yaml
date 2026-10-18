@@ -1,0 +1,7 @@
+description: Homebot USB restic backup and Calibre auto-import services
+
+packages:
+  - restic
+
+post_install_hook: scripts/install.sh
+hook_behavior: ask

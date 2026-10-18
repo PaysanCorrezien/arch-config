@@ -1,14 +1,19 @@
-# GPU host media disk + SFTPGo
+# GPU host media disk + SFTPGo + anonymous tailnet WebDAV
 # Mounts the 8TB ext4 "media8" disk at /mnt/media8 and serves all of it with
 # SFTPGo in Docker, reachable over Tailscale only (via `tailscale serve`).
-# No credentials in the repo: SFTPGo's first-run page (/web/admin/setup)
-# creates the admin; add a user with home /srv/media8 and all permissions.
+# WebDAV exposes the complete disk read/write without credentials, but only
+# through Tailscale Serve. SFTPGo remains available for its authenticated web
+# interface; tailnet port 2022 is assigned to WebDAV for Homebot compatibility.
 
-description: Mount the 8TB media disk and serve it over the tailnet with SFTPGo
+description: Mount the 8TB media disk and serve it over the tailnet with SFTPGo and anonymous WebDAV
 
 requires:
   - docker
   - tailscale
+
+dotfiles:
+  - source: dotfiles/bin/gpu-boot-check
+    target: ~/.local/bin/gpu-boot-check
 
 post_install_hook: scripts/setup-media.sh
 hook_behavior: ask

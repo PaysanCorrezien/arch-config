@@ -2,6 +2,9 @@
 
 Host-based dcli configuration for CachyOS/Arch.
 
+See [host consolidation](docs/host-consolidation.md) for the setup recovered
+from the live gpu, vps1 and homebot installations and the remaining local data.
+
 ## Quick Start (Fresh CachyOS Install)
 
 1. Update the system and install required tools:

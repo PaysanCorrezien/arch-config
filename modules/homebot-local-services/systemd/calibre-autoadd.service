@@ -1,0 +1,9 @@
+[Unit]
+Description=Auto-import downloaded books into Calibre
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/calibre-autoadd.sh
+User=root

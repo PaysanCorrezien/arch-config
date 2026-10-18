@@ -1,0 +1,14 @@
+[Unit]
+Description=GitHub Actions Runner (PaysanCorrezien-chirac.chirac-vps1-1)
+After=network-online.target
+
+[Service]
+ExecStart=/home/dylan/actions-runner-chirac-1/runsvc.sh
+User=dylan
+WorkingDirectory=/home/dylan/actions-runner-chirac-1
+KillMode=process
+KillSignal=SIGTERM
+TimeoutStopSec=5min
+
+[Install]
+WantedBy=multi-user.target

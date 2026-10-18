@@ -1,0 +1,9 @@
+[Unit]
+Description=Restic backup of /data to USB disk
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/homebot-restic-backup
+Nice=19
+IOSchedulingClass=idle

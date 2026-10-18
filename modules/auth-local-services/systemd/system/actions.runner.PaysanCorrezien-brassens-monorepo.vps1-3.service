@@ -1,0 +1,14 @@
+[Unit]
+Description=GitHub Actions Runner (PaysanCorrezien-brassens-monorepo.vps1-3)
+After=network-online.target
+
+[Service]
+ExecStart=/home/dylan/actions-runner-3/runsvc.sh
+User=dylan
+WorkingDirectory=/home/dylan/actions-runner-3
+KillMode=process
+KillSignal=SIGTERM
+TimeoutStopSec=5min
+
+[Install]
+WantedBy=multi-user.target

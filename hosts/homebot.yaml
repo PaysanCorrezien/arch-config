@@ -16,7 +16,8 @@ enabled_modules:
   # - homebot-sddm           # DISABLED: SDDM autologin (headless server)
   - homebot-niri             # Host-specific Niri monitor/workspace config
   - onedrive                 # OneDrive client + config + user service
-  - homebot-data-disk        # 4TB data disk with btrfs + snapshots
+  - homebot-data-disk        # Existing @data subvolume on the root Btrfs filesystem
+  - homebot-local-services  # Existing USB restic backup and Calibre import timers
   - hermes                   # Hermes Agent + gateway/dashboard user services
 
 # Module processing mode
