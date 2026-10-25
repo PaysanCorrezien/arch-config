@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { spawnSync } = require('node:child_process');
+const directory = process.env.CLIPROXY_CONFIG_DIR || path.join(os.homedir(), '.config/cliproxyapi');
+const credentials = JSON.parse(fs.readFileSync(path.join(directory, 'credentials.json'), 'utf8'));
+const baseUrl = process.env.CLIPROXY_BASE_URL || 'http://gpu.tail66a3d.ts.net:8317';
+const result = spawnSync('codex', [
+  '-c', 'model_provider="fleet-proxy"',
+  '-c', 'model_providers.fleet-proxy.name="Fleet CLIProxyAPI"',
+  '-c', `model_providers.fleet-proxy.base_url=${JSON.stringify(baseUrl.replace(/\/$/, '') + '/v1')}`,
+  '-c', 'model_providers.fleet-proxy.wire_api="responses"',
+  '-c', 'model_providers.fleet-proxy.env_key="FLEET_PROXY_API_KEY"',
+  ...process.argv.slice(2),
+], { stdio: 'inherit', env: { ...process.env, FLEET_PROXY_API_KEY: credentials.client } });
+if (result.error) console.error(result.error.message);
+process.exit(result.status ?? 1);

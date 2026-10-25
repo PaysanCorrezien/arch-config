@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { spawnSync } = require('node:child_process');
+const directory = process.env.CLIPROXY_CONFIG_DIR || path.join(os.homedir(), '.config/cliproxyapi');
+const credentials = JSON.parse(fs.readFileSync(path.join(directory, 'credentials.json'), 'utf8'));
+const environment = {
+  ...process.env,
+  ANTHROPIC_BASE_URL: process.env.CLIPROXY_BASE_URL || 'http://gpu.tail66a3d.ts.net:8317',
+  ANTHROPIC_AUTH_TOKEN: credentials.client,
+};
+delete environment.ANTHROPIC_API_KEY;
+const result = spawnSync('claude', process.argv.slice(2), { stdio: 'inherit', env: environment });
+if (result.error) console.error(result.error.message);
+process.exit(result.status ?? 1);

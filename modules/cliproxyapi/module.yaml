@@ -1,0 +1,10 @@
+description: Central CLIProxyAPI gateway on Tailscale with private provider credentials
+
+packages:
+  - curl
+  - python
+  - nodejs
+  - tailscale
+
+post_install_hook: scripts/setup-cliproxyapi.sh
+hook_behavior: always

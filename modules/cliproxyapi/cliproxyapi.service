@@ -1,0 +1,15 @@
+[Unit]
+Description=CLIProxyAPI central agent gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=%h/.local/bin/cli-proxy-api -config %h/.config/cliproxyapi/config.yaml
+WorkingDirectory=%h/.config/cliproxyapi
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target
