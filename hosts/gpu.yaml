@@ -13,6 +13,7 @@ import:
 
 # Host-specific modules only
 enabled_modules:
+  - cliproxyapi              # Central subscription gateway; private credentials stay on gpu
   - tailscale-client-dns       # Public DNS survives Tailscale/exit-node outages
   - nvim-config              # Full LazyVim Neovim config
   - nvidia                   # Nvidia open drivers + CUDA + Wayland support
